@@ -1,18 +1,17 @@
-(ns hello-cljs.core
-  (:require [cljs.nodejs :as node]))
+(ns task1-cljs.core
+  (:require [cljs.nodejs :as node]
+            [task1-cljs.cljs-callbacks :as cb]))
 
 (node/enable-util-print!)
 
 (def cmd-argv
   (vec (drop 2 (.-argv node/process))))
 
-(def js-callback (js/require "../coffee/js_callback"))
 
 (defn -main []
-  (doseq [impl ["js_callback" "js_promise"]
-          :let [mod (str "../coffee/" impl)
-                f (js/require mod)]]
-    (f (clj->js cmd-argv)
+  (let [f cb/sum-from-files
+        impl "cljs callbacks"]
+    (f cmd-argv
        (fn [err data]
          (println impl)
          (if err

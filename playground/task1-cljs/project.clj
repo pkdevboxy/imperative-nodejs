@@ -1,4 +1,4 @@
-(defproject hello-cljs "0.1.0-SNAPSHOT"
+(defproject task1-cljs "0.1.0-SNAPSHOT"
   :description "FIXME: write this!"
   :url "http://example.com/FIXME"
 
@@ -25,10 +25,10 @@
                  :output "out/coffee"}
 
   :cljsbuild {
-    :builds [{:id "hello-cljs"
+    :builds [{:id "task1-cljs"
               :source-paths ["src"]
               :compiler {
-                :output-to "out/hello_cljs.js"
+                :output-to "out/task1_cljs.js"
                 :output-dir "out"
                 :target :nodejs
                 :optimizations :none

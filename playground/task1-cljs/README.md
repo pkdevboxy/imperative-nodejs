@@ -1,5 +1,5 @@
 Environment:
-`nvm use`
+`nvm use && lein npm install`
 
 Compilation:
 `lein compile`

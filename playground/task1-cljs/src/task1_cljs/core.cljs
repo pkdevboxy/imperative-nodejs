@@ -1,7 +1,8 @@
 (ns task1-cljs.core
   (:require [cljs.nodejs :as node]
             [task1-cljs.cljs-callbacks :as cb]
-            [task1-cljs.cljs-promise :as pr]))
+            [task1-cljs.cljs-promise :as pr]
+            [task1-cljs.cljs-async :as as]))
 
 (node/enable-util-print!)
 
@@ -11,7 +12,8 @@
 
 (defn -main []
   (doseq [[impl f] [["cljs callbacks" cb/sum-from-files]
-                    ["cljs promises" pr/sum-from-files]]]
+                    ["cljs promises" pr/sum-from-files]
+                    ["cljs async" as/sum-from-files]]]
     (f cmd-argv
        (fn [err data]
          (println impl)

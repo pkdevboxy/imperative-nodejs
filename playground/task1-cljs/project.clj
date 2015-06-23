@@ -4,7 +4,8 @@
 
   :dependencies [[org.clojure/clojure "1.7.0-beta2"]
                  [org.clojure/clojurescript "0.0-3308"]
-                 [funcool/promesa "0.1.3"]]
+                 [funcool/promesa "0.1.3"]
+                 [org.clojure/core.async "0.1.346.0-17112a-alpha"]]
 
   :node-dependencies [[source-map-support "0.2.8"]
                       [async "^1.2.1"]

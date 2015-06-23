@@ -1,0 +1,21 @@
+{
+  "name": "hello",
+  "version": "1.0.0",
+  "description": "\"Experiments with async io\"",
+  "main": "main.js",
+  "scripts": {
+    "test": "mocha",
+    "start": "(coffee --compile --output out src/*);node ./out/main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "coffee-script": "^1.9.3",
+    "mocha": "^2.2.5",
+    "should": "^7.0.1"
+  },
+  "dependencies": {
+    "async": "^1.2.1",
+    "bluebird": "^2.9.30"
+  }
+}

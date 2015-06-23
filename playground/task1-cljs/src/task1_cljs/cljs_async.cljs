@@ -1,8 +1,9 @@
 (ns task1-cljs.cljs-async
   (:require-macros [cljs.core.async.macros :refer [go]]
-                   [task1-cljs.macros :refer [node-require  <?]])
+                   [task1-cljs.macros :refer [node-require <?]])
 
-  (:require [cljs.core.async  :as async :refer [<! >!]]))
+  (:require [cljs.core.async :as async]
+            [task1-cljs.err :as err]))
 
 
 (node-require [fs])
@@ -16,13 +17,13 @@
 
 (defn sum-from-files [files c]
   (go
-    (let [numbers (async/merge (map read-file files) (count files))]
+    (try
+      (->> (<? (->> files
+                    (map read-file)
+                    async/merge
+                    (#(async/map (err/lift int) [%]))
+                    (async/reduce (err/lift +) 0)))
+           (c nil))
 
-      (try
-        (loop [sum 0]
-          (if-let [n (<? numbers)]
-            (recur (+ sum (int n)))
-            (c nil sum)))
-
-        (catch js/Error e
-          (c e))))))
+      (catch js/Error e
+        (c e)))))

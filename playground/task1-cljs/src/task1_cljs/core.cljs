@@ -13,8 +13,11 @@
 (defn -main []
   (doseq [[impl f] [["cljs callbacks" cb/sum-from-files]
                     ["cljs promises" pr/sum-from-files]
-                    ["cljs async" as/sum-from-files]]]
-    (f cmd-argv
+                    ["cljs async" as/sum-from-files]
+                    ["js callbacks" (js/require "../coffee/js_callback")]
+                    ["js promises" (js/require "../coffee/js_promise")]]]
+
+    (f (clj->js cmd-argv)
        (fn [err data]
          (println impl)
          (if err

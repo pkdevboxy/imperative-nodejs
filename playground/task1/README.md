@@ -1,3 +1,6 @@
+Установка нужной версии node:
+`cd playground/task1 && nvm use`
+
 Тесты:
 `npm test`
 

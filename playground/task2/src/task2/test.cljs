@@ -48,6 +48,16 @@
              (traverse 1 callback))))
 
 
+(deftest js-promise-traverse
+  (t/async done
+           (let [traverse (js/require "../coffee/js_promise")]
+             (-> (traverse 1)
+                 (.then
+                  (fn [path]
+                    (is (= (js->clj path)) [1 2 3 4])
+                    (done)))))))
+
+
 (deftest cljs-async-traverse
   (t/async done
            (go

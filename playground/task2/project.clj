@@ -7,7 +7,8 @@
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  [funcool/promesa "0.1.3"]]
 
-  :node-dependencies [[source-map-support "0.2.8"]]
+  :node-dependencies [[source-map-support "0.2.8"]
+                      [bluebird "^2.9.30"]]
 
   :plugins [[lein-cljsbuild "1.0.4"]
             [lein-npm "0.4.0"]

@@ -7,10 +7,10 @@ traverse = (k, callback) ->
     return callback(err) if err
 
     j = parseInt(data, 10)
-    if j == 0
-      callback(null, path)
-    else
+    if j > 0
       go(j)
+    else
+      callback(null, path)
 
   go = (i) ->
     path.push(i)

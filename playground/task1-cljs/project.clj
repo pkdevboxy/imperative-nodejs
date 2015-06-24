@@ -26,12 +26,13 @@
   :coffeescript {:sources "src/coffee/*.coffee"
                  :output "out/coffee"}
 
-  :cljsbuild {
-    :builds [{:id "task1-cljs"
-              :source-paths ["src"]
-              :compiler {
-                :output-to "out/task1_cljs.js"
-                :output-dir "out"
-                :target :nodejs
-                :optimizations :none
-                :source-map true}}]})
+  :cljsbuild
+  {:test-commands
+   {"all" ["node" "test.js"]}
+
+   :builds [{:source-paths ["src"]
+             :compiler {:output-to "out/task1_cljs.js"
+                        :output-dir "out"
+                        :target :nodejs
+                        :optimizations :none
+                        :source-map true}}]})

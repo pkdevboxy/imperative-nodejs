@@ -8,6 +8,15 @@
 
 (node-require [fs])
 
+
+(defn chan->callback [channel callback]
+  (go
+    (try
+      (callback nil (<? channel))
+      (catch js/Error e
+        (callback e)))))
+
+
 (defn read-file [f]
   (let [result (async/chan)]
     (.readFile fs f (fn [err data]
@@ -15,15 +24,14 @@
                       (async/close! result)))
     result))
 
-(defn sum-from-files [files callback]
-  (go
-    (try
-      (->> (<? (->> files
-                    (map read-file)
-                    async/merge
-                    (#(async/map (err/lift int) [%]))
-                    (async/reduce (err/lift +) 0)))
-           (callback nil))
 
-      (catch js/Error e
-        (callback e)))))
+(defn- sum-files [files]
+  (->> files
+       (map read-file)
+       async/merge
+       (#(async/map (err/lift int) [%]))
+       (async/reduce (err/lift +) 0)))
+
+
+(defn sum-from-files [files callback]
+  (chan->callback (sum-files files) callback))

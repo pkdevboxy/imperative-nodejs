@@ -31,6 +31,7 @@
    {"all" ["node" "test.js"]}
 
    :builds [{:source-paths ["src"]
+             :notify-command ["node" "test.js"]
              :compiler {:output-to "out/task1_cljs.js"
                         :output-dir "out"
                         :target :nodejs

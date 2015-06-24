@@ -13,6 +13,10 @@
             [lein-coffeescript "0.1.7"]
             [lein-auto "0.1.2"]]
 
+  :profiles {:dev {:dependencies [[com.cemerick/piggieback "0.2.1"]
+                                  [org.clojure/tools.nrepl "0.2.10"]]
+                   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}}
+
   :auto {"coffeescript" {:file-pattern #"\.coffee$"}}
 
   :hooks [lein-coffeescript.plugin
@@ -20,16 +24,20 @@
 
   :source-paths ["src"]
 
-  :coffeescript {:sources "src/coffee/*.coffee"
-                 :output "out/coffee"}
+  ;; :coffeescript {:sources "src/coffee/*.coffee"
+  ;;                :output "out/coffee"}
 
 
-  :cljsbuild {
-    :builds [{:id "task2"
-              :source-paths ["src"]
-              :compiler {
-                :output-to "out/task2.js"
-                :output-dir "out"
-                :target :nodejs
-                :optimizations :none
-                :source-map true}}]})
+  :cljsbuild
+  {:test-commands
+   {"all" ["node" "test.js"]}
+
+   :builds [{:id "task2"
+             :source-paths ["src"]
+             :notify-command ["node" "test.js"]
+
+             :compiler {:output-to "out/task2.js"
+                        :output-dir "out"
+                        :target :nodejs
+                        :optimizations :none
+                        :source-map true}}]})

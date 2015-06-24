@@ -6,7 +6,7 @@
   (:require [cljs.nodejs :as nodejs]
             [cljs.test :as t]
             [cljs.core.async :refer [<! timeout]]
-            [task2.cljs-async :refer [traverse]]))
+            [task2.cljs-async :as as]))
 
 (node-require fs)
 
@@ -34,11 +34,21 @@
    :after  #(set! (.-readFile fs) original-readFile)})
 
 
+(deftest js-callback-traverse
+  (t/async done
+           (let [traverse (js/require "../coffee/js_callbacks")
+                 callback (fn [err data]
+                            (is (nil? err))
+                            (is (= (js->clj data) [1 2 3 4]))
+                            (done))]
+
+             (traverse 1 callback))))
+
 
 (deftest async-traverse
   (t/async done
            (go
-             (let [path (<? (traverse 1))]
+             (let [path (<? (as/traverse 1))]
                (is (= path [1 2 3 4]))
                (done)))))
 

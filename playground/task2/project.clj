@@ -24,8 +24,8 @@
 
   :source-paths ["src"]
 
-  ;; :coffeescript {:sources "src/coffee/*.coffee"
-  ;;                :output "out/coffee"}
+  :coffeescript {:sources "src/coffee/*.coffee"
+                 :output "out/coffee"}
 
 
   :cljsbuild

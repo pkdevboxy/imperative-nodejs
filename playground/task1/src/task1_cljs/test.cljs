@@ -1,14 +1,14 @@
-(ns task1-cljs.test
+(ns task1.test
   (:require-macros [cljs.test :refer [is deftest run-tests testing]]
-                   [task1-cljs.macros :refer [node-require]]
+                   [task1.macros :refer [node-require]]
                    [cljs.core.async.macros :refer [go]])
 
   (:require [cljs.nodejs :as node]
             [cljs.core.async :as async :refer [<! chan take!]]
             [cljs.test :as t]
-            [task1-cljs.cljs-callbacks :as cb]
-            [task1-cljs.cljs-promise :as pr]
-            [task1-cljs.cljs-async :as as]))
+            [task1.cljs-callbacks :as cb]
+            [task1.cljs-promise :as pr]
+            [task1.cljs-async :as as]))
 
 (node-require [fs])
 
@@ -61,6 +61,6 @@
 
 
 (defn -main []
-  (run-tests 'task1-cljs.test))
+  (run-tests 'task1.test))
 
 (set! *main-cli-fn* -main)

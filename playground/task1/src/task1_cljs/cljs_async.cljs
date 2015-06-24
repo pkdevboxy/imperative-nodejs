@@ -1,9 +1,9 @@
-(ns task1-cljs.cljs-async
+(ns task1.cljs-async
   (:require-macros [cljs.core.async.macros :refer [go]]
-                   [task1-cljs.macros :refer [node-require <?]])
+                   [task1.macros :refer [node-require <?]])
 
   (:require [cljs.core.async :as async]
-            [task1-cljs.err :as err]))
+            [task1.err :as err]))
 
 
 (node-require [fs])

@@ -1,4 +1,4 @@
-(defproject task1-cljs "0.1.0-SNAPSHOT"
+(defproject task1 "0.1.0-SNAPSHOT"
   :description "FIXME: write this!"
   :url "http://example.com/FIXME"
 
@@ -32,7 +32,7 @@
 
    :builds [{:source-paths ["src"]
              :notify-command ["node" "test.js"]
-             :compiler {:output-to "out/task1_cljs.js"
+             :compiler {:output-to "out/task1.js"
                         :output-dir "out"
                         :target :nodejs
                         :optimizations :none

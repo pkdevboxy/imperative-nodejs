@@ -1,5 +1,5 @@
-(ns task1-cljs.cljs-callbacks
-  (:require-macros [task1-cljs.macros :refer [node-require]])
+(ns task1.cljs-callbacks
+  (:require-macros [task1.macros :refer [node-require]])
   (:require [cljs.nodejs :as node]))
 
 (node-require [fs])

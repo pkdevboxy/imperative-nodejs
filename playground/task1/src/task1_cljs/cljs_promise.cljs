@@ -1,5 +1,5 @@
-(ns task1-cljs.cljs-promise
-  (:require-macros [task1-cljs.macros :refer [node-require]])
+(ns task1.cljs-promise
+  (:require-macros [task1.macros :refer [node-require]])
   (:require [promesa.core :as p]))
 
 (node-require [fs])

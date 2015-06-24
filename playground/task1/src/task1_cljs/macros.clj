@@ -1,4 +1,4 @@
-(ns task1-cljs.macros)
+(ns task1.macros)
 
 (defmacro node-require [ & bindings]
   `(do
@@ -6,5 +6,5 @@
          `(def ~name (js/require ~(str name))))))
 
 (defmacro <? [chan]
-  `(task1-cljs.err/throw-err
+  `(task1.err/throw-err
     (cljs.core.async/<! ~chan)))

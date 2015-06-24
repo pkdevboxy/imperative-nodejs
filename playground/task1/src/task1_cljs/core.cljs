@@ -1,8 +1,8 @@
-(ns task1-cljs.core
+(ns task1.core
   (:require [cljs.nodejs :as node]
-            [task1-cljs.cljs-callbacks :as cb]
-            [task1-cljs.cljs-promise :as pr]
-            [task1-cljs.cljs-async :as as]))
+            [task1.cljs-callbacks :as cb]
+            [task1.cljs-promise :as pr]
+            [task1.cljs-async :as as]))
 
 (node/enable-util-print!)
 

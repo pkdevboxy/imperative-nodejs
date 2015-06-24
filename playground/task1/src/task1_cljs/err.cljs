@@ -1,4 +1,4 @@
-(ns task1-cljs.err
+(ns task1.err
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async  :as async :refer [<!]]))
 

@@ -5,27 +5,27 @@
 (node-require [fs])
 
 
-(defn- map-cb [f coll c]
+(defn- map-cb [f coll callback]
   (if (empty? coll)
-    (c nil [])
+    (callback nil [])
 
     (let [results (atom [])
           cb (fn [err data]
                (if err
-                 (c err)
+                 (callback err)
                  (do
                    (swap! results conj data)
                    (when (= (count @results) (count coll))
-                     (c nil @results)))))]
+                     (callback nil @results)))))]
 
       (doseq [x coll]
         (f x cb)))))
 
-(defn sum-from-files [files c]
+(defn sum-from-files [files callback]
   (map-cb (.-readFile fs) files
           (fn [err data]
             (if err
-              (c err)
-              (c nil (->> data
-                          (map int)
-                          (reduce +)))))))
+              (callback err)
+              (callback nil (->> data
+                                 (map int)
+                                 (reduce +)))))))

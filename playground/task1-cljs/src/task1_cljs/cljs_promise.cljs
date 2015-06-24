@@ -13,8 +13,8 @@
                                       (resolve data)))))))
 
 
-(defn sum-from-files [files c]
+(defn sum-from-files [files callback]
   (-> (p/all (map read-file files))
       (p/then #(->> % (map int) (reduce +)))
-      (p/then #(c nil %))
-      (p/catch #(c %))))
+      (p/then #(callback nil %))
+      (p/catch #(callback %))))

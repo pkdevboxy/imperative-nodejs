@@ -15,7 +15,7 @@
                       (async/close! result)))
     result))
 
-(defn sum-from-files [files c]
+(defn sum-from-files [files callback]
   (go
     (try
       (->> (<? (->> files
@@ -23,7 +23,7 @@
                     async/merge
                     (#(async/map (err/lift int) [%]))
                     (async/reduce (err/lift +) 0)))
-           (c nil))
+           (callback nil))
 
       (catch js/Error e
-        (c e)))))
+        (callback e)))))

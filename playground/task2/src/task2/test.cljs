@@ -6,7 +6,10 @@
   (:require [cljs.nodejs :as nodejs]
             [cljs.test :as t]
             [cljs.core.async :refer [<! timeout]]
-            [task2.cljs-async :as as]))
+            [promesa.core :as p]
+            [task2.cljs-async :as as]
+            [task2.cljs-promise :as pr]
+            [task2.node-lib.utils :as utils]))
 
 (node-require fs)
 
@@ -45,12 +48,25 @@
              (traverse 1 callback))))
 
 
-(deftest async-traverse
+(deftest cljs-async-traverse
   (t/async done
            (go
              (let [path (<? (as/traverse 1))]
                (is (= path [1 2 3 4]))
                (done)))))
+
+
+(deftest cljs-promise-traverse
+  (t/async done
+           (-> (pr/traverse 1)
+               (p/then (fn [path]
+                         (is (= path [1 2 3 4]))
+                         (done))))))
+
+
+(deftest str->int
+  (is (= 92 (utils/str->int "92")))
+  (is (thrown? js/Error (utils/str->int "spam"))))
 
 
 (defn -main []

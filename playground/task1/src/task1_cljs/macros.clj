@@ -3,7 +3,7 @@
 (defmacro node-require [ & bindings]
   `(do
      ~@(for [[name]  bindings]
-         `(def ~name (js/require ~(str name))))))
+         `(def ^:private ~name (js/require ~(str name))))))
 
 (defmacro <? [chan]
   `(task1.err/throw-err

@@ -3,15 +3,15 @@ fs = Promise.promisifyAll(require 'fs')
 utils = require './utils'
 
 
-sumFiles = (files, cb) ->
+sumFiles = (files, callback) ->
   reads = files.map((x) -> fs.readFileAsync(x))
 
   Promise.all(reads)
   .then (data) ->
     utils.sumStringsAsNumbers(data)
   .then(
-    ((data) -> cb(null, data)),
-    ((err) -> cb(err))
+    ((data) -> callback(null, data)),
+    ((err) -> callback(err))
   )
 
 

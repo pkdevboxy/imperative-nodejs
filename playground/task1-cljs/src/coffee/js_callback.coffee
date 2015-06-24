@@ -3,12 +3,12 @@ async = require 'async'
 utils = require './utils'
 
 
-sumFiles = (fileNames, f) ->
+sumFiles = (fileNames, callback) ->
   async.map(fileNames, fs.readFile, (err, result) ->
     if err
-      f(err)
+      callback(err)
     else
-      f(null, utils.sumStringsAsNumbers(result))
+      callback(null, utils.sumStringsAsNumbers(result))
   )
 
 

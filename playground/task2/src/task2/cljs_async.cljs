@@ -8,10 +8,12 @@
 
 
 (defn- next-number [x]
-  (fs/file-chan x))
+  {:pre (integer? x)}
+  (async/map (err/lift int) [(fs/file-chan (str x))]))
 
 
 (defn traverse [k]
+  {:pre (integer? k)}
   (go-loop?
    [i k path []]
    (let [new-path (conj path i)

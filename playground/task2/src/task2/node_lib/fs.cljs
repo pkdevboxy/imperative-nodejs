@@ -8,4 +8,5 @@
 (defn file-chan
   "Creates a chanel with text file contents"
   [path]
+  {:pre (string? path)}
   ((utils/callback->chan (.-readFile fs)) path))

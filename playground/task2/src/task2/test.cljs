@@ -38,8 +38,8 @@
 (deftest async-traverse
   (t/async done
            (go
-             (let [path  (<? (traverse "1"))]
-               (is (= path ["1" "2" "3" "4"]))
+             (let [path (<? (traverse 1))]
+               (is (= path [1 2 3 4]))
                (done)))))
 
 

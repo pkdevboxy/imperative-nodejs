@@ -35,7 +35,7 @@
    {"all" ["node" "test.js"]}
 
    :builds [{:id "task2"
-             :source-paths ["src"]
+             :source-paths ["src" "test"]
              :notify-command ["node" "test.js"]
 
              :compiler {:output-to "out/task2.js"

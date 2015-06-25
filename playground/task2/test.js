@@ -4,5 +4,5 @@ try {
 }
 require("./out/goog/bootstrap/nodejs.js");
 require("./out/task2.js");
-goog.require("task2.test");
+goog.require("task2.test_runner");
 goog.require("cljs.nodejscli");

@@ -1,28 +1,26 @@
-(ns task2.test
-  (:require-macros [cljs.test :refer [is deftest run-tests testing]]
-                   [cljs.core.async.macros :refer [go]]
+(ns task2.core-test
+  (:require-macros [cljs.core.async.macros :refer [go]]
+                   [cljs.test :refer [deftest is]]
                    [task2.node-lib.macros :refer [node-require <?]])
 
-  (:require [cljs.nodejs :as nodejs]
+  (:require [cljs.core.async :refer [<! timeout]]
             [cljs.test :as t]
-            [cljs.core.async :refer [<! timeout]]
             [promesa.core :as p]
             [task2.cljs-async :as as]
-            [task2.cljs-promise :as pr]
-            [task2.node-lib.utils :as utils]))
+            [task2.cljs-promise :as pr]))
 
 (node-require fs)
 
 
-(nodejs/enable-util-print!)
-
 (def original-readFile (.-readFile fs))
+
 
 (def hops-map
   {"1" "2"
    "2" "3"
    "3" "4"
    "4" "0"})
+
 
 (defn- mock-readFile [name callback]
   (go
@@ -72,14 +70,3 @@
                (p/then (fn [path]
                          (is (= path [1 2 3 4]))
                          (done))))))
-
-
-(deftest str->int
-  (is (= 92 (utils/str->int "92")))
-  (is (thrown? js/Error (utils/str->int "spam"))))
-
-
-(defn -main []
-  (run-tests 'task2.test))
-
-(set! *main-cli-fn* -main)

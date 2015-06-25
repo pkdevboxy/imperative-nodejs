@@ -1,9 +1,9 @@
-(ns task2.cljs-async-test
-  (:require-macros [task2.node-lib.macros :refer [<?]]
+(ns playground.task2.cljs-async-test
+  (:require-macros [playground.node-lib.macros :refer [<?]]
                    [cljs.core.async.macros :refer [go]])
   (:require [cljs.test :as t :refer-macros [deftest is]]
-            [task2.test-utils :refer [mock-readFile-fixture]]
-            [task2.cljs-async :refer [traverse]]))
+            [playground.task2.test-utils :refer [mock-readFile-fixture]]
+            [playground.task2.cljs-async :refer [traverse]]))
 
 
 (t/use-fixtures :each mock-readFile-fixture)

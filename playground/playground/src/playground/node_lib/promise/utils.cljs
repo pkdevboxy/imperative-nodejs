@@ -1,4 +1,4 @@
-(ns task2.node-lib.promise.utils
+(ns playground.node-lib.promise.utils
   (:require [promesa.core :as p]))
 
 

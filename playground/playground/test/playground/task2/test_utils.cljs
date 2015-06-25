@@ -1,6 +1,6 @@
-(ns task2.test-utils
+(ns playground.task2.test-utils
   (:require-macros [cljs.core.async.macros :refer [go]]
-                   [task2.node-lib.macros :refer [node-require]])
+                   [playground.node-lib.macros :refer [node-require]])
   (:require [cljs.core.async :as async :refer [<!]]))
 
 (node-require fs)

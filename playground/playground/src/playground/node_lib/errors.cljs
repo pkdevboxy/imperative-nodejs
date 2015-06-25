@@ -1,4 +1,4 @@
-(ns task2.node-lib.errors)
+(ns playground.node-lib.errors)
 
 (defn- is-error? [x]
   (instance? js/Error x))

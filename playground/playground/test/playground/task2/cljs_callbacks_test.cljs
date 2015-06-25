@@ -1,7 +1,7 @@
-(ns task2.cljs-callback-test
+(ns playground.task2.cljs-callback-test
   (:require [cljs.test :as t :refer-macros [deftest is]]
-            [task2.test-utils :refer [mock-readFile-fixture]]
-            [task2.cljs-callbacks :refer [traverse]]))
+            [playground.task2.test-utils :refer [mock-readFile-fixture]]
+            [playground.task2.cljs-callbacks :refer [traverse]]))
 
 (t/use-fixtures :each mock-readFile-fixture)
 

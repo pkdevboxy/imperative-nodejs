@@ -1,7 +1,7 @@
-(ns task2.node-lib.promise.fs
-  (:require-macros [task2.node-lib.macros :refer [node-require]])
+(ns playground.node-lib.promise.fs
+  (:require-macros [playground.node-lib.macros :refer [node-require]])
   (:require [promesa.core :as p]
-            [task2.node-lib.promise.utils :as utils]))
+            [playground.node-lib.promise.utils :as utils]))
 
 (node-require fs)
 

@@ -1,7 +1,7 @@
-(ns task2.cljs-promise
+(ns playground.task2.cljs-promise
   (:require [promesa.core :as p]
-            [task2.node-lib.promise.fs :as fs]
-            [task2.node-lib.utils :as utils]))
+            [playground.node-lib.promise.fs :as fs]
+            [playground.node-lib.utils :as utils]))
 
 
 (defn traverse [k]

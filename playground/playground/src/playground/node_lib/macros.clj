@@ -1,4 +1,4 @@
-(ns task2.node-lib.macros)
+(ns playground.node-lib.macros)
 
 (defmacro node-require
   "Imports node modules.
@@ -12,7 +12,7 @@
 (defmacro <?
   "Fetches a value from chan like <! an throws it if it is an error."
   [chan]
-  `(task2.node-lib.errors/throw-error
+  `(playground.node-lib.errors/throw-error
     (cljs.core.async/<! ~chan)))
 
 

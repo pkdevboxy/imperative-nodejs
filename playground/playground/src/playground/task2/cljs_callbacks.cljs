@@ -1,6 +1,6 @@
-(ns task2.cljs-callbacks
-  (:require-macros [task2.node-lib.macros :refer [node-require]])
-  (:require [task2.node-lib.utils :as utils]))
+(ns playground.task2.cljs-callbacks
+  (:require-macros [playground.node-lib.macros :refer [node-require]])
+  (:require [playground.node-lib.utils :as utils]))
 
 (node-require fs)
 

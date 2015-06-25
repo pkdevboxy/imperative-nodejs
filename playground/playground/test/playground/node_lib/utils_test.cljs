@@ -1,5 +1,5 @@
-(ns task2.node-lib.utils-test
-  (:require [task2.node-lib.utils :as utils]
+(ns playground.node-lib.utils-test
+  (:require [playground.node-lib.utils :as utils]
             [cljs.test :as t :refer-macros [deftest is]]))
 
 

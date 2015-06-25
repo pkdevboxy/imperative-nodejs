@@ -3,6 +3,6 @@ try {
 } catch(err) {
 }
 require("./out/goog/bootstrap/nodejs.js");
-require("./out/task2.js");
-goog.require("task2.test_runner");
+require("./out/playground.js");
+goog.require("playground.test_runner");
 goog.require("cljs.nodejscli");

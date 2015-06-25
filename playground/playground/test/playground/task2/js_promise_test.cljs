@@ -1,8 +1,8 @@
-(ns task2.js-promise-test
+(ns playground.task2.js-promise-test
   (:require  [cljs.test :as t :refer-macros [deftest is]]
-             [task2.test-utils  :refer [mock-readFile-fixture]]))
+             [playground.task2.test-utils  :refer [mock-readFile-fixture]]))
 
-(def ^:private traverse (js/require "../coffee/js_promise"))
+(def ^:private traverse (js/require "./coffee/js_promise"))
 
 (t/use-fixtures :each mock-readFile-fixture)
 

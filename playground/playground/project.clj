@@ -1,4 +1,4 @@
-(defproject task2 "0.1.0-SNAPSHOT"
+(defproject playground "0.1.0-SNAPSHOT"
   :description "FIXME: write this!"
   :url "http://example.com/FIXME"
 
@@ -26,19 +26,18 @@
 
   :source-paths ["src"]
 
-  :coffeescript {:sources "src/coffee/*.coffee"
-                 :output "out/coffee"}
+  :coffeescript {:sources "src/playground/task2/coffee/"
+                 :output "out/playground/task2/coffee"}
 
 
   :cljsbuild
   {:test-commands
    {"all" ["node" "test.js"]}
 
-   :builds [{:id "task2"
-             :source-paths ["src" "test"]
+   :builds [{:source-paths ["src" "test"]
              :notify-command ["node" "test.js"]
 
-             :compiler {:output-to "out/task2.js"
+             :compiler {:output-to "out/playground.js"
                         :output-dir "out"
                         :target :nodejs
                         :optimizations :none

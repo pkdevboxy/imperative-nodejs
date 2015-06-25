@@ -7,9 +7,9 @@
             [task2.node-lib.fs :as fs]))
 
 
-(defn- next-number [x]
+(defn- <next-number [x]
   {:pre (integer? x)}
-  (async/map (err/lift int) [(fs/file-chan (str x))]))
+  (async/map (err/lift int) [(fs/<read-file (str x))]))
 
 
 (defn traverse [k]
@@ -17,7 +17,7 @@
   (go-loop?
    [i k path []]
    (let [new-path (conj path i)
-         j (<? (next-number i))]
+         j (<? (<next-number i))]
      (if (< 0 j)
        (recur j new-path)
        new-path))))

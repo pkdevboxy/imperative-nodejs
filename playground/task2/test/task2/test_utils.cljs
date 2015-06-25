@@ -16,14 +16,16 @@
 (defn mock-readFile
   "Creates a mocking fixture for `fs.readFile`.
    files should be a map from file names to contents."
-  [files]
-  (let [original-readFile (.-readFile fs)
-        mock-readFile (fn [name callback]
-                        (go
-                          (<! (async/timeout (rand-int 30)))
-                          (if-let [next (files name)]
-                            (callback nil next)
-                            (callback (js/Error "No such file")))))]
+  ([] (mock-readFile default-files))
 
-    {:before #(set! (.-readFile fs) mock-readFile)
-     :after  #(set! (.-readFile fs) original-readFile)}))
+  ([files]
+   (let [original-readFile (.-readFile fs)
+         mock-readFile (fn [name callback]
+                         (go
+                           (<! (async/timeout (rand-int 30)))
+                           (if-let [next (files name)]
+                             (callback nil next)
+                             (callback (js/Error "No such file")))))]
+
+     {:before #(set! (.-readFile fs) mock-readFile)
+      :after  #(set! (.-readFile fs) original-readFile)})))

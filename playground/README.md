@@ -5,7 +5,7 @@ Compilation: `lein compile`
 
 Running: no running, only tests
 
-Testing: `lein test`
+Testing: `lein test` or `lein test-task1`
 
 Auto rebuilds and tests:
 

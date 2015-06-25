@@ -31,15 +31,21 @@
                   :output "out/playground/task1/coffee"}
 
                  {:sources "src/playground/task2/coffee/"
-                 :output "out/playground/task2/coffee"}]
+                  :output "out/playground/task2/coffee"}]
+
+  :aliases {"test" ["do" "coffeescript" ["cljsbuild" "test"]]
+            "test-task1" ["do" "coffeescript" ["cljsbuild" "test" "task1"]]
+            "test-task2" ["do" "coffeescript" ["cljsbuild" "test" "task2"]]}
 
 
   :cljsbuild
   {:test-commands
-   {"all" ["node" "test.js"]}
+   {"task1" ["node" "test.js" "task1"]
+    "task2" ["node" "test.js" "task2"]}
 
-   :builds [{:source-paths ["src" "test"]
-             :notify-command ["node" "test.js"]
+   :builds [{:id "playground"
+             :source-paths ["src" "test"]
+             ;; :notify-command ["node" "test.js"]
 
              :compiler {:output-to "out/playground.js"
                         :output-dir "out"

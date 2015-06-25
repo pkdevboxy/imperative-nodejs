@@ -10,6 +10,7 @@
             playground.task2.cljs-callback-test
             playground.task2.js-callback-test
             playground.task2.js-promise-test
+            playground.task3.cljs-async-test
             playground.node-lib.utils-test))
 
 (nodejs/enable-util-print!)
@@ -20,6 +21,9 @@
 (defn- test-task2 []
   (run-all-tests #"playground.task2.*-test"))
 
+(defn- test-task3 []
+  (run-all-tests #"playground.task3.*-test"))
+
 (defn- test-all []
   (run-all-tests #"playground.*-test"))
 
@@ -27,6 +31,7 @@
   (case (process/argv)
     ["task1"] (test-task1)
     ["task2"] (test-task2)
+    ["task3"] (test-task3)
     (test-all)))
 
 (set! *main-cli-fn* -main)

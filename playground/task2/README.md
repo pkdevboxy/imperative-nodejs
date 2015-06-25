@@ -5,7 +5,7 @@ Compilation: `lein compile`
 
 Running: no running, only tests
 
-Testing: `test.js`
+Testing: `lein test`
 
 Auto rebuilds and tests:
 
@@ -15,4 +15,4 @@ Auto rebuilds and tests:
 
 Note:
 `lein compile` will throw error for the first time, because tests are setup to
-run after every `cljsbuild` and `cljsbuild` happens before `coffeescript`
+run after every `cljsbuild` and `cljsbuild` happens before `coffeescript`.

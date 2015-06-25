@@ -5,6 +5,7 @@
 
             task2.cljs-async-test
             task2.cljs-promise-test
+            task2.cljs-callback-test
             task2.js-callback-test
             task2.js-promise-test
             task2.node-lib.utils-test))

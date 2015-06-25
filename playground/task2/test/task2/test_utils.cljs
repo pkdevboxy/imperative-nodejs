@@ -6,26 +6,24 @@
 (node-require fs)
 
 
-(def ^:private default-files
+(def ^:private files
   {"1" "2"
    "2" "3"
    "3" "4"
    "4" "0"})
 
 
-(defn mock-readFile
-  "Creates a mocking fixture for `fs.readFile`.
-   files should be a map from file names to contents."
-  ([] (mock-readFile default-files))
+(defn- mock-readFile [name callback]
+  (go
+    (<! (async/timeout (rand-int 30)))
+    (if-let [next (files name)]
+      (callback nil next)
+      (callback (js/Error "No such file")))))
 
-  ([files]
-   (let [original-readFile (.-readFile fs)
-         mock-readFile (fn [name callback]
-                         (go
-                           (<! (async/timeout (rand-int 30)))
-                           (if-let [next (files name)]
-                             (callback nil next)
-                             (callback (js/Error "No such file")))))]
+(def ^:private original-readFile (.-readFile fs))
 
-     {:before #(set! (.-readFile fs) mock-readFile)
-      :after  #(set! (.-readFile fs) original-readFile)})))
+
+(def mock-readFile-fixture
+  "A mocking fixture for `fs.readFile`."
+  {:before #(set! (.-readFile fs) mock-readFile)
+   :after  #(set! (.-readFile fs) original-readFile)})

@@ -1,0 +1,1 @@
+{"version":3,"file":"\/home\/user\/projects\/imperative-nodejs\/playground\/out\/playground\/task2\/core.js","sources":["core.cljs"],"lineCount":11,"mappings":";AAAC;;;AAGD,AAACA;AAED,8BAAA,9BAAMC;AAAN,AACE,mCAAA,5BAACC;;AAEH,AAAMC,oCAAcF","names":["cljs.nodejs\/enable-util-print!","playground.task2.core\/-main","cljs.core\/println","cljs.core\/*main-cli-fn*"]}

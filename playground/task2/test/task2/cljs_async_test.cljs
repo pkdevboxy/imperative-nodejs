@@ -9,9 +9,16 @@
 (t/use-fixtures :each mock-readFile-fixture)
 
 
-(deftest cljs-async-traverse
+(deftest traverse-ok
   (t/async done
            (go
              (let [path (<? (traverse 1))]
                (is (= path [1 2 3 4]))
                (done)))))
+
+
+(deftest traverse-no-file
+  (t/async done
+           (go
+             (is (thrown? js/Error (<? (traverse 92))))
+             (done))))

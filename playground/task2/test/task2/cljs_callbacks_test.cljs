@@ -6,9 +6,15 @@
 (t/use-fixtures :each mock-readFile-fixture)
 
 
-(deftest cljs-callback-traverse
+(deftest traverse-ok
   (t/async done
            (traverse 1 (fn [err data]
                          (is (nil? err))
                          (is (= data [1 2 3 4]))
                          (done)))))
+
+(deftest traverse-no-file
+  (t/async done
+           (traverse 92 (fn [err data]
+                          (is err)
+                          (done)))))

@@ -6,10 +6,18 @@
 
 (t/use-fixtures :each mock-readFile-fixture)
 
-(deftest js-promise-traverse
+(deftest traverse-ok
   (t/async done
            (-> (traverse 1)
                (.then
                 (fn [path]
                   (is (= (js->clj path)) [1 2 3 4])
+                  (done))))))
+
+(deftest traverse-no-file
+  (t/async done
+           (-> (traverse 92)
+               (.catch
+                (fn [err]
+                  (is err)
                   (done))))))

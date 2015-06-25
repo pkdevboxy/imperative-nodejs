@@ -7,7 +7,7 @@
 (t/use-fixtures :each mock-readFile-fixture)
 
 
-(deftest js-callback-traverse
+(deftest traverse-ok
   (t/async done
            (let [callback (fn [err data]
                             (is (nil? err))
@@ -15,3 +15,11 @@
                             (done))]
 
              (traverse 1 callback))))
+
+(deftest traverse-no-file
+  (t/async done
+           (let [callback (fn [err data]
+                            (is err)
+                            (done))]
+
+             (traverse 92 callback))))

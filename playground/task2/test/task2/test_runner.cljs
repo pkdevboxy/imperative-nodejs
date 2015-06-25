@@ -3,7 +3,10 @@
   (:require [cljs.nodejs :as nodejs]
             [cljs.test :as t]
 
-            task2.core-test
+            task2.cljs-async-test
+            task2.cljs-promise-test
+            task2.js-callback-test
+            task2.js-promise-test
             task2.node-lib.utils-test))
 
 (nodejs/enable-util-print!)

@@ -10,7 +10,7 @@
             (-> (fs/read-file (str i))
                 (p/then utils/str->int)
                 (p/then (fn [j]
-                          (if (< 0 j)
+                          (if (pos? j)
                             (step j (conj path i))
                             (conj path i))))))]
     (step k [])))

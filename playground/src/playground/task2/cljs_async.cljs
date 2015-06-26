@@ -18,6 +18,6 @@
    [i k path []]
    (let [new-path (conj path i)
          j (<? (<next-number i))]
-     (if (< 0 j)
+     (if (pos? j)
        (recur j new-path)
        new-path))))

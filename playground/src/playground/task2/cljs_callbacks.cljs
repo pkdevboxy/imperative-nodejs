@@ -14,7 +14,7 @@
             (if err
               (callback err)
               (let [j (utils/str->int data)]
-                (if (< 0 j)
+                (if (pos? j)
                   (go j path)
                   (callback nil path)))))]
 

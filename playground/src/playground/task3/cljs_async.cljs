@@ -8,7 +8,7 @@
 (defn process-requests
   [<requests]
   (let [process-request
-        (fn [request]
-          (async/map (fn [x] [request x]) [(fs/<read-file request)]))]
+        (fn [request] (async/map (fn [response] [request response])
+                                 [(fs/<read-file request)]))]
 
     (autils/flatmap process-request <requests)))

@@ -11,8 +11,8 @@
                       [async "^1.2.1"]
                       [bluebird "^2.9.30"]]
 
-  :plugins [[lein-cljsbuild "1.0.4"]
-            [lein-npm "0.4.0"]
+  :plugins [[lein-cljsbuild "1.0.6"]
+            [lein-npm "0.5.0"]
             [lein-coffeescript "0.1.7"]
             [lein-auto "0.1.2"]]
 

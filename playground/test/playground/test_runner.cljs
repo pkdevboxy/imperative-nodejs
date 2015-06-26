@@ -5,12 +5,15 @@
             [playground.node-lib.process :as process]
 
             playground.task1.core-test
+
             playground.task2.cljs-async-test
             playground.task2.cljs-promise-test
             playground.task2.cljs-callback-test
             playground.task2.js-callback-test
             playground.task2.js-promise-test
+
             playground.task3.cljs-async-test
+
             playground.node-lib.utils-test))
 
 (nodejs/enable-util-print!)

@@ -6,7 +6,7 @@
 (node-require fs)
 
 
-(def ^:private files
+(def mock-fs
   {"1" "2"
    "2" "3"
    "3" "4"
@@ -14,9 +14,10 @@
 
 
 (defn- mock-readFile [name callback]
+  {:pre (some? callback)}
   (go
     (<! (async/timeout (rand-int 30)))
-    (if-let [next (files name)]
+    (if-let [next (mock-fs name)]
       (callback nil next)
       (callback (js/Error "No such file")))))
 

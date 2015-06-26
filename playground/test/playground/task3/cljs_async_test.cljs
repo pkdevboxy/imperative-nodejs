@@ -6,8 +6,6 @@
             [playground.test-fixtures :refer [mock-readFile-fixture mock-fs]]
             [playground.task3.cljs-async :refer [process-requests]]))
 
-(node-require fs)
-
 (t/use-fixtures :each mock-readFile-fixture)
 
 (deftest process-requests-test

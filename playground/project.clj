@@ -28,10 +28,13 @@
   :source-paths ["src"]
 
   :coffeescript [{:sources "src/playground/task1/coffee/"
-                  :output "out/playground/task1/coffee"}
+                  :output  "out/playground/task1/coffee"}
 
                  {:sources "src/playground/task2/coffee/"
-                  :output "out/playground/task2/coffee"}]
+                  :output  "out/playground/task2/coffee"}
+
+                 {:sources "src/playground/task3/coffee/"
+                  :output  "out/playground/task3/coffee"}]
 
   :aliases {"test" ["do" "coffeescript" ["cljsbuild" "test" "all"]]
 

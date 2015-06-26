@@ -2,7 +2,12 @@
   (:require-macros [cljs.core.async.macros :refer [go-loop alt!]])
   (:require [cljs.core.async :as async :refer [<! >!]]))
 
-(defn flatmap [f <in]
+
+(defn flatmap
+  "Maps f over <in to get a channel of channels and then mixes resulting
+  channels without order"
+  [f <in]
+  {:pre (fn? f)}
   (let [<out (async/chan)]
     (go-loop [pending #{}]
       (let [[val <ch] (alts! (concat pending [<in]))]

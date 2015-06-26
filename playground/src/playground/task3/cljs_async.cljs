@@ -6,6 +6,8 @@
 
 
 (defn process-requests
+  "Takes a channel of requests (file names) and returns a channel of pairs
+  [file_name file_contents]"
   [<requests]
   (let [process-request
         (fn [request] (async/map (fn [response] [request response])

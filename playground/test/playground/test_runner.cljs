@@ -14,7 +14,8 @@
 
             playground.task3.cljs-async-test
 
-            playground.node-lib.utils-test))
+            playground.node-lib.utils-test
+            playground.async-utils-test))
 
 (nodejs/enable-util-print!)
 

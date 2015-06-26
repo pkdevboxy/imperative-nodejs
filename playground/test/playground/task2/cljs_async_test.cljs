@@ -2,7 +2,7 @@
   (:require-macros [playground.node-lib.macros :refer [<?]]
                    [cljs.core.async.macros :refer [go]])
   (:require [cljs.test :as t :refer-macros [deftest is]]
-            [playground.task2.test-utils :refer [mock-readFile-fixture]]
+            [playground.test-fixtures :refer [mock-readFile-fixture]]
             [playground.task2.cljs-async :refer [traverse]]))
 
 

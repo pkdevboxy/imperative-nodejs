@@ -1,4 +1,4 @@
-(ns playground.task2.test-utils
+(ns playground.test-fixtures
   (:require-macros [cljs.core.async.macros :refer [go]]
                    [playground.node-lib.macros :refer [node-require]])
   (:require [cljs.core.async :as async :refer [<!]]))

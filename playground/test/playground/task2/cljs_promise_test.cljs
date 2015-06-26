@@ -1,7 +1,7 @@
 (ns playground.task2.cljs-promise-test
   (:require [cljs.test :as t :refer-macros [deftest is]]
             [promesa.core :as p]
-            [playground.task2.test-utils :refer [mock-readFile-fixture]]
+            [playground.test-fixtures :refer [mock-readFile-fixture]]
             [playground.task2.cljs-promise :refer [traverse]]))
 
 

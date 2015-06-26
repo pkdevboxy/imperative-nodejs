@@ -7,17 +7,8 @@
 
 (defn process-requests
   [<requests]
-  (let [buffer-size 10
-        <responses (async/chan buffer-size)
-        responses-mix (autils/closable-mix <responses)]
+  (let [process-request
+        (fn [request]
+          (async/map (fn [x] [request x]) [(fs/<read-file request)]))]
 
-    (go-loop []
-      (when-let [request (<! <requests)]
-        (autils/add-closable-mix
-         responses-mix
-         (async/map (fn [x] [request x]) [(fs/<read-file request)]))
-        (recur))
-
-      (autils/close-mix responses-mix))
-
-    <responses))
+    (autils/flatmap process-request <requests)))

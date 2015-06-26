@@ -33,7 +33,8 @@
                  {:sources "src/playground/task2/coffee/"
                   :output "out/playground/task2/coffee"}]
 
-  :aliases {"test" ["do" "coffeescript" ["cljsbuild" "test"]]
+  :aliases {"test" ["do" "coffeescript" ["cljsbuild" "test" "all"]]
+
             "test-task1" ["do" "coffeescript" ["cljsbuild" "test" "task1"]]
             "test-task2" ["do" "coffeescript" ["cljsbuild" "test" "task2"]]
             "test-task3" ["do" "coffeescript" ["cljsbuild" "test" "task3"]]}
@@ -41,7 +42,8 @@
 
   :cljsbuild
   {:test-commands
-   {"task1" ["node" "test.js" "task1"]
+   {"all" ["node" "test.js"]
+    "task1" ["node" "test.js" "task1"]
     "task2" ["node" "test.js" "task2"]
     "task3" ["node" "test.js" "task3"]}
 

@@ -13,13 +13,15 @@
 
 
 (defn- notify-if-done [reader]
+  {:pre (instance? Reader @reader)}
+
   (let [{in-flight :in-flight
          closed? :closed?
-         resolve :resolve} reader]
+         resolve :resolve} @reader]
 
     (when (and closed?
-             (zero? in-flight))
-    (@resolve))))
+               (zero? in-flight))
+      (@resolve))))
 
 
 (defn request! [reader path]

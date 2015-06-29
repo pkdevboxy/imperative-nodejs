@@ -2,7 +2,7 @@
   (:require-macros [cljs.test :refer [run-all-tests]])
   (:require [cljs.nodejs :as nodejs]
             [cljs.test :as t]
-            [playground.node-lib.process :as process]
+            [playground.node-api.process :as process]
 
             playground.task1.core-test
 
@@ -34,7 +34,7 @@
   (run-all-tests #"playground.*-test"))
 
 (defn -main []
-  (case (process/argv)
+  (case process/argv
     ["task1"] (test-task1)
     ["task2"] (test-task2)
     ["task3"] (test-task3)

@@ -4,12 +4,13 @@
 
   (:require [cljs.core.async :as async]
             [playground.node-lib.errors :as err]
-            [playground.node-lib.fs :as fs]))
+            [playground.node-lib.utils :refer [<<<]]
+            [playground.node-api.fs :as fs]))
 
 
 (defn- <next-number [x]
   {:pre (integer? x)}
-  (async/map (err/lift int) [(fs/<read-file (str x))]))
+  (async/map (err/lift int) [(<<< fs/read-file (str x))]))
 
 
 (defn traverse [k]

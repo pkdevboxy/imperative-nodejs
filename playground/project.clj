@@ -43,7 +43,8 @@
 
             "test-task1" ["do" "coffeescript" ["cljsbuild" "test" "task1"]]
             "test-task2" ["do" "coffeescript" ["cljsbuild" "test" "task2"]]
-            "test-task3" ["do" "coffeescript" ["cljsbuild" "test" "task3"]]}
+            "test-task3" ["do" "coffeescript" ["cljsbuild" "test" "task3"]]
+            "test-task4" ["do" "coffeescript" ["cljsbuild" "test" "task4"]]}
 
 
   :cljsbuild
@@ -51,11 +52,12 @@
    {"all" ["node" "test.js"]
     "task1" ["node" "test.js" "task1"]
     "task2" ["node" "test.js" "task2"]
-    "task3" ["node" "test.js" "task3"]}
+    "task3" ["node" "test.js" "task3"]
+    "task4" ["node" "test.js" "task4"]}
 
    :builds [{:id "playground"
              :source-paths ["src" "test"]
-             :notify-command ["node" "test.js" "task3"]
+             :notify-command ["node" "test.js"]
 
              :compiler {:output-to "out/playground.js"
                         :output-dir "out"

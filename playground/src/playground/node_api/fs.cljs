@@ -170,8 +170,11 @@
   (.readFileSync fs filename options))
 
 (defn ^:node-async write-file
-  [filename data options callback]
-  (.writeFile fs filename data options callback))
+  ([filename data callback]
+   (write-file filename data nil callback))
+
+  ([filename data options callback]
+   (.writeFile fs filename data options callback)))
 
 (defn write-file-sync [filename data options]
   (.writeFileSync fs filename data options))

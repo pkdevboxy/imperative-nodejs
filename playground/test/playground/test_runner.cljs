@@ -16,6 +16,8 @@
             playground.task3.js-callback-test
             playground.task3.cljs-promise-test
 
+            playground.task4.cljs-callback-test
+
             playground.node-lib.utils-test
             playground.async-utils-test))
 
@@ -30,6 +32,9 @@
 (defn- test-task3 []
   (run-all-tests #"playground.task3.*-test"))
 
+(defn- test-task4 []
+  (run-all-tests #"playground.task4.*-test"))
+
 (defn- test-all []
   (run-all-tests #"playground.*-test"))
 
@@ -38,6 +43,7 @@
     ["task1"] (test-task1)
     ["task2"] (test-task2)
     ["task3"] (test-task3)
+    ["task4"] (test-task4)
     (test-all)))
 
 (set! *main-cli-fn* -main)

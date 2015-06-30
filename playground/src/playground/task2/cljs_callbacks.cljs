@@ -1,6 +1,7 @@
 (ns playground.task2.cljs-callbacks
   (:require-macros [playground.node-lib.macros :refer [node-require]])
-  (:require [playground.node-lib.utils :as utils]))
+  (:require [playground.node-lib.utils :as utils]
+            [playground.node-lib.result :as result]))
 
 (node-require fs)
 
@@ -13,9 +14,10 @@
           (on-read-file [err data path]
             (if err
               (callback err)
-              (let [j (utils/str->int data)]
-                (if (pos? j)
-                  (go j path)
-                  (callback nil path)))))]
+              (result/match (utils/str->int data)
+                error (callback error)
+                j (if (pos? j)
+                    (go j path)
+                    (callback nil path)))))]
 
     (go k [])))

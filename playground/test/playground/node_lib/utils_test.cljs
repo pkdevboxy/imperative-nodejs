@@ -4,5 +4,5 @@
 
 
 (deftest str->int
-  (is (= 92 (utils/str->int "92")))
-  (is (thrown? js/Error (utils/str->int "spam"))))
+  (is (= [nil 92] (utils/str->int "92")))
+  (is (instance? js/Error (first (utils/str->int "spam")))))

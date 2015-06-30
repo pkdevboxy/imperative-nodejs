@@ -16,10 +16,10 @@
 
 
 (defn str->int
-  "Parses integer. Throws if not an integer."
+  "Parses integer."
   [s]
   {:pre (string? s)}
-  (let [result (js/parseInt s 10)]
-    (when (js/isNaN result)
-      (throw (js/Error (str "str->int: " s " is not an integer!"))))
-    result))
+  (let [i (js/parseInt s 10)]
+    (if (js/isNaN i)
+      (result/failure (js/Error (str "str->int: " s " is not an integer!")))
+      (result/ok i))))

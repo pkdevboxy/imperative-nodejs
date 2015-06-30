@@ -18,6 +18,7 @@
 
             playground.task4.cljs-callback-test
             playground.task4.cljs-async-test
+            playground.task4.cljs-promise-test
 
             playground.node-lib.utils-test
             playground.async-utils-test))

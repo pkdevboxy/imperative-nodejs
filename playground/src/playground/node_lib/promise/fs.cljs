@@ -7,7 +7,14 @@
 
 
 (defn read-file
-  "Reads file contents into a promise"
+  "Reads file contents into a promise."
   [path]
   {:pre (string? path)}
   ((utils/callback->promise (.-readFile fs)) path))
+
+
+(defn write-file
+  "Writes data to a file."
+  [path data]
+  {:pre (string? path)}
+  ((utils/callback->promise (.-writeFile fs)) path data nil))

@@ -8,7 +8,7 @@
   channels without order"
   [f <in]
   {:pre (fn? f)}
-  (let [<out (async/chan)]
+  (let [out> (async/chan)]
     (go-loop [pending #{}]
       (let [[val <ch] (alts! (concat pending [<in]))]
         (cond
@@ -18,12 +18,27 @@
           (and (= <ch <in) (nil? val))
           (async/pipe
            (async/merge pending)
-           <out)
+           out>)
 
           :default
           (if (nil? val)
             (recur (disj pending <ch))
             (do
-              (>! <out val)
+              (>! out> val)
               (recur pending))))))
-    <out))
+    out>))
+
+(defn concat
+  "Like async/merge, but preserves order"
+  ([chs] (concat chs nil))
+  ([chs buf-or-n]
+   (let [>out (async/chan buf-or-n)]
+     (go-loop [chs chs]
+       (if (empty? chs)
+         (async/close! >out)
+         (if-let [val (<! (first chs))]
+           (do
+             (>! >out val)
+             (recur chs))
+           (recur (rest chs)))))
+     >out)))

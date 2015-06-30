@@ -17,6 +17,7 @@
             playground.task3.cljs-promise-test
 
             playground.task4.cljs-callback-test
+            playground.task4.cljs-async-test
 
             playground.node-lib.utils-test
             playground.async-utils-test))

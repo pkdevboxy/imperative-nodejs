@@ -12,7 +12,7 @@
    "3" "4"
    "4" "0"})
 
-(defn- random-delay []
+(defn random-delay []
   (async/timeout (rand-int 30)))
 
 

@@ -20,6 +20,10 @@
             playground.task4.cljs-async-test
             playground.task4.cljs-promise-test
 
+            playground.task5-async.buffer-test
+            playground.task5-async.impl-test
+            playground.task5-async.log-test
+
             playground.node-lib.utils-test
             playground.async-utils-test))
 
@@ -37,6 +41,9 @@
 (defn- test-task4 []
   (run-all-tests #"playground.task4.*-test"))
 
+(defn- test-task5 []
+  (run-all-tests #"playground.task5.*-test"))
+
 (defn- test-all []
   (run-all-tests #"playground.*-test"))
 
@@ -46,6 +53,7 @@
     ["task2"] (test-task2)
     ["task3"] (test-task3)
     ["task4"] (test-task4)
+    ["task5"] (test-task5)
     (test-all)))
 
 (set! *main-cli-fn* -main)

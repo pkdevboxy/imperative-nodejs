@@ -106,7 +106,9 @@
   [path mode callback]
   (.mkdir fs path mode callback))
 
-(defn mkdir-sync [path mode] (.mkdirSync fs path mode))
+(defn mkdir-sync
+  ([path] (.mkdirSync fs path nil))
+  ([path mode] (.mkdirSync fs path mode)))
 
 (defn ^:node-async readdir
   [path callback]
@@ -119,8 +121,9 @@
 (defn close-sync [fd] (.closeSync fs fd))
 
 (defn ^:node-async open
-  [path flags mode callback]
-  (.open fs path flags mode callback))
+  ([path flags callback] (open path flags nil callback))
+  ([path flags mode callback]
+   (.open fs path flags mode callback)))
 
 (defn open-sync [path flags mode] (.openSync fs path flags mode))
 

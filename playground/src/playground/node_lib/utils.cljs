@@ -7,10 +7,13 @@
   "Calls a CPS-style function f with args and returns a channel with result"
   [f & args]
   (let [result (async/chan)]
-    (apply f (concat args [(fn [err data]
+    (apply f (concat args [(fn [err & args]
                              (async/put! result (if err
                                                   (result/failure err)
-                                                  (result/ok data)))
+                                                  (result/ok (condp = (count args)
+                                                               0 nil
+                                                               1 (first args)
+                                                               args))))
                              (async/close! result))]))
     result))
 

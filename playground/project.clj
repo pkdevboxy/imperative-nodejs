@@ -44,7 +44,8 @@
             "test-task1" ["do" "coffeescript" ["cljsbuild" "test" "task1"]]
             "test-task2" ["do" "coffeescript" ["cljsbuild" "test" "task2"]]
             "test-task3" ["do" "coffeescript" ["cljsbuild" "test" "task3"]]
-            "test-task4" ["do" "coffeescript" ["cljsbuild" "test" "task4"]]}
+            "test-task4" ["do" "coffeescript" ["cljsbuild" "test" "task4"]]
+            "test-task5" ["do" "coffeescript" ["cljsbuild" "test" "task5"]]}
 
 
   :cljsbuild
@@ -53,7 +54,8 @@
     "task1" ["node" "test.js" "task1"]
     "task2" ["node" "test.js" "task2"]
     "task3" ["node" "test.js" "task3"]
-    "task4" ["node" "test.js" "task4"]}
+    "task4" ["node" "test.js" "task4"]
+    "task5" ["node" "test.js" "task5"]}
 
    :builds [{:id "playground"
              :source-paths ["src" "test"]

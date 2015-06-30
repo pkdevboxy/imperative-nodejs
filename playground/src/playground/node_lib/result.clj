@@ -15,3 +15,12 @@
      (if (some? ~err-symbol)
        ~err-expr
        ~val-expr)))
+
+
+(defmacro forward-error [expr val-symbol val-expr]
+  #_(result/forward-error (divide 92 0)
+      quotient (result/ok (frobincate quotient)))
+
+  `(match ~expr
+     error# (result/failure error#)
+     ~val-symbol ~val-expr))

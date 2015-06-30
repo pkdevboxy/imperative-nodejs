@@ -1,6 +1,5 @@
 (ns playground.task2.cljs-async-test
-  (:require-macros [playground.node-lib.macros :refer [<?]]
-                   [cljs.core.async.macros :refer [go]])
+  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.test :as t :refer-macros [deftest is]]
             [playground.test-fixtures :refer [mock-readFile-fixture]]
             [playground.task2.cljs-async :refer [traverse]]))
@@ -12,7 +11,7 @@
 (deftest traverse-ok
   (t/async done
            (go
-             (let [path (<? (traverse 1))]
+             (let [[_err path] (<! (traverse 1))]
                (is (= path [1 2 3 4]))
                (done)))))
 
@@ -20,5 +19,6 @@
 (deftest traverse-no-file
   (t/async done
            (go
-             (is (thrown? js/Error (<? (traverse 92))))
-             (done))))
+             (let [[err _] (<! (traverse 92))]
+               (is (instance? js/Error err))
+               (done)))))

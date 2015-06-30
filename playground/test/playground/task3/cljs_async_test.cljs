@@ -18,5 +18,6 @@
          (async/close! <requests)
 
          (let [results (<! (async/into [] (process-requests <requests)))]
-           (is (= mock-fs (into {} results)))
+           (is (= mock-fs (into {} (for [[req [_ resp]] results]
+                                     [req resp]))))
            (done))))))

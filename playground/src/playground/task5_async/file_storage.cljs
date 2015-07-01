@@ -14,6 +14,10 @@
   (->FileStorage path))
 
 
+(defn- path-to-file [storage name]
+  (path/join (:path storage) name))
+
+
 (defn- <open-new [storage name]
   (<<< fs/open (path-to-file storage name) "wx"))
 
@@ -24,6 +28,11 @@
 
 (defn- <open-for-reading [storage name]
   (<<< fs/open (path-to-file storage name) "r"))
+
+
+(defn- zero-buffer [size]
+  (doto (js/Buffer. size)
+    (.fill 0)))
 
 
 (defn <add-file [storage name size]
@@ -48,12 +57,3 @@
       fd (<! (<<< fs/read fd
                   buffer 0 (.-length buffer)
                   offset)))))
-
-
-(defn- zero-buffer [size]
-  (doto (js/Buffer. size)
-    (.fill 0)))
-
-
-(defn- path-to-file [storage name]
-  (path/join (:path storage) name))

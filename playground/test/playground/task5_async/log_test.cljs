@@ -3,8 +3,9 @@
   (:require [cljs.test :as t :refer-macros [deftest is]]
             [cljs.core.async :as async :refer [<! >!]]
             [playground.test-fixtures :refer [<random-delay]]
+            [playground.task5-async.fixtures :refer [log-fixture *file-storage*]]
             [playground.node-api.path :as path]
-            [playground.task5-async.fixtures :refer [log-fixture *log-dir*]]
+            [playground.node-lib.result :as result]
             [playground.task5-async.log :as log]))
 
 (t/use-fixtures :each log-fixture)
@@ -14,20 +15,20 @@
   (t/async
    done
    (go
-     (let [[_ l] (<! (log/<start (log/new-log *log-dir* 10)))
-           messages (mapv #(js/Buffer. %) ["Hello"  "World"  "aba" "a"
-                                           "" "c" "de" "abacaba" "123456789"])
+     (let [[_ l] (<! (log/<start (log/new-log *file-storage* 10)))
+           messages (mapv #(js/Buffer. %) ["Hello" "123456789" "a" "c"
+                                           "de" "abacaba" "World" "aba" ""])
            <respones (async/chan 10)]
 
        (doseq [m messages]
          (go
            (<! (<random-delay))
-           (>! <respones [m (second (<! (log/<add-record l m)))])))
+           (>! <respones [m (result/unwrap! (<! (log/<add-record l m)))])))
 
 
        (dotimes [_ (count messages)]
          (let [[m off] (<! <respones)
-               [_ fetched-m] (<! (log/<fetch-record l off))]
+               fetched-m (result/unwrap! (<! (log/<fetch-record l off)))]
            (is (.equals m fetched-m))))
 
        (done)))))

@@ -7,3 +7,9 @@
 
 (defn failure [error]
   [error nil])
+
+
+(defn unwrap! [r]
+  (match r
+    err (throw err)
+    val val))

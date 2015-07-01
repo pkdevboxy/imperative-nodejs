@@ -5,11 +5,10 @@
             [playground.task5-async.buffer :as buffer]
             [playground.node-lib.result :as result]))
 
-(defn new-log [path log-file-size]
-  {:pre [(string? path)
-         (number? log-file-size)]}
+(defn new-log [storage log-file-size]
+  {:pre (number? log-file-size)}
 
-  (impl/->Log path log-file-size nil nil))
+  (impl/->Log storage log-file-size nil nil))
 
 
 (defn <start [log]

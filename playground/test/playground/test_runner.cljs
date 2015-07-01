@@ -21,7 +21,6 @@
             playground.task4.cljs-promise-test
 
             playground.task5-async.buffer-test
-            playground.task5-async.log-impl-test
             playground.task5-async.log-test
 
             playground.node-lib.utils-test

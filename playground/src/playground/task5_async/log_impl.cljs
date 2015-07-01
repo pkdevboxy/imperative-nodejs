@@ -5,86 +5,47 @@
             [playground.node-api.path :as path]
             [playground.node-lib.utils :refer [<<<]]
             [playground.node-lib.result :as result]
+            [playground.task5-async.file-storage :as storage]
             [playground.task5-async.buffer :as buffer]))
 
-(defrecord Log [path log-file-size current-offset <requests])
+(defrecord Log [storage log-file-size current-offset <requests])
 (defn- log? [log] (instance? Log log))
 
-(declare <add-first-file
-         write-record!
-         read-record!)
+
+(declare <ensure-has-file <write-record! <read-record!)
+
 
 (defn- is-valid-offset [x]
   (<= 0 x (.-MAX_SAFE_INTEGER js/Number)))
 
+
 (defn <start [log]
   {:pre (log? log)}
-  (<add-first-file (assoc log
-                          :current-offset (atom 0 :validator is-valid-offset)
-                          :<requests (async/chan))))
+  (let [rt-config {:current-offset (atom 0 :validator is-valid-offset)
+                   :<requests (async/chan)}]
+    (<ensure-has-file (into log rt-config))))
+
 
 (defn start-processing! [log]
   {:pre (log? log)}
   (go-loop []
     (when-let [[cmd >response arg] (<! (:<requests log))]
       (condp = cmd
-        :write (>! >response (<! (write-record! log arg)))
-        :read  (>! >response (<! (read-record! log arg))))
+        :write (>! >response (<! (<write-record! log arg)))
+        :read  (>! >response (<! (<read-record! log arg))))
       (recur))))
 
 
-(defn- path-to-log-file [log log-file-id]
-  {:pre [(log? log)
-         (number? log-file-id)]}
-  (path/join (:path log) (str log-file-id)))
-
-
-(defn- <open-log-file [log log-file-id]
-  {:pre [(log? log)
-         (number? log-file-id)]}
-  (go
-    (result/match (<! (<<< fs/open (path-to-log-file log log-file-id) "r+"))
-      error (<! (<<< fs/open (path-to-log-file log log-file-id) "w+"))
-      fd (result/ok fd))))
-
-
-(defn- new-buffer [log]
-  (let [buf (js/Buffer. (:log-file-size log))]
-    (.fill buf 0)
-    buf))
-
-
-(defn- file-for-offset [log offset]
+(defn- file-id-for-offset [log offset]
   {:pre [(log? log)
          (<= 0 offset @(:current-offset log))]}
 
   (quot offset (:log-file-size log)))
 
 
-(defn- current-file [log]
+(defn- current-file-id [log]
   {:pre (log? log)}
-  (file-for-offset log @(:current-offset log)))
-
-
-(defn- <zero-file [log fd]
-  {:pre [(log? log)
-         (number? fd)]}
-
-  (<<< fs/write fd (new-buffer log) 0 (:log-file-size log) 0))
-
-
-(defn- <add-file [log file-id]
-  {:pre [(log? log)
-         (number? file-id)]}
-  (go
-    (result/forward-error (<! (<open-log-file log file-id))
-      fd (result/forward-error (<! (<zero-file log fd))
-           _ (result/ok log)))))
-
-
-(defn- <add-first-file [log]
-  {:pre (log? log)}
-  (<add-file log 0))
+  (file-id-for-offset log @(:current-offset log)))
 
 
 (defn- in-file-offset [log offset]
@@ -100,54 +61,65 @@
      (current-in-file-offset log)))
 
 
+(defn- <add-file [log file-id]
+  {:pre [(log? log)
+         (number? file-id)]}
+  (go
+    (result/forward-error (<! (storage/<add-file
+                               (:storage log)
+                               (str file-id)
+                               (:log-file-size log)))
+      _ (result/ok log))))
+
+
 (defn- <add-new-file [log]
   {:pre (log? log)}
   (swap! (:current-offset log) + (free-space-in-file log))
-  (<add-file log (current-file log)))
+  (<add-file log (current-file-id log)))
 
 
-(defn- <write-record-to-file [log record]
-  (go
-    (result/forward-error (<! (<open-log-file log (current-file log)))
-      fd (result/forward-error (<! (<<< fs/write fd
-                                        record 0 (.-length record)
-                                        (current-in-file-offset log)))
-           _ nil))))
+(defn- <add-file-if-neccessary [log record]
+  (if (< (.-length record) (free-space-in-file log))
+    (async/to-chan [(result/ok :ok)])
+    (<add-new-file log)))
 
 
-(defn- write-record! [log record]
+(defn- <ensure-has-file [log]
+  (if (zero? (current-in-file-offset log))
+    (<add-file log (current-file-id log))
+    (async/to-chan [(result/ok :ok)])))
+
+
+(defn- <write-record! [log record]
   {:pre [(instance? js/Buffer record)
          (zero? (aget record (dec (.-length record))))]}
   (go
-    (when-not (< (.-length record) (free-space-in-file log))
-      (result/match (<! (<add-new-file log))
-        error (result/failure error)
-        _ nil))
+    (result/forward-error (<! (<add-file-if-neccessary log record))
+      _ (result/forward-error (<! (storage/<write-to-file
+                                   (:storage log)
+                                   (str (current-file-id log))
+                                   record
+                                   (current-in-file-offset log)))
 
-    (result/forward-error (<! (<write-record-to-file log record))
-      _ (let [old-offset @(:current-offset log)]
-          (swap! (:current-offset log) + (.-length record))
-          (result/ok old-offset)))))
-
-
-(defn <read-c-str [fd off max-len]
-  (let [buf (js/Buffer. max-len)]
-    (go
-      (result/forward-error (<! (<<< fs/read fd
-                                     buf 0 max-len
-                                     off))
-        _ (result/ok (playground.task5-async.buffer/extract-c-str buf))))))
+          _ (let [old-offset @(:current-offset log)]
+              (swap! (:current-offset log) + (.-length record))
+              (result/forward-error (<! (<ensure-has-file log))
+                _ (result/ok old-offset)))))))
 
 
-(defn- read-record! [log offset]
+(defn- <read-record! [log global-offset]
   {:pre [(log? log)
-         (<= 0 offset @(:current-offset log))]}
+         (<= 0 global-offset @(:current-offset log))]}
 
-  (let [f (file-for-offset log offset)
-        off (in-file-offset log offset)
-        max-len (- (:log-file-size log) off)]
+  (let [file-id (file-id-for-offset log global-offset)
+        offset (in-file-offset log global-offset)
+        max-len (- (:log-file-size log) offset)
+        buf (js/Buffer. max-len)]
 
     (go
-      (result/forward-error (<! (<open-log-file log f))
-        fd (result/forward-error (<! (<read-c-str fd off max-len))
-             buf (result/ok buf))))))
+      (result/forward-error (<! (storage/<read-from-file
+                                 (:storage log)
+                                 (str file-id)
+                                 buf
+                                 offset))
+        _ (result/ok (buffer/extract-c-str buf))))))

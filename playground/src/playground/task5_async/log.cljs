@@ -22,6 +22,7 @@
                     (impl/start-processing! started-log)
                     (result/ok started-log)))))
 
+
 (s/defn stop! [log :- Log]
   (async/close! (:<requests log)))
 

@@ -1,7 +1,7 @@
 (ns playground.task5-async.file-storage
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [<! >!]]
-            [schema.core :as s :include-macros true]
+            [schema.core :as s]
             [playground.node-lib.result :as result]
             [playground.node-lib.utils :refer [<<<]]
             [playground.node-api.path :as path]

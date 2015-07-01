@@ -1,6 +1,6 @@
 (ns playground.node-lib.result
   (:require-macros [playground.node-lib.result :refer [match]])
-  (:require [schema.core :as s :include-macros true]))
+  (:require [schema.core :as s]))
 
 
 (def Result [(s/one (s/maybe js/Error) "error")

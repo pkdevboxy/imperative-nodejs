@@ -1,41 +1,58 @@
 (ns playground.task5-async.file-storage
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [<! >!]]
+            [schema.core :as s :include-macros true]
             [playground.node-lib.result :as result]
             [playground.node-lib.utils :refer [<<<]]
             [playground.node-api.path :as path]
             [playground.node-api.fs :as fs]))
 
 
-(defrecord FileStorage [path])
+(s/defrecord FileStorage [path :- s/Str])
 
 
-(defn new-file-storage [path]
+(s/defn new-file-storage :- FileStorage
+  [path :- s/Str]
   (->FileStorage path))
 
 
-(defn- path-to-file [storage name]
+(s/defn ^:private path-to-file :- s/Str
+  [storage :- FileStorage
+   name    :- s/Str]
+
   (path/join (:path storage) name))
 
 
-(defn- <open-new [storage name]
+(s/defn ^:private <open-new
+  [storage :- FileStorage
+   name    :- s/Str]
+
   (<<< fs/open (path-to-file storage name) "wx"))
 
 
-(defn- <open-for-writing [storage name]
+(s/defn ^:private <open-for-writing
+  [storage :- FileStorage
+   name    :- s/Str]
+
   (<<< fs/open (path-to-file storage name) "r+"))
 
 
-(defn- <open-for-reading [storage name]
+(s/defn ^:private <open-for-reading
+  [storage :- FileStorage
+   name    :- s/Str]
+
   (<<< fs/open (path-to-file storage name) "r"))
 
 
-(defn- zero-buffer [size]
+(s/defn ^:private zero-buffer :- js/Buffer
+  [size :- s/Int]
   (doto (js/Buffer. size)
     (.fill 0)))
 
 
-(defn <add-file [storage name size]
+(s/defn <add-file [storage :- FileStorage
+                   name    :- s/Str
+                   size    :- s/Int]
   (go
     (result/forward-error (<! (<open-new storage name))
       fd (<! (<<< fs/write fd
@@ -43,7 +60,10 @@
                   0)))))
 
 
-(defn <write-to-file [storage name buffer offset]
+(s/defn <write-to-file [storage :- FileStorage
+                        name    :- s/Str
+                        buffer  :- js/Buffer
+                        offset  :- s/Int]
   (go
     (result/forward-error (<! (<open-for-writing storage name))
       fd (<! (<<< fs/write fd
@@ -51,7 +71,10 @@
                   offset)))))
 
 
-(defn <read-from-file [storage name buffer offset]
+(s/defn <read-from-file [storage :- FileStorage
+                         name    :- s/Str
+                         buffer  :- js/Buffer
+                         offset  :- s/Int]
   (go
     (result/forward-error (<! (<open-for-reading storage name))
       fd (<! (<<< fs/read fd

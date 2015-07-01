@@ -1,4 +1,5 @@
 (ns playground.async-utils
+  (:refer-clojure :exclude [concat])
   (:require-macros [cljs.core.async.macros :refer [go-loop alt!]])
   (:require [cljs.core.async :as async :refer [<! >!]]))
 
@@ -10,7 +11,7 @@
   {:pre (fn? f)}
   (let [out> (async/chan)]
     (go-loop [pending #{}]
-      (let [[val <ch] (alts! (concat pending [<in]))]
+      (let [[val <ch] (alts! (clojure.core/concat pending [<in]))]
         (cond
           (and (= <ch <in) (some? val))
           (recur (conj pending (f val)))

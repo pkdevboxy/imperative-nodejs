@@ -9,6 +9,7 @@
     (.writeUInt8 result 0 (.-length buf))
     result))
 
+
 (defn extract-c-str [buf]
   (let [l (some #(when (zero? (aget buf %)) %)
                 (range (.-length buf)))]

@@ -135,7 +135,7 @@
       (result/forward-error (<! (<<< fs/read fd
                                      buf 0 max-len
                                      off))
-        _ (result/ok (buffer/extract-c-str buf))))))
+        _ (result/ok (playground.task5-async.buffer/extract-c-str buf))))))
 
 
 (defn- read-record! [log offset >response]

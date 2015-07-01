@@ -1,15 +1,27 @@
 (ns playground.node-lib.result
-  (:require-macros [playground.node-lib.result :refer [match]]))
+  (:require-macros [playground.node-lib.result :refer [match]])
+  (:require [schema.core :as s :include-macros true]))
 
 
-(defn ok [value]
+(def Result [(s/one (s/maybe js/Error) "error")
+             (s/one s/Any "value")])
+
+
+(s/defn ok :- Result
+  [value :- s/Any]
+
   [nil value])
 
-(defn failure [error]
+
+(s/defn failure :- Result
+  [error :- js/Error]
+
   [error nil])
 
 
-(defn unwrap! [r]
+(s/defn unwrap!
+  [r :- Result]
+
   (match r
     err (throw err)
     val val))

@@ -8,7 +8,8 @@
                  [funcool/promesa "0.1.3"]
                  [clj-http "1.1.2"]
                  [org.clojure/data.json "0.2.6"]
-                 [camel-snake-kebab "0.3.2"]]
+                 [camel-snake-kebab "0.3.2"]
+                 [prismatic/schema "0.4.3"]]
 
   :node-dependencies [[source-map-support "0.2.8"]
                       [async "^1.2.1"]

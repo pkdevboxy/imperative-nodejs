@@ -3,6 +3,7 @@
   (:require [cljs.nodejs :as nodejs]
             [cljs.test :as t]
             [playground.node-api.process :as process]
+            [schema.core :as s]
 
             playground.task1.core-test
 
@@ -27,6 +28,7 @@
             playground.async-utils-test))
 
 (nodejs/enable-util-print!)
+(s/set-fn-validation! true)
 
 (defn- test-task1 []
   (run-all-tests #"playground.task1.*-test"))

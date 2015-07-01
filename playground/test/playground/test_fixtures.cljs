@@ -12,14 +12,14 @@
    "3" "4"
    "4" "0"})
 
-(defn random-delay []
+(defn <random-delay []
   (async/timeout (rand-int 30)))
 
 
 (defn- mock-readFile [name callback]
   {:pre (some? callback)}
   (go
-    (<! (random-delay))
+    (<! (<random-delay))
     (if-let [next (mock-fs name)]
       (callback nil next)
       (callback (js/Error "No such file")))))
@@ -29,7 +29,7 @@
 (defn- mock-writeFile [name data opts callback]
   {:pre (some? callback)}
   (go
-    (<! (random-delay))
+    (<! (<random-delay))
     (if (mock-fs name)
       (callback)
       (callback (js/Error "Unable to create file")))))

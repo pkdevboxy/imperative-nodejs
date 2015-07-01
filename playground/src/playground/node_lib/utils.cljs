@@ -1,6 +1,7 @@
 (ns playground.node-lib.utils
   (:require [cljs.core.async :as async]
-            [playground.node-lib.result :as result]))
+            [schema.core :as s]
+            [playground.node-lib.result :as result :refer [Result-of]]))
 
 
 (defn <<<
@@ -18,10 +19,10 @@
     result))
 
 
-(defn str->int
+(s/defn str->int :- (Result-of s/Int)
   "Parses integer."
-  [s]
-  {:pre (string? s)}
+  [s :- s/Str]
+
   (let [i (js/parseInt s 10)]
     (if (js/isNaN i)
       (result/failure (js/Error (str "str->int: " s " is not an integer!")))

@@ -3,8 +3,13 @@
   (:require [schema.core :as s]))
 
 
-(def Result [(s/one (s/maybe js/Error) "error")
-             (s/one s/Any "value")])
+(defn Result-of [a]
+  (s/if (comp nil? first)
+    [(s/one (s/pred nil?) "error") (s/one a "value")]
+    [(s/one js/Error "error") (s/one (s/pred nil?) "value")]))
+
+
+(def Result (Result-of s/Any))
 
 
 (s/defn ok :- Result

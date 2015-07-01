@@ -1,8 +1,10 @@
-(ns playground.task5-async.buffer)
+(ns playground.task5-async.buffer
+  (:require [schema.core :as s]))
 
 
-(defn null-terminated [buf]
-  {:pre (instance? js/Buffer buf)}
+(s/defn null-terminated :- js/Buffer
+  [buf :- js/Buffer]
+
   (let [result (.concat js/Buffer
                         (clj->js [buf (js/Buffer. 1)])
                         (inc (.-length buf)))]
@@ -10,7 +12,9 @@
     result))
 
 
-(defn extract-c-str [buf]
+(s/defn extract-c-str :- js/Buffer
+  [buf :- js/Buffer]
+
   (let [l (some #(when (zero? (aget buf %)) %)
                 (range (.-length buf)))]
     (.slice buf 0 (or l (.-length buf)))))

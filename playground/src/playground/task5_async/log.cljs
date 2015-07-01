@@ -1,33 +1,34 @@
 (ns playground.task5-async.log
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [<! >!]]
-            [playground.task5-async.log-impl :as impl]
+            [schema.core :as s]
+            [playground.task5-async.log-impl :as impl :refer [Log]]
             [playground.task5-async.buffer :as buffer]
+            [playground.task5-async.file-storage :refer [FileStorage]]
             [playground.node-lib.result :as result]))
 
-(defn new-log [storage log-file-size]
-  {:pre (number? log-file-size)}
+
+(s/defn new-log :- Log
+  [storage       :- FileStorage
+   log-file-size :- s/Int]
 
   (impl/->Log storage log-file-size nil nil))
 
 
-(defn <start [log]
-  {:pre (instance? impl/Log log)}
+(s/defn <start [log :- Log]
   (go
     (result/forward-error (<! (impl/<start log))
       started-log (do
                     (impl/start-processing! started-log)
                     (result/ok started-log)))))
 
-(defn stop! [log]
-  {:pre (instance? impl/Log log)}
+(s/defn stop! [log :- Log]
   (async/close! (:<requests log)))
 
 
-(defn <add-record [log record]
-  {:pre [(instance? impl/Log log)
-         (instance? js/Buffer record)
-         (< (.-length record) (:log-file-size log))]}
+(s/defn <add-record [log    :- Log
+                     record :- js/Buffer]
+  {:pre (< (.-length record) (:log-file-size log))}
 
   (let [<result (async/chan)]
     (go
@@ -35,9 +36,9 @@
       (<! <result))))
 
 
-(defn <fetch-record [log offset]
-  {:pre [(instance? impl/Log log)
-         (<= 0 offset @(:current-offset log))]}
+(s/defn <fetch-record [log    :- Log
+                       offset :- s/Int]
+  {:pre (<= 0 offset @(:current-offset log))}
 
   (let [<result (async/chan)]
     (go

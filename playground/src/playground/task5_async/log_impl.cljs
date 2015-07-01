@@ -1,6 +1,7 @@
 (ns playground.task5-async.log-impl
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:require [cljs.core.async :as async :refer [<! >!]]
+            [schema.core :as s]
             [playground.node-api.fs :as fs]
             [playground.node-api.path :as path]
             [playground.node-lib.utils :refer [<<<]]
@@ -8,26 +9,27 @@
             [playground.task5-async.file-storage :as storage]
             [playground.task5-async.buffer :as buffer]))
 
-(defrecord Log [storage log-file-size current-offset <requests])
-(defn- log? [log] (instance? Log log))
-
+(s/defrecord Log
+    [storage       :- storage/FileStorage
+     log-file-size :- s/Int
+     current-offset
+     <requests])
 
 (declare <ensure-has-file <write-record! <read-record!)
 
 
-(defn- is-valid-offset [x]
+(s/defn ^:private is-valid-offset :- s/Bool
+  [x :- s/Int]
   (<= 0 x (.-MAX_SAFE_INTEGER js/Number)))
 
 
-(defn <start [log]
-  {:pre (log? log)}
+(s/defn <start [log :- Log]
   (let [rt-config {:current-offset (atom 0 :validator is-valid-offset)
                    :<requests (async/chan)}]
     (<ensure-has-file (into log rt-config))))
 
 
-(defn start-processing! [log]
-  {:pre (log? log)}
+(s/defn start-processing! [log :- Log]
   (go-loop []
     (when-let [[cmd >response arg] (<! (:<requests log))]
       (condp = cmd
@@ -35,35 +37,45 @@
         :read  (>! >response (<! (<read-record! log arg))))
       (recur))))
 
+(def NullTerminatedBuffer (s/both js/Buffer
+                                  (s/pred #(zero? (aget % (dec (.-length %)))))))
 
-(defn- file-id-for-offset [log offset]
-  {:pre [(log? log)
-         (<= 0 offset @(:current-offset log))]}
+(s/defn ^:private file-id-for-offset
+  [log    :- Log
+   offset :- s/Int]
+  {:pre (<= 0 offset @(:current-offset log))}
 
   (quot offset (:log-file-size log)))
 
 
-(defn- current-file-id [log]
-  {:pre (log? log)}
+(s/defn ^:private current-file-id [log :- Log]
   (file-id-for-offset log @(:current-offset log)))
 
 
-(defn- in-file-offset [log offset]
+(s/defn ^:private in-file-offset
+  [log    :- Log
+   offset :- s/Int]
+
   (mod offset (:log-file-size log)))
 
 
-(defn- current-in-file-offset [log]
+(s/defn ^:private current-in-file-offset
+  [log :- Log]
+
   (in-file-offset log @(:current-offset log)))
 
 
-(defn- free-space-in-file [log]
+(s/defn ^:private free-space-in-file
+  [log :- Log]
+
   (- (:log-file-size log)
      (current-in-file-offset log)))
 
 
-(defn- <add-file [log file-id]
-  {:pre [(log? log)
-         (number? file-id)]}
+(s/defn ^:private <add-file
+  [log :- Log
+   file-id :- s/Int]
+
   (go
     (result/forward-error (<! (storage/<add-file
                                (:storage log)
@@ -72,27 +84,34 @@
       _ (result/ok log))))
 
 
-(defn- <add-new-file [log]
-  {:pre (log? log)}
+(s/defn ^:private <add-new-file
+  [log :- Log]
+
   (swap! (:current-offset log) + (free-space-in-file log))
   (<add-file log (current-file-id log)))
 
 
-(defn- <add-file-if-neccessary [log record]
+(s/defn ^:private <add-file-if-neccessary
+  [log    :- Log
+   record :- NullTerminatedBuffer]
+
   (if (< (.-length record) (free-space-in-file log))
     (async/to-chan [(result/ok :ok)])
     (<add-new-file log)))
 
 
-(defn- <ensure-has-file [log]
+(s/defn ^:private <ensure-has-file
+  [log :- Log]
+
   (if (zero? (current-in-file-offset log))
     (<add-file log (current-file-id log))
     (async/to-chan [(result/ok :ok)])))
 
 
-(defn- <write-record! [log record]
-  {:pre [(instance? js/Buffer record)
-         (zero? (aget record (dec (.-length record))))]}
+(s/defn ^:private <write-record!
+  [log    :- Log
+   record :- NullTerminatedBuffer]
+
   (go
     (result/forward-error (<! (<add-file-if-neccessary log record))
       _ (result/forward-error (<! (storage/<write-to-file
@@ -107,9 +126,10 @@
                 _ (result/ok old-offset)))))))
 
 
-(defn- <read-record! [log global-offset]
-  {:pre [(log? log)
-         (<= 0 global-offset @(:current-offset log))]}
+(s/defn ^:private <read-record!
+  [log           :- Log
+   global-offset :- s/Int]
+  {:pre (<= 0 global-offset @(:current-offset log))}
 
   (let [file-id (file-id-for-offset log global-offset)
         offset (in-file-offset log global-offset)

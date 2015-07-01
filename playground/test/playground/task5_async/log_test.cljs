@@ -14,9 +14,8 @@
    done
    (go
      (let [[_ l] (<! (log/<start (log/new-log *log-dir* 10)))
-           messages (mapv #(js/Buffer. %) ["Hello";;  "World" "aba" "a" ""
-                                                  ;; "abacaba" "123456789"
-                                           ])
+           messages (mapv #(js/Buffer. %) ["Hello"  "World"  "aba" "a"
+                                           "" "abacaba" "123456789"])
 
            <respones (async/chan 10)]
        (doseq [m messages]

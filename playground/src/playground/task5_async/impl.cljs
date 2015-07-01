@@ -25,9 +25,8 @@
   (go-loop []
     (when-let [[cmd >response arg] (<! (:<requests log))]
       (condp = cmd
-        :write (write-record! log arg >response)
-        :read  (read-record!  log arg >response))
-
+        :write (>! >response (<! (write-record! log arg)))
+        :read  (>! >response (<! (read-record! log arg))))
       (recur))))
 
 
@@ -113,7 +112,7 @@
            _ nil))))
 
 
-(defn- write-record! [log record >response]
+(defn- write-record! [log record]
   {:pre [(instance? js/Buffer record)
          (zero? (aget record (dec (.-length record))))]}
   (go
@@ -122,11 +121,10 @@
         error (result/failure error)
         _ nil))
 
-    (result/match (<! (<write-record-to-file log record))
-      error (>! >response (result/failure error))
+    (result/forward-error (<! (<write-record-to-file log record))
       _ (let [old-offset @(:current-offset log)]
           (swap! (:current-offset log) + (.-length record))
-          (>! >response (result/ok old-offset))))))
+          (result/ok old-offset)))))
 
 
 (defn <read-c-str [fd off max-len]
@@ -138,7 +136,7 @@
         _ (result/ok (playground.task5-async.buffer/extract-c-str buf))))))
 
 
-(defn- read-record! [log offset >response]
+(defn- read-record! [log offset]
   {:pre [(log? log)
          (<= 0 offset @(:current-offset log))]}
 
@@ -147,8 +145,6 @@
         max-len (- (:log-file-size log) off)]
 
     (go
-      (result/match (<! (<open-log-file log f))
-        error (>! >response (result/failure error))
-        fd (result/match (<! (<read-c-str fd off max-len))
-             error (>! >response (result/failure error))
-             buf (>! >response (result/ok buf)))))))
+      (result/forward-error (<! (<open-log-file log f))
+        fd (result/forward-error (<! (<read-c-str fd off max-len))
+             buf (result/ok buf))))))

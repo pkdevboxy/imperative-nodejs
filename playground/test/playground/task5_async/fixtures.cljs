@@ -1,7 +1,7 @@
 (ns playground.task5-async.fixtures
   (:require [playground.node-api.fs :as fs]
             [playground.node-api.path :as path]
-            [playground.task5-async.impl :as impl]))
+            [playground.task5-async.log-impl :as impl]))
 
 
 (def ^:dynamic *log-dir*)

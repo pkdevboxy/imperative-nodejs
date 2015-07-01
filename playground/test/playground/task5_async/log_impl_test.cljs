@@ -1,11 +1,11 @@
-(ns playground.task5-async.impl-test
+(ns playground.task5-async.log-impl-test
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [<! >!]]
             [cljs.test :as t :refer-macros [deftest is]]
             [playground.task5-async.fixtures :refer [*log* log-fixture]]
             [playground.node-api.fs :as fs]
             [playground.node-api.path :as path]
-            [playground.task5-async.impl :as impl]
+            [playground.task5-async.log-impl :as impl]
             [playground.task5-async.buffer :as buffer]))
 
 
@@ -57,18 +57,15 @@
   (t/async
    done
    (go
-     (let [[_ log] (<! (impl/<start *log*))
-           <resp1 (async/chan)
-           <resp2 (async/chan)
-           <resp3 (async/chan)]
+     (let [[_ log] (<! (impl/<start *log*))]
 
-       (impl/write-record! log (c-str "ab") <resp1)
-       (is (zero? (second (<! <resp1))))
+       (is (zero? (second
+                   (<! (impl/write-record! log (c-str "ab"))))))
 
-       (impl/write-record! log (c-str "cd") <resp2)
-       (is (= 3 (second (<! <resp2))))
+       (is (= 3 (second
+                 (<! (impl/write-record! log (c-str "cd"))))))
 
-       (impl/write-record! log (c-str "hello") <resp3)
-       (is (= 10 (second (<! <resp3))))
+       (is (= 10 (second
+                  (<! (impl/write-record! log (c-str "hello"))))))
 
        (done)))))

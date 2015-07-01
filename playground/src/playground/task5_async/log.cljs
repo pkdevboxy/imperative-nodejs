@@ -1,7 +1,7 @@
 (ns playground.task5-async.log
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [<! >!]]
-            [playground.task5-async.impl :as impl]
+            [playground.task5-async.log-impl :as impl]
             [playground.task5-async.buffer :as buffer]
             [playground.node-lib.result :as result]))
 

@@ -1,4 +1,4 @@
-(ns playground.task5-async.impl
+(ns playground.task5-async.log-impl
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:require [cljs.core.async :as async :refer [<! >!]]
             [playground.node-api.fs :as fs]

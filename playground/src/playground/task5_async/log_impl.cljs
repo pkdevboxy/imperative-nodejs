@@ -14,10 +14,13 @@
          write-record!
          read-record!)
 
+(defn- is-valid-offset [x]
+  (<= 0 x (.-MAX_SAFE_INTEGER js/Number)))
+
 (defn <start [log]
   {:pre (log? log)}
   (<add-first-file (assoc log
-                          :current-offset (atom 0)
+                          :current-offset (atom 0 :validator is-valid-offset)
                           :<requests (async/chan))))
 
 (defn start-processing! [log]

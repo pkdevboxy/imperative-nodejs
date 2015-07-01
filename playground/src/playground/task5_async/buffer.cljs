@@ -3,6 +3,7 @@
 
 
 (s/defn null-terminated :- js/Buffer
+  "Returns a copy of this buffer with 0 at the end"
   [buf :- js/Buffer]
 
   (let [result (.concat js/Buffer
@@ -13,6 +14,8 @@
 
 
 (s/defn extract-c-str :- js/Buffer
+  "Slices the buffer up to the first 0 or to the end.
+  There is no zero bytes in the result"
   [buf :- js/Buffer]
 
   (let [l (some #(when (zero? (aget buf %)) %)

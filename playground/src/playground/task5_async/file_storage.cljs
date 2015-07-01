@@ -12,6 +12,7 @@
 
 
 (s/defn new-file-storage :- FileStorage
+  "Creates a new file storage. This is a pure function."
   [path :- s/Str]
   (->FileStorage path))
 
@@ -50,9 +51,12 @@
     (.fill 0)))
 
 
-(s/defn <add-file [storage :- FileStorage
-                   name    :- s/Str
-                   size    :- s/Int]
+(s/defn <add-file
+  "Adds empty file to the storage."
+  [storage :- FileStorage
+   name    :- s/Str
+   size    :- s/Int]
+
   (go
     (result/forward-error (<! (<open-new storage name))
       fd (<! (<<< fs/write fd
@@ -60,10 +64,13 @@
                   0)))))
 
 
-(s/defn <write-to-file [storage :- FileStorage
-                        name    :- s/Str
-                        buffer  :- js/Buffer
-                        offset  :- s/Int]
+(s/defn <write-to-file
+  "Writes the buffer to the file."
+  [storage :- FileStorage
+   name    :- s/Str
+   buffer  :- js/Buffer
+   offset  :- s/Int]
+
   (go
     (result/forward-error (<! (<open-for-writing storage name))
       fd (<! (<<< fs/write fd
@@ -71,10 +78,13 @@
                   offset)))))
 
 
-(s/defn <read-from-file [storage :- FileStorage
-                         name    :- s/Str
-                         buffer  :- js/Buffer
-                         offset  :- s/Int]
+(s/defn <read-from-file
+  "Reads from the file to the buffer."
+  [storage :- FileStorage
+   name    :- s/Str
+   buffer  :- js/Buffer
+   offset  :- s/Int]
+
   (go
     (result/forward-error (<! (<open-for-reading storage name))
       fd (<! (<<< fs/read fd

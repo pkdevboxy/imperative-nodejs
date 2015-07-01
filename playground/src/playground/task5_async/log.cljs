@@ -9,13 +9,16 @@
 
 
 (s/defn new-log :- Log
+  "Creates a new log. This is a pure function."
   [storage       :- FileStorage
    log-file-size :- s/Int]
 
   (impl/->Log storage log-file-size nil nil))
 
 
-(s/defn <start [log :- Log]
+(s/defn <start
+  "Starts a log. Returns a chanel with either log or error."
+  [log :- Log]
   (go
     (result/forward-error (<! (impl/<start log))
       started-log (do
@@ -23,12 +26,17 @@
                     (result/ok started-log)))))
 
 
-(s/defn stop! [log :- Log]
+(s/defn stop!
+  "Stops a log."
+  [log :- Log]
+
   (async/close! (:<requests log)))
 
 
-(s/defn <add-record [log    :- Log
-                     record :- js/Buffer]
+(s/defn <add-record
+  "Writes a record to the log. Returns a chanel with either message id or error."
+  [log    :- Log
+   record :- js/Buffer]
   {:pre (< (.-length record) (:log-file-size log))}
 
   (let [<result (async/chan)]
@@ -37,8 +45,10 @@
       (<! <result))))
 
 
-(s/defn <fetch-record [log    :- Log
-                       offset :- s/Int]
+(s/defn <fetch-record
+  "Reads a record from log. Returns a chanel with either record or error."
+  [log    :- Log
+   offset :- s/Int]
   {:pre (<= 0 offset @(:current-offset log))}
 
   (let [<result (async/chan)]

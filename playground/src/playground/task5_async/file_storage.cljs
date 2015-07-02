@@ -38,7 +38,8 @@
   (<<< fs/open (path-to-file storage name) "r+"))
 
 
-(s/defn ^:private close! [fd]
+(s/defn ^:private close-fd!
+  [fd :- s/Int]
   (fs/close fd (fn []
                ; ignore possible error
                  )))
@@ -82,7 +83,7 @@
       fd (let [result (<! (<<< fs/write fd
                                buffer 0 (.-length buffer)
                                offset))]
-           (close! fd)
+           (close-fd! fd)
            result))))
 
 
@@ -98,5 +99,5 @@
       fd (let [result (<! (<<< fs/read fd
                                buffer 0 (.-length buffer)
                                offset))]
-           (close! fd)
+           (close-fd! fd)
            result))))

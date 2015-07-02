@@ -4,7 +4,6 @@
             [cljs.core.async :as async :refer [<! >!]]
             [playground.test-fixtures :refer [<random-delay]]
             [playground.task5-async.fixtures :refer [log-fixture *file-storage*]]
-            [playground.node-api.path :as path]
             [playground.node-lib.result :as result]
             [playground.task5-async.log :as log]))
 
@@ -15,7 +14,7 @@
   (t/async
    done
    (go
-     (let [[_ l] (<! (log/<start (log/new-log *file-storage* 10)))
+     (let [l (result/unwrap! (<! (log/<start (log/new-log *file-storage* 10))))
            messages (mapv #(js/Buffer. %) ["Hello" "123456789" "a" "c"
                                            "de" "abacaba" "World" "aba" ""])
            <respones (async/chan 10)]

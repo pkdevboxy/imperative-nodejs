@@ -15,7 +15,7 @@
      current-offset
      <requests])
 
-(declare <ensure-has-file <write-record! <read-record!)
+(declare <add-file <write-record! <read-record!)
 
 
 (s/defn ^:private is-valid-offset :- s/Bool
@@ -26,7 +26,7 @@
 (s/defn <start [log :- Log]
   (let [rt-config {:current-offset (atom 0 :validator is-valid-offset)
                    :<requests (async/chan)}]
-    (<ensure-has-file (into log rt-config))))
+    (<add-file (into log rt-config) 0)))
 
 
 (s/defn start-processing! [log :- Log]
@@ -84,28 +84,31 @@
       _ (result/ok log))))
 
 
-(s/defn ^:private <add-new-file
-  [log :- Log]
+(s/defn ^:private <increase-offset
+  [log :- Log
+   off :- s/Int]
 
-  (swap! (:current-offset log) + (free-space-in-file log))
-  (<add-file log (current-file-id log)))
+  (let [new-file-id (file-id-for-offset log (+ @(:current-offset log) off))
+        commit! #(swap! (:current-offset log) + off)]
+    (if (= (current-file-id log) new-file-id)
+      (do
+        (commit!)
+        (async/to-chan [(result/ok :ok)]))
+
+      (go
+        (result/forward-error (<! (<add-file log new-file-id))
+          _ (do
+              (commit!)
+              (result/ok :ok)))))))
 
 
-(s/defn ^:private <add-file-if-neccessary
+(s/defn ^:private <fill-current-file-if-neccessary
   [log    :- Log
    record :- NullTerminatedBuffer]
 
   (if (< (.-length record) (free-space-in-file log))
     (async/to-chan [(result/ok :ok)])
-    (<add-new-file log)))
-
-
-(s/defn ^:private <ensure-has-file
-  [log :- Log]
-
-  (if (zero? (current-in-file-offset log))
-    (<add-file log (current-file-id log))
-    (async/to-chan [(result/ok :ok)])))
+    (<increase-offset log (free-space-in-file log))))
 
 
 (s/defn ^:private <write-record!
@@ -113,7 +116,7 @@
    record :- NullTerminatedBuffer]
 
   (go
-    (result/forward-error (<! (<add-file-if-neccessary log record))
+    (result/forward-error (<! (<fill-current-file-if-neccessary log record))
       _ (result/forward-error (<! (storage/<write-to-file
                                    (:storage log)
                                    (str (current-file-id log))
@@ -121,8 +124,7 @@
                                    (current-in-file-offset log)))
 
           _ (let [old-offset @(:current-offset log)]
-              (swap! (:current-offset log) + (.-length record))
-              (result/forward-error (<! (<ensure-has-file log))
+              (result/forward-error (<! (<increase-offset log (.-length record)))
                 _ (result/ok old-offset)))))))
 
 

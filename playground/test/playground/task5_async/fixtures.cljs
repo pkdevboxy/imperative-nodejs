@@ -6,7 +6,6 @@
 
 
 (def ^:dynamic *file-storage*)
-(def ^:dynamic *log*)
 (def ^:private log-dir "/tmp/test-impl")
 
 
@@ -19,13 +18,9 @@
 
 (def log-fixture
   {:before (fn []
-             (set! *file-storage*  (storage/new-file-storage log-dir))
-             (set! *log* (impl/->Log *file-storage* 10 0 nil))
+             (set! *file-storage* (storage/new-file-storage log-dir))
              (rm-dir-dwim log-dir)
-
-
              (fs/mkdir-sync log-dir))
 
    :after (fn []
-            (set! *file-storage* nil)
-            (set! *log* nil))})
+            (set! *file-storage* nil))})

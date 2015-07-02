@@ -47,3 +47,32 @@
   "A mocking fixture for `fs.writeFile`."
   {:before #(set! (.-writeFile fs) mock-writeFile)
    :after  #(set! (.-writeFile fs) original-writeFile)})
+
+
+(defn evil-monkey
+  "Makes a fixture that adds random failures to the specified async functions of
+  a module"
+  [node-module error-probaility & functions]
+
+  (let [original-functions (atom {})
+        mod (js/require (str node-module))
+        wrap (fn [name f]
+               (fn [& args]
+                 (if (< (rand) error-probaility)
+                   (do
+                     ;; (println "Evil monkey!")
+                     ((last args) (js/Error (str name ": evil monkey did it!"))))
+                   (apply f args))))]
+    {:before
+     (fn []
+       (reset! original-functions
+               (into {} (for [f functions]
+                          [f (aget mod f)])))
+       (doseq [f functions]
+         (aset mod f (wrap f (aget mod f)))))
+
+     :after
+     (fn []
+       (doseq [[name f] @original-functions]
+         (aset mod name f))
+       (reset! original-functions {}))}))

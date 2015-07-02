@@ -23,6 +23,7 @@
 
             playground.task5-async.buffer-test
             playground.task5-async.log-test
+            playground.task5-async.log-failure-test
 
             playground.node-lib.utils-test
             playground.async-utils-test))

@@ -28,7 +28,7 @@
   [storage :- FileStorage
    name    :- s/Str]
 
-  (<<< fs/open (path-to-file storage name) "wx"))
+  (<<< fs/open (path-to-file storage name) "w"))
 
 
 (s/defn ^:private <open-for-writing

@@ -34,7 +34,8 @@
     (when-let [[cmd >response arg] (<! (:<requests log))]
       (condp = cmd
         :write (>! >response (<! (<write-record! log arg)))
-        :read  (>! >response (<! (<read-record! log arg))))
+        :read  (go
+                 (>! >response (<! (<read-record! log arg)))))
       (recur))))
 
 (def NullTerminatedBuffer (s/both js/Buffer

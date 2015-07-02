@@ -13,9 +13,8 @@
 
 
 (s/defn ok :- Result
-  [value :- s/Any]
-
-  [nil value])
+  ([] [nil :ok])
+  ([value :- s/Any]  [nil value]))
 
 
 (s/defn failure :- Result

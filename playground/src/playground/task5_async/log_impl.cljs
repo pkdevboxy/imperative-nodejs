@@ -93,13 +93,13 @@
     (if (= (current-file-id log) new-file-id)
       (do
         (commit!)
-        (async/to-chan [(result/ok :ok)]))
+        (async/to-chan [(result/ok)]))
 
       (go
         (result/forward-error (<! (<add-file log new-file-id))
           _ (do
               (commit!)
-              (result/ok :ok)))))))
+              (result/ok)))))))
 
 
 (s/defn ^:private <fill-current-file-if-neccessary
@@ -107,7 +107,7 @@
    record :- NullTerminatedBuffer]
 
   (if (< (.-length record) (free-space-in-file log))
-    (async/to-chan [(result/ok :ok)])
+    (async/to-chan [(result/ok)])
     (<increase-offset log (free-space-in-file log))))
 
 

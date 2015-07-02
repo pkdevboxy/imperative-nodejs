@@ -13,7 +13,8 @@
 
   :node-dependencies [[source-map-support "0.2.8"]
                       [async "^1.2.1"]
-                      [bluebird "^2.9.30"]]
+                      [bluebird "^2.9.30"]
+                      [benchmark "1.0.0"]]
 
   :plugins [[lein-cljsbuild "1.0.6"]
             [lein-npm "0.5.0"]

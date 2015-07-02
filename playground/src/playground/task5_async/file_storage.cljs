@@ -38,6 +38,12 @@
   (<<< fs/open (path-to-file storage name) "r+"))
 
 
+(s/defn ^:private close! [fd]
+  (fs/close fd (fn []
+               ; ignore possible error
+                 )))
+
+
 (s/defn ^:private <open-for-reading
   [storage :- FileStorage
    name    :- s/Str]
@@ -73,9 +79,11 @@
 
   (go
     (result/forward-error (<! (<open-for-writing storage name))
-      fd (<! (<<< fs/write fd
-                  buffer 0 (.-length buffer)
-                  offset)))))
+      fd (let [result (<! (<<< fs/write fd
+                               buffer 0 (.-length buffer)
+                               offset))]
+           (close! fd)
+           result))))
 
 
 (s/defn <read-from-file
@@ -87,6 +95,8 @@
 
   (go
     (result/forward-error (<! (<open-for-reading storage name))
-      fd (<! (<<< fs/read fd
-                  buffer 0 (.-length buffer)
-                  offset)))))
+      fd (let [result (<! (<<< fs/read fd
+                               buffer 0 (.-length buffer)
+                               offset))]
+           (close! fd)
+           result))))

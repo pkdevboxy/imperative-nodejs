@@ -2,13 +2,15 @@
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [<! >!]]
             [schema.core :as s]
-            [playground.node-lib.result :as result]
+            [playground.async-utils :refer [Chan-of]]
+            [playground.node-lib.result :as result :refer [Result-of]]
             [playground.node-lib.utils :refer [<<<]]
             [playground.node-api.path :as path]
             [playground.node-api.fs :as fs]))
 
 
 (s/defrecord FileStorage [path :- s/Str])
+(def Fd s/Int)
 
 
 (s/defn new-file-storage :- FileStorage
@@ -24,14 +26,14 @@
   (path/join (:path storage) name))
 
 
-(s/defn ^:private <open-new
+(s/defn ^:private <open-new :- (Chan-of (Result-of Fd))
   [storage :- FileStorage
    name    :- s/Str]
 
   (<<< fs/open (path-to-file storage name) "w"))
 
 
-(s/defn ^:private <open-for-writing
+(s/defn ^:private <open-for-writing :- (Chan-of (Result-of Fd))
   [storage :- FileStorage
    name    :- s/Str]
 
@@ -39,13 +41,13 @@
 
 
 (s/defn ^:private close-fd!
-  [fd :- s/Int]
+  [fd :- Fd]
   (fs/close fd (fn []
                ; ignore possible error
                  )))
 
 
-(s/defn ^:private <open-for-reading
+(s/defn ^:private <open-for-reading :- (Chan-of (Result-of Fd))
   [storage :- FileStorage
    name    :- s/Str]
 
@@ -58,7 +60,8 @@
     (.fill 0)))
 
 
-(s/defn <add-file
+(s/defn <add-file :- (Chan-of (Result-of [(s/one s/Int "bytes written")
+                                          (s/one js/Buffer nil)]))
   "Adds empty file to the storage."
   [storage :- FileStorage
    name    :- s/Str
@@ -73,7 +76,8 @@
            result))))
 
 
-(s/defn <write-to-file
+(s/defn <write-to-file :- (Chan-of (Result-of [(s/one s/Int "bytes written")
+                                               (s/one js/Buffer nil)]))
   "Writes the buffer to the file."
   [storage :- FileStorage
    name    :- s/Str
@@ -89,7 +93,8 @@
            result))))
 
 
-(s/defn <read-from-file
+(s/defn <read-from-file :- (Chan-of (Result-of [(s/one s/Int "bytes read")
+                                                (s/one js/Buffer nil)]))
   "Reads from the file to the buffer."
   [storage :- FileStorage
    name    :- s/Str

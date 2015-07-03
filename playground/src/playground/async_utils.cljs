@@ -1,8 +1,12 @@
 (ns playground.async-utils
   (:refer-clojure :exclude [concat])
   (:require-macros [cljs.core.async.macros :refer [go-loop alt!]])
-  (:require [cljs.core.async :as async :refer [<! >!]]))
+  (:require [cljs.core.async :as async :refer [<! >!]]
+            [schema.core :as s]))
 
+(defn Chan-of [x] s/Any)
+
+(def Chan (Chan-of s/Any))
 
 (defn put-one! [ch val]
   (async/put! ch val #(async/close! ch)))

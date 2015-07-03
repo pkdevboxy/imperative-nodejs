@@ -2,10 +2,11 @@
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [<! >!]]
             [schema.core :as s]
-            [playground.task5-async.log-impl :as impl :refer [Log]]
+            [playground.async-utils :refer [Chan-of]]
+            [playground.task5-async.log-impl :as impl :refer [Log RecordOffset]]
             [playground.task5-async.buffer :as buffer]
             [playground.task5-async.file-storage :refer [FileStorage]]
-            [playground.node-lib.result :as result]))
+            [playground.node-lib.result :as result :refer [Result-of]]))
 
 
 (s/defn new-log :- Log
@@ -16,7 +17,7 @@
   (impl/->Log storage log-file-size nil nil))
 
 
-(s/defn <start
+(s/defn <start :- (Chan-of (Result-of Log))
   "Starts a log. Returns a chanel with either log or error."
   [log :- Log]
   (go
@@ -33,7 +34,7 @@
   (async/close! (:<requests log)))
 
 
-(s/defn <add-record
+(s/defn <add-record :- (Chan-of (Result-of RecordOffset))
   "Writes a record to the log. Returns a chanel with either message id or error."
   [log    :- Log
    record :- js/Buffer]
@@ -45,10 +46,10 @@
       (<! <result))))
 
 
-(s/defn <fetch-record
+(s/defn <fetch-record :- (Chan-of (Result-of js/Buffer))
   "Reads a record from log. Returns a chanel with either record or error."
   [log    :- Log
-   offset :- s/Int]
+   offset :- RecordOffset]
   {:pre (<= 0 offset @(:current-offset log))}
 
   (let [<result (async/chan)]

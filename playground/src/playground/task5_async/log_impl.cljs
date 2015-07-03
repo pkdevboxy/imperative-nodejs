@@ -2,18 +2,29 @@
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:require [cljs.core.async :as async :refer [<! >!]]
             [schema.core :as s]
+            [playground.async-utils :refer [Chan-of Chan]]
+            [playground.schemas :refer [Atom-of]]
             [playground.node-api.fs :as fs]
             [playground.node-api.path :as path]
             [playground.node-lib.utils :refer [<<<]]
-            [playground.node-lib.result :as result]
+            [playground.node-lib.result :as result :refer [Result Result-of]]
             [playground.task5-async.file-storage :as storage]
             [playground.task5-async.buffer :as buffer]))
 
+(def RecordOffset s/Int)
+(def NullTerminatedBuffer (s/both js/Buffer
+                                  (s/pred #(zero? (aget % (dec (.-length %)))))))
+
+
 (s/defrecord Log
-    [storage       :- storage/FileStorage
-     log-file-size :- s/Int
-     current-offset
-     <requests])
+    [storage        :- storage/FileStorage
+     log-file-size  :- s/Int
+     current-offset :- (s/maybe (Atom-of RecordOffset))
+     <requests      :- (s/maybe
+                        (Chan-of [(s/one s/Keyword "command")
+                                  (s/one Chan "reply-to")
+                                  (s/one (s/either js/Buffer RecordOffset) "arg")]))])
+
 
 (declare <add-file <write-record! <read-record!)
 
@@ -23,25 +34,28 @@
   (<= 0 x (.-MAX_SAFE_INTEGER js/Number)))
 
 
-(s/defn <start [log :- Log]
+(s/defn <start :- (Chan-of (Result-of Log))
+  [log :- Log]
+
   (let [rt-config {:current-offset (atom 0 :validator is-valid-offset)
                    :<requests (async/chan)}]
     (<add-file (into log rt-config) 0)))
 
 
-(s/defn start-processing! [log :- Log]
+(s/defn start-processing!
+  [log :- Log]
+
   (go-loop []
-    (when-let [[cmd >response arg] (<! (:<requests log))]
+    (when-let [[cmd >reply-to arg] (<! (:<requests log))]
       (condp = cmd
-        :write (>! >response (<! (<write-record! log arg)))
+        :write (>! >reply-to (<! (<write-record! log arg)))
         :read  (go
-                 (>! >response (<! (<read-record! log arg)))))
+                 (>! >reply-to (<! (<read-record! log arg)))))
       (recur))))
 
-(def NullTerminatedBuffer (s/both js/Buffer
-                                  (s/pred #(zero? (aget % (dec (.-length %)))))))
 
-(s/defn ^:private file-id-for-offset
+
+(s/defn ^:private file-id-for-offset :- s/Int
   [log    :- Log
    offset :- s/Int]
   {:pre (<= 0 offset @(:current-offset log))}
@@ -49,31 +63,32 @@
   (quot offset (:log-file-size log)))
 
 
-(s/defn ^:private current-file-id [log :- Log]
+(s/defn ^:private current-file-id :- s/Int
+  [log :- Log]
   (file-id-for-offset log @(:current-offset log)))
 
 
-(s/defn ^:private in-file-offset
+(s/defn ^:private in-file-offset :- s/Int
   [log    :- Log
    offset :- s/Int]
 
   (mod offset (:log-file-size log)))
 
 
-(s/defn ^:private current-in-file-offset
+(s/defn ^:private current-in-file-offset :- s/Int
   [log :- Log]
 
   (in-file-offset log @(:current-offset log)))
 
 
-(s/defn ^:private free-space-in-file
+(s/defn ^:private free-space-in-file :- s/Int
   [log :- Log]
 
   (- (:log-file-size log)
      (current-in-file-offset log)))
 
 
-(s/defn ^:private <add-file
+(s/defn ^:private <add-file :- (Chan-of (Result-of Log))
   [log :- Log
    file-id :- s/Int]
 
@@ -85,7 +100,7 @@
       _ (result/ok log))))
 
 
-(s/defn ^:private <increase-offset
+(s/defn ^:private <increase-offset :- (Chan-of Result)
   [log :- Log
    off :- s/Int]
 
@@ -103,7 +118,7 @@
               (result/ok)))))))
 
 
-(s/defn ^:private <fill-current-file-if-neccessary
+(s/defn ^:private <fill-current-file-if-neccessary :- (Chan-of Result)
   [log    :- Log
    record :- NullTerminatedBuffer]
 
@@ -112,7 +127,7 @@
     (<increase-offset log (free-space-in-file log))))
 
 
-(s/defn ^:private <write-record!
+(s/defn ^:private <write-record! :- (Chan-of (Result-of RecordOffset))
   [log    :- Log
    record :- NullTerminatedBuffer]
 
@@ -129,7 +144,7 @@
                 _ (result/ok old-offset)))))))
 
 
-(s/defn ^:private <read-record!
+(s/defn ^:private <read-record! :- (Chan-of (Result-of js/Buffer))
   [log           :- Log
    global-offset :- s/Int]
   {:pre (<= 0 global-offset @(:current-offset log))}

@@ -4,6 +4,16 @@
   (:require [cljs.core.async :as async :refer [<! >!]]))
 
 
+(defn put-one! [ch val]
+  (async/put! ch val #(async/close! ch)))
+
+
+(defn chan-of [val]
+  (let [>result (async/chan 1)]
+    (put-one! >result val)
+    >result))
+
+
 (defn flatmap
   "Maps f over <in to get a channel of channels and then mixes resulting
   channels without order"

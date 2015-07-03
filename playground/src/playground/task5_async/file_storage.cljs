@@ -66,9 +66,11 @@
 
   (go
     (result/forward-error (<! (<open-new storage name))
-      fd (<! (<<< fs/write fd
-                  (zero-buffer size) 0 size
-                  0)))))
+      fd (let [result (<! (<<< fs/write fd
+                               (zero-buffer size) 0 size
+                               0))]
+           (close-fd! fd)
+           result))))
 
 
 (s/defn <write-to-file

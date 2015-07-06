@@ -4,8 +4,6 @@
             [schema.core :as s]
             [playground.async-utils :refer [Chan-of Chan]]
             [playground.schemas :refer [Atom-of]]
-            [playground.node-api.fs :as fs]
-            [playground.node-api.path :as path]
             [playground.node-lib.utils :refer [<<<]]
             [playground.node-lib.result :as result :refer [Result Result-of]]
             [playground.task5-async.file-storage :as storage]

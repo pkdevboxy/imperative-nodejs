@@ -21,9 +21,9 @@
             playground.task4.cljs-async-test
             playground.task4.cljs-promise-test
 
-            playground.task5-async.buffer-test
-            playground.task5-async.log-test
-            playground.task5-async.log-failure-test
+            playground.task5.buffer-test
+            playground.task5.log-test
+            playground.task5.log-failure-test
 
             playground.node-lib.utils-test
             playground.async-utils-test))

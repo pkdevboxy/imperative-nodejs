@@ -1,4 +1,4 @@
-(ns playground.task5-async.fixtures
+(ns playground.task5.fixtures
   (:require [playground.node-api.fs :as fs]
             [playground.node-api.path :as path]
             [playground.test-utils :refer [prepare-clean-dir]]

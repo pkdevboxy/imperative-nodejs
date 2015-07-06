@@ -1,10 +1,10 @@
-(ns playground.task5-async.log-failure-test
+(ns playground.task5.log-failure-test
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.test :as t :refer-macros [deftest is]]
             [cljs.core.async :as async :refer [<! >!]]
             [playground.test-fixtures :refer [<random-delay evil-monkey]]
             [playground.test-utils :refer [<retry]]
-            [playground.task5-async.fixtures :refer [log-fixture *file-storage*]]
+            [playground.task5.fixtures :refer [log-fixture *file-storage*]]
             [playground.node-api.path :as path]
             [playground.node-lib.result :as result]
             [playground.task5-async.log :as log]))

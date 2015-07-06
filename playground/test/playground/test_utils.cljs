@@ -20,5 +20,6 @@
   (when (fs/exists-sync dir)
     (doseq [f (fs/readdir-sync dir)]
       (fs/unlink-sync (path/join dir f)))
-    (fs/rmdir-sync dir)
-    (fs/mkdir-sync dir)))
+    (fs/rmdir-sync dir))
+
+  (fs/mkdir-sync dir))

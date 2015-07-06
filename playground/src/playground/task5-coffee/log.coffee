@@ -2,6 +2,7 @@ appendZeroByte = (buffer)->
   zero = new Buffer([0])
   return Buffer.concat([buffer, zero])
 
+
 class Log
   constructor: (@storage, @logFileSize)->
     @currentOffset = 0
@@ -12,7 +13,14 @@ class Log
     record = appendZeroByte(record)
     @_enqueueWrite([record, callback])
 
-  readRecord
+  readRecord: (offset, callback) ->
+    fileId = @_fileIdForOffset(offset)
+    fileOffset = @_inFileOffset(offset)
+    maxLen = @logFileSize - offset
+    buffer = new Buffer(maxLen)
+    @storage.readFromFile fileId, buffer, fileOffset, (error) ->
+      return callback(error) if error
+      callback(nil, buffer)
 
   _enqueueWrite: (cmd) ->
     @pendingWrites.push(cmd)
@@ -48,7 +56,7 @@ class Log
 
   _increaseOffset: (amount, callback) ->
     newOffset = @currentOffset + amount
-    if (@_fileIdForOffset(newOffset) == @_fileIdForOffset(@currentOffset))
+    if @_fileIdForOffset(newOffset) == @_fileIdForOffset(@currentOffset)
       @currentOffset += amount
       process.nextTick -> callback(null)
     else
@@ -62,4 +70,9 @@ class Log
     _fileIdForOffset: (offset) ->
       Math.floor(offset / @logFileSize)
 
-    _currentInFileOffset: -> @currentOffset % @logFileSize
+    _inFileOffset: (offset) ->
+      offset % @logFileSize
+
+    _currentInFileOffset: -> @_increaseOffset(@currentOffset)
+
+module.exports = Log

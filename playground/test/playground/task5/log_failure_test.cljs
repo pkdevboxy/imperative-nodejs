@@ -6,7 +6,7 @@
             [playground.test-utils :refer [<retry]]
             [playground.task5.fixtures :refer [dir-fixture *tmp-dir*]]
             [playground.node-lib.result :as result]
-            [playground.task5.implementations :refer [async-log]]))
+            [playground.task5.implementations :as implementations]))
 
 (t/use-fixtures :each
   (let [em (evil-monkey 'fs 0.2 'open 'write 'read)]
@@ -28,7 +28,7 @@
   (repeatedly n random-buffer))
 
 
-(defn ^:private test-impl [{:keys [<start <add-record <fetch-record]} done]
+(defn ^:private test-log [{:keys [<start <add-record <fetch-record]} done]
   (let [records (random-buffers 100)
          <results (async/chan 100)
          left (atom (count records))]
@@ -51,4 +51,4 @@
 (deftest async-log-reads-all-that-is-written
   (t/async
    done
-   (test-impl async-log done)))
+   (test-log implementations/async-log done)))

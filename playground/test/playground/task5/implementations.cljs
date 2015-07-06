@@ -16,7 +16,7 @@
   "../task5_coffee/")
 
 
-(def callback-impl
+(def callback-log
   {:<start (fn [dir file-size]
              (let [Filestorage (js/require (str coffee-path "file_storage"))
                    Log (js/require (str coffee-path "log"))

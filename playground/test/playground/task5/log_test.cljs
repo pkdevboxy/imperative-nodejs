@@ -40,4 +40,4 @@
 (deftest test-coffee-log
   (t/async
    done
-   (test-log implementations/callback-impl done)))
+   (test-log implementations/callback-log done)))

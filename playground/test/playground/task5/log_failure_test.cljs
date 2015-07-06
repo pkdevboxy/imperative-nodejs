@@ -52,3 +52,9 @@
   (t/async
    done
    (test-log implementations/async-log done)))
+
+
+(deftest callback-log-reads-all-that-is-written
+  (t/async
+   done
+   (test-log implementations/callback-log done)))

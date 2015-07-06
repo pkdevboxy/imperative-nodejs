@@ -33,16 +33,16 @@
   :source-paths ["src"]
 
   :coffeescript [{:sources "src/playground/task1/coffee/"
-                  :output  "out/playground/task1/coffee"}
+                  :output  "out/dev/playground/task1/coffee"}
 
                  {:sources "src/playground/task2/coffee/"
-                  :output  "out/playground/task2/coffee"}
+                  :output  "out/dev/playground/task2/coffee"}
 
                  {:sources "src/playground/task3/coffee/"
-                  :output  "out/playground/task3/coffee"}
+                  :output  "out/dev/playground/task3/coffee"}
 
                  {:sources "src/playground/task5_coffee/"
-                  :output  "out/playground/task5_coffee/"}]
+                  :output  "out/dev/playground/task5_coffee/"}]
 
   :aliases {"test" ["do" "coffeescript" ["cljsbuild" "test" "all"]]
 
@@ -55,19 +55,30 @@
 
   :cljsbuild
   {:test-commands
-   {"all" ["node" "test.js"]
-    "task1" ["node" "test.js" "task1"]
-    "task2" ["node" "test.js" "task2"]
-    "task3" ["node" "test.js" "task3"]
-    "task4" ["node" "test.js" "task4"]
-    "task5" ["node" "test.js" "task5"]}
+   {"all" ["node" "out/test.js"]
+    "task1" ["node" "out/test.js" "task1"]
+    "task2" ["node" "out/test.js" "task2"]
+    "task3" ["node" "out/test.js" "task3"]
+    "task4" ["node" "out/test.js" "task4"]
+    "task5" ["node" "out/test.js" "task5"]}
 
-   :builds [{:id "playground"
+   :builds [{:id "dev"
              :source-paths ["src" "test"]
-             :notify-command ["node" "test.js"]
+             :notify-command ["node" "out/test.js"]
 
-             :compiler {:output-to "out/playground.js"
-                        :output-dir "out"
+             :compiler {:main playground.test-runner
+                        :output-to "out/test.js"
+                        :output-dir "out/dev"
                         :target :nodejs
                         :optimizations :none
+                        :source-map true}}
+
+            {:id "bench"
+             :source-paths ["src" "bench" "test"]
+
+             :compiler {:main playground.benchmark-runner
+                        :output-to "out/bench.js"
+                        :output-dir "out/bench"
+                        :target :nodejs
+                        :optimizations :simple
                         :source-map true}}]})

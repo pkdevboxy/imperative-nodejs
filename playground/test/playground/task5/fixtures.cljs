@@ -1,19 +1,14 @@
 (ns playground.task5.fixtures
   (:require [playground.node-api.fs :as fs]
             [playground.node-api.path :as path]
-            [playground.test-utils :refer [prepare-clean-dir]]
-            [playground.task5-async.file-storage :as storage]
-            [playground.task5-async.log-impl :as impl]))
+            [playground.test-utils :refer [prepare-clean-dir]]))
 
 
-(def ^:dynamic *file-storage*)
-(def ^:private log-dir "/tmp/test-impl")
+(def ^:dynamic *tmp-dir*)
 
-
-(def log-fixture
+(def dir-fixture
   {:before (fn []
-             (set! *file-storage* (storage/new-file-storage log-dir))
-             (prepare-clean-dir log-dir))
+             (set! *tmp-dir* "/tmp/tests")
+             (prepare-clean-dir *tmp-dir*))
 
-   :after (fn []
-            (set! *file-storage* nil))})
+   :after (fn [] )})

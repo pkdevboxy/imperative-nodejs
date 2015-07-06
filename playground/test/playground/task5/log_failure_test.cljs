@@ -2,22 +2,21 @@
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.test :as t :refer-macros [deftest is]]
             [cljs.core.async :as async :refer [<! >!]]
-            [playground.test-fixtures :refer [<random-delay evil-monkey]]
+            [playground.test-fixtures :refer [evil-monkey]]
             [playground.test-utils :refer [<retry]]
-            [playground.task5.fixtures :refer [log-fixture *file-storage*]]
-            [playground.node-api.path :as path]
+            [playground.task5.fixtures :refer [dir-fixture *tmp-dir*]]
             [playground.node-lib.result :as result]
-            [playground.task5-async.log :as log]))
+            [playground.task5.implementations :refer [async-log]]))
 
 (t/use-fixtures :each
   (let [em (evil-monkey 'fs 0.2 'open 'write 'read)]
     {:before (fn []
-               ((:before log-fixture))
+               ((:before dir-fixture))
                ((:before em)))
 
      :after (fn []
               ((:after em))
-              ((:after log-fixture)))}))
+              ((:after dir-fixture)))}))
 
 
 (defn random-buffer []
@@ -29,38 +28,27 @@
   (repeatedly n random-buffer))
 
 
-(defn ^:private <do-add-record [l record]
-  (<retry (fn []
-            (go
-              (<! (<random-delay))
-              (<! (log/<add-record l record))))))
-
-
-(defn ^:private <do-fetch-record [l offset]
-  (<retry (fn []
-            (go
-              (<! (<random-delay))
-              (<! (log/<fetch-record l offset))))))
-
-
-(deftest log-reads-all-that-is-written
-  (t/async
-   done
-
-   (let [records (random-buffers 100)
+(defn ^:private test-impl [{:keys [<start <add-record <fetch-record]} done]
+  (let [records (random-buffers 100)
          <results (async/chan 100)
          left (atom (count records))]
      (go
-       (let [l (<! (<retry #(log/<start (log/new-log *file-storage* 100))))]
+       (let [l (<! (<retry #(<start *tmp-dir* 100)))]
          (doseq [r records]
            (go
-             (>! <results [r (<! (<do-add-record l r))])))
+             (>! <results [r (<! (<retry #(<add-record l r)))])))
 
          (dotimes [_ (count records)]
            (go
              (let [[r off] (<! <results)
-                   r-fetched (<! (<do-fetch-record l off))]
+                   r-fetched (<! (<retry #(<fetch-record l off)))]
 
                (is (.equals r r-fetched))
                (if (zero? (swap! left dec))
-                 (done))))))))))
+                 (done)))))))))
+
+
+(deftest async-log-reads-all-that-is-written
+  (t/async
+   done
+   (test-impl async-log done)))

@@ -1,12 +1,14 @@
 (ns playground.test-utils
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
-  (:require [playground.node-lib.result :as result]
+  (:require [playground.test-fixtures :refer [<random-delay]]
+            [playground.node-lib.result :as result]
             [playground.node-api.fs :as fs]
             [playground.node-api.path :as path]))
 
 
 (defn <retry [thunk]
   (go-loop [i 100]
+    (<! (<random-delay))
     (result/match (<! (thunk))
       err (if (zero? i)
             (throw err)

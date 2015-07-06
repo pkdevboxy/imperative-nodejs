@@ -17,9 +17,11 @@
   (* n 1024 1024))
 
 
-(defn random-buffers [max-length total-size]
+(defn random-buffers
+  ([total-size] (random-buffers 1000 total-size))
+  ([max-length total-size]
   (loop [result [] current-length 0]
     (if (< total-size (+ current-length max-length))
       result
       (let [buff (random-buffer max-length)]
-        (recur (conj result buff) (+ current-length (.-length buff)))))))
+        (recur (conj result buff) (+ current-length (.-length buff))))))))

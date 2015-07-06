@@ -30,7 +30,7 @@
   :hooks [lein-coffeescript.plugin
           leiningen.cljsbuild]
 
-  :source-paths ["src"]
+  :source-paths ["src" "test" "bench"]
 
   :coffeescript [{:sources ["src/coffee/"]
                   :output  "out/playground"}]

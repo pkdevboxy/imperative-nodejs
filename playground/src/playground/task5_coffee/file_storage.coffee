@@ -7,7 +7,6 @@ zeroBuffer = (size) ->
   buf.fill(0)
   buf
 
-
 class FileStorage
   constructor: (@path) ->
 
@@ -28,7 +27,8 @@ class FileStorage
   readFromFile: (name, buffer, offset, callback) ->
     @_openForReading name, (err, fd) ->
       return callback(err) if err
-      fs.read fd buffer, 0, buffer.length, offset, (err) ->
+
+      fs.read fd, buffer, 0, buffer.length, offset, (err) ->
         fs.close(fd, ->)
         callback(err)
 

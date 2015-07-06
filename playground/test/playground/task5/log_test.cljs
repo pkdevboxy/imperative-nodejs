@@ -5,7 +5,7 @@
             [playground.test-fixtures :refer [<random-delay]]
             [playground.task5.fixtures :refer [dir-fixture *tmp-dir*]]
             [playground.node-lib.result :as result]
-            [playground.task5.implementations :refer [async-log]]))
+            [playground.task5.implementations :as implementations]))
 
 (t/use-fixtures :each dir-fixture)
 
@@ -34,4 +34,10 @@
 (deftest test-async-log
   (t/async
    done
-   (test-log async-log done)))
+   (test-log implementations/async-log done)))
+
+
+(deftest test-coffee-log
+  (t/async
+   done
+   (test-log implementations/callback-impl done)))

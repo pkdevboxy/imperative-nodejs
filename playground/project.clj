@@ -39,7 +39,10 @@
                   :output  "out/playground/task2/coffee"}
 
                  {:sources "src/playground/task3/coffee/"
-                  :output  "out/playground/task3/coffee"}]
+                  :output  "out/playground/task3/coffee"}
+
+                 {:sources "src/playground/task5_coffee/"
+                  :output  "out/playground/task5_coffee/"}]
 
   :aliases {"test" ["do" "coffeescript" ["cljsbuild" "test" "all"]]
 

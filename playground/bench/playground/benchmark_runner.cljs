@@ -1,17 +1,19 @@
 (ns playground.benchmark-runner
   (:require [cljs.nodejs :as nodejs]
             [schema.core :as s]
-            [playground.benchmark :refer [time-it-sync!]]))
+            [playground.benchmark :refer [time-it-sync!]]
+            [playground.task5.benchmark-fixtures :refer [random-buffers megabytes]]))
 
 
 (nodejs/enable-util-print!)
 (s/set-fn-validation! true)
 
 
-(defn sum [xs]
-  (reduce + xs))
+
 
 (defn -main []
-  (time-it-sync! #(sum (range 1000000))))
+  (let [f (fn []
+            (random-buffers 1000 (megabytes 100)))]
+    (time-it-sync! f)))
 
 (set! *main-cli-fn* -main)

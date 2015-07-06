@@ -61,6 +61,7 @@
                         :output-to "out/test.js"
                         :output-dir "out/dev"
                         :target :nodejs
+                        :pretty-print true
                         :optimizations :none
                         :source-map true}}
 
@@ -72,4 +73,5 @@
                         :language-in  :ecmascript5
                         :language-out :ecmascript5
                         :target :nodejs
+                        :pretty-print true
                         :optimizations :simple}}]})

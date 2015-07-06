@@ -5,18 +5,9 @@
             [playground.task5-async.log :as log]
             [playground.task5-async.file-storage :as storage]
             [playground.node-lib.result :as result]
-            [playground.benchmark :refer [time-it!]]))
+            [playground.benchmark :refer [time-it!]]
+            [playground.task5.benchmark-fixtures :refer [random-buffers]]))
 
-
-(defn random-byte []
-  (inc (rand-int 255)))
-
-(defn random-buffer [max-length]
-  (js/Buffer. (clj->js (repeatedly (rand-int max-length) random-byte))))
-
-
-(defn random-buffers [n max-length]
-  (repeatedly n #(random-buffer max-length)))
 
 (defn- enumerate [coll]
   (map-indexed vector coll))
@@ -28,7 +19,8 @@
 
   (let [n-writes (int (* n-requests-per-client write-prob))
         n-reads (- n-requests-per-client n-writes)
-        buffers (enumerate (random-buffers n-writes max-record-length))
+        buffers (enumerate (random-buffers (* max-record-length n-writes)
+                                           max-record-length))
         writes (for [[i b] buffers]
                  [:write [i b]])
         reads (for [_ (range n-reads)]

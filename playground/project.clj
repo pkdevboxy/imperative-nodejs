@@ -70,6 +70,7 @@
              :compiler {:main playground.benchmark-runner
                         :output-to "out/bench.js"
                         :output-dir "out/bench"
+                        :language-in  :ecmascript5
+                        :language-out :ecmascript5
                         :target :nodejs
-                        :optimizations :none
-                        :source-map true}}]})
+                        :optimizations :simple}}]})

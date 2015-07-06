@@ -1,7 +1,6 @@
 (ns playground.task5.fixtures
-  (:require [playground.node-api.fs :as fs]
-            [playground.node-api.path :as path]
-            [playground.test-utils :refer [prepare-clean-dir]]))
+  (:require [playground.node-api.path :as path]
+            [playground.node-lib.utils :refer [prepare-clean-dir]]))
 
 
 (def ^:dynamic *tmp-dir*)

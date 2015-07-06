@@ -1,7 +1,7 @@
 (ns playground.task5-async.benchmark
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [<! >!]]
-            [playground.test-utils :refer [prepare-clean-dir]]
+            [playground.node-lib.utils :refer [prepare-clean-dir]]
             [playground.task5-async.log :as log]
             [playground.task5-async.file-storage :as storage]
             [playground.node-lib.result :as result]

@@ -6,6 +6,7 @@
   (:require [cljs.nodejs :as node]
             [cljs.core.async :as async :refer [<! chan take!]]
             [cljs.test :as t]
+            [playground.node-lib.utils :refer [require-main]]
             [playground.task1.cljs-callbacks :as cb]
             [playground.task1.cljs-promise :as pr]
             [playground.task1.cljs-async :as as]))
@@ -52,9 +53,9 @@
 
 (deftest sum-numbers-from-files-js-callbacks
   (t/async done
-           (test-implementation done (js/require "./coffee/js_callback"))))
+           (test-implementation done (require-main "./playground/task1/js_callback"))))
 
 
 (deftest sum-numbers-from-files-js-promises
   (t/async done
-           (test-implementation done (js/require "./coffee/js_promise"))))
+           (test-implementation done (require-main "./playground/task1/js_promise"))))

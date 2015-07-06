@@ -1,9 +1,7 @@
 (ns playground.test-utils
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:require [playground.test-fixtures :refer [<random-delay]]
-            [playground.node-lib.result :as result]
-            [playground.node-api.fs :as fs]
-            [playground.node-api.path :as path]))
+            [playground.node-lib.result :as result]))
 
 
 (defn <retry [thunk]
@@ -14,14 +12,3 @@
             (throw err)
             (recur (dec i)))
       value value)))
-
-
-(defn prepare-clean-dir
-  "Ensures that dir exists and is empty"
-  [dir]
-  (when (fs/exists-sync dir)
-    (doseq [f (fs/readdir-sync dir)]
-      (fs/unlink-sync (path/join dir f)))
-    (fs/rmdir-sync dir))
-
-  (fs/mkdir-sync dir))

@@ -2,7 +2,8 @@
   (:require [cljs.nodejs :as node]
             [playground.task1.cljs-callbacks :as cb]
             [playground.task1.cljs-promise :as pr]
-            [playground.task1.cljs-async :as as]))
+            [playground.task1.cljs-async :as as]
+            [playground.node-lib.utils :refer [require-main]]))
 
 (node/enable-util-print!)
 
@@ -14,8 +15,8 @@
   (doseq [[impl f] [["cljs callbacks" cb/sum-from-files]
                     ["cljs promises" pr/sum-from-files]
                     ["cljs async" as/sum-from-files]
-                    ["js callbacks" (js/require "../coffee/js_callback")]
-                    ["js promises" (js/require "../coffee/js_promise")]]]
+                    ["js callbacks" (require-main "./playground/task1/js_callback")]
+                    ["js promises" (require-main "./playground/task1/js_promise")]]]
 
     (f (clj->js cmd-argv)
        (fn [err data]
@@ -23,5 +24,3 @@
          (if err
            (println "error: " err)
            (println "done:  " data))))))
-
-(set! *main-cli-fn* -main)

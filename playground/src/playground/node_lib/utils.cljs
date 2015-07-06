@@ -1,6 +1,8 @@
 (ns playground.node-lib.utils
   (:require [cljs.core.async :as async]
             [schema.core :as s]
+            [playground.node-api.fs :as fs]
+            [playground.node-api.path :as path]
             [playground.async-utils :as autils]
             [playground.node-lib.result :as result :refer [Result-of]]))
 
@@ -30,3 +32,18 @@
     (if (js/isNaN i)
       (result/failure (js/Error (str "str->int: " s " is not an integer!")))
       (result/ok i))))
+
+
+(defn require-main [module]
+  (.require (.-main js/require) module))
+
+
+(defn prepare-clean-dir
+  "Ensures that dir exists and is empty"
+  [dir]
+  (when (fs/exists-sync dir)
+    (doseq [f (fs/readdir-sync dir)]
+      (fs/unlink-sync (path/join dir f)))
+    (fs/rmdir-sync dir))
+
+  (fs/mkdir-sync dir))

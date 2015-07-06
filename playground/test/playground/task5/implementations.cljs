@@ -1,7 +1,7 @@
 (ns playground.task5.implementations
   (:require [playground.task5-async.file-storage :as storage]
             [playground.task5-async.log :as log]
-            [playground.node-lib.utils :refer [<<<]]))
+            [playground.node-lib.utils :refer [<<< require-main]]))
 
 
 (def async-log
@@ -12,14 +12,10 @@
    :<fetch-record log/<fetch-record})
 
 
-(def ^:private coffee-path
-  "../task5_coffee/")
-
-
 (def callback-log
   {:<start (fn [dir file-size]
-             (let [Filestorage (js/require (str coffee-path "file_storage"))
-                   Log (js/require (str coffee-path "log"))
+             (let [Filestorage (require-main "./playground/task5/file_storage")
+                   Log (require-main "./playground/task5/log")
                    storage (Filestorage. dir)
                    l (Log. storage file-size)]
 

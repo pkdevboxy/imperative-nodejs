@@ -32,8 +32,8 @@
 
   :source-paths ["src"]
 
-  :coffeescript [{:sources ["src/playground/"]
-                  :output  "out/dev/playground"}]
+  :coffeescript [{:sources ["src/coffee/"]
+                  :output  "out/playground"}]
 
   :aliases {"test" ["do" "coffeescript" ["cljsbuild" "test" "all"]]
 
@@ -65,10 +65,9 @@
                         :source-map true}}
 
             {:id "bench"
-             :source-paths ["src" "bench" "test"]
+             :source-paths ["src" "bench"]
 
-             :compiler {:main playground.benchmark-runner
-                        :output-to "out/bench.js"
+             :compiler {:output-to "out/bench.js"
                         :output-dir "out/bench"
                         :language-in  :ecmascript5
                         :language-out :ecmascript5

@@ -8,7 +8,7 @@
 (node-require benchmark)
 
 (defn time-it-sync! [f]
-  (.run (benchmark f)))
+  (println (.run (benchmark f))))
 
 (defn time-it! [f]
   (println "Start async benchmark...")

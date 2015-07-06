@@ -32,17 +32,8 @@
 
   :source-paths ["src"]
 
-  :coffeescript [{:sources "src/playground/task1/coffee/"
-                  :output  "out/dev/playground/task1/coffee"}
-
-                 {:sources "src/playground/task2/coffee/"
-                  :output  "out/dev/playground/task2/coffee"}
-
-                 {:sources "src/playground/task3/coffee/"
-                  :output  "out/dev/playground/task3/coffee"}
-
-                 {:sources "src/playground/task5_coffee/"
-                  :output  "out/dev/playground/task5_coffee/"}]
+  :coffeescript [{:sources ["src/playground/"]
+                  :output  "out/dev/playground"}]
 
   :aliases {"test" ["do" "coffeescript" ["cljsbuild" "test" "all"]]
 
@@ -80,5 +71,5 @@
                         :output-to "out/bench.js"
                         :output-dir "out/bench"
                         :target :nodejs
-                        :optimizations :simple
+                        :optimizations :none
                         :source-map true}}]})

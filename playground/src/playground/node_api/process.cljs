@@ -3,4 +3,4 @@
 
 
 (def argv
-  (js->clj (.-argc nodejs/process)))
+  (js->clj (.-argv nodejs/process)))

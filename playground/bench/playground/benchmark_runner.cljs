@@ -1,10 +1,9 @@
 (ns playground.benchmark-runner
   (:require [cljs.nodejs :as nodejs]
             [schema.core :as s]
-            [playground.benchmark :refer [time-it!]]
-            [playground.task5.benchmark-fixtures :refer [random-buffers megabytes]]
-            [playground.task5.benchmark :refer [write-records-to-log]]
-            [playground.task5.implementations :as implementations]))
+            [playground.benchmark :refer [time-several!]]
+            [playground.node-api.process :as process]
+            [playground.task6.benchmark :refer [callback-benchmark async-benchmark]]))
 
 
 (nodejs/enable-util-print!)
@@ -13,9 +12,12 @@
 
 (defn -main []
   (s/set-fn-validation! false)
-  (let [records (random-buffers 1000 (megabytes 10))
-        f (fn [done]
-            (write-records-to-log implementations/callback-log records done))]
-    (f #(println "Done"))))
+  (let [[count-to delay] (map #(js/parseInt % 10) (drop 2 process/argv))
+        callback-fn (callback-benchmark :count-to count-to :delay delay)
+        async-fn (async-benchmark :count-to count-to :delay delay)]
+
+    (time-several!
+     {:callback callback-fn
+      :async async-fn})))
 
 (set! *main-cli-fn* -main)

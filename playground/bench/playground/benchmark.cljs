@@ -10,12 +10,26 @@
 (defn time-it-sync! [f]
   (println (.run (benchmark f))))
 
-(defn time-it! [f]
+(defn time-it! [f & {:keys [name] :or {:name "cljs"}}]
   (println "Start async benchmark...")
   (doto (.Suite benchmark)
-    (.add "test" (clj->js {:defer true
-                           :fn (fn [deferred] (f #(.resolve deferred)))}))
+    (.add (str name) (clj->js {:defer true
+                               :fn (fn [deferred] (f #(.resolve deferred)))}))
     (.on "cycle" (fn [event]
                    (println "...done!")
                    (println (js/String (.-target event)))))
-    (.run {:async true})))
+    (.run)))
+
+
+(defn time-several! [benchmarks]
+  (let [suite (.Suite benchmark)]
+    (doseq [[name f] benchmarks]
+      (.add suite (str name) (clj->js {:defer true
+                                       :fn (fn [deferred] (f #(.resolve deferred)))})))
+
+    (println "Start async benchmarks...")
+    (doto suite
+      (.on "cycle" (fn [event]
+                     (println "...done!")
+                     (println (js/String (.-target event)))))
+      (.run (clj->js {:async true})))))

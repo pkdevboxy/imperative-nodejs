@@ -29,7 +29,6 @@
             playground.async-utils-test))
 
 (nodejs/enable-util-print!)
-(s/set-fn-validation! true)
 
 (defn- test-task1 []
   (run-all-tests #"playground.task1.*-test"))
@@ -49,7 +48,9 @@
 (defn- test-all []
   (run-all-tests #"playground.*-test"))
 
+
 (defn -main []
+  (s/set-fn-validation! true)
   (case process/argv
     ["task1"] (test-task1)
     ["task2"] (test-task2)

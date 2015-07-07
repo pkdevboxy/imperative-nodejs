@@ -8,13 +8,14 @@
 
 
 (nodejs/enable-util-print!)
-(s/set-fn-validation! false)
+
 
 
 (defn -main []
-  (let [records (random-buffers 1000 (megabytes 0.1))
+  (s/set-fn-validation! false)
+  (let [records (random-buffers 1000 (megabytes 10))
         f (fn [done]
             (write-records-to-log implementations/callback-log records done))]
-    (time-it! f)))
+    (f #(println "Done"))))
 
 (set! *main-cli-fn* -main)

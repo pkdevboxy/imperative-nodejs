@@ -74,4 +74,5 @@
                         :language-out :ecmascript5
                         :target :nodejs
                         :pretty-print true
-                        :optimizations :simple}}]})
+                        :optimizations :simple
+                        :source-map "out/bench.js.map"}}]})

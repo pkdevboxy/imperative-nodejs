@@ -12,7 +12,7 @@ class FileStorage
     @times = []
 
   avgTime: ->
-    micros = (@times.reduce((a, b) -> a + b) / @times.length) / 1000
+    micros = (@times.reduce(((a, b) -> a + b), 0) / @times.length) / 1000
     console.log("avg writeToFile", micros, "microseconds")
 
   addFile: (name, size, callback) ->
@@ -26,11 +26,15 @@ class FileStorage
     start = process.hrtime()
     @_openForWritting name, (err, fd) =>
       return callback(err) if err
-      fs.write fd, buffer, 0, buffer.length, offset, (err) =>
-        @times.push(process.hrtime(start)[1])
+      stream = fs.createWriteStream(null, {fd, start: offset})
+      stream.on('error', (error) ->
+        # empty
+      )
 
+      stream.write(buffer, (error)=>
+        @times.push(process.hrtime(start)[1])
         fs.close(fd, ->)
-        callback(err)
+        callback(error))
 
   readFromFile: (name, buffer, offset, callback) ->
     @_openForReading name, (err, fd) ->

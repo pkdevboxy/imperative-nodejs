@@ -72,6 +72,7 @@
                         :output-dir "out/bench"
                         :language-in  :ecmascript5
                         :language-out :ecmascript5
+                        :static-fns true
                         :target :nodejs
                         :pretty-print true
                         :optimizations :simple

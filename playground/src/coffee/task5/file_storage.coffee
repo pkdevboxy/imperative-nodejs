@@ -9,6 +9,11 @@ zeroBuffer = (size) ->
 
 class FileStorage
   constructor: (@path) ->
+    @times = []
+
+  avgTime: ->
+    micros = (@times.reduce((a, b) -> a + b) / @times.length) / 1000
+    console.log("avg writeToFile", micros, "microseconds")
 
   addFile: (name, size, callback) ->
     @_openNew name, (err, fd) ->
@@ -18,9 +23,12 @@ class FileStorage
         callback(err)
 
   writeToFile: (name, buffer, offset, callback) ->
-    @_openForWritting name, (err, fd) ->
+    start = process.hrtime()
+    @_openForWritting name, (err, fd) =>
       return callback(err) if err
-      fs.write fd, buffer, 0, buffer.length, offset, (err) ->
+      fs.write fd, buffer, 0, buffer.length, offset, (err) =>
+        @times.push(process.hrtime(start)[1])
+
         fs.close(fd, ->)
         callback(err)
 

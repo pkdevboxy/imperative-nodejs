@@ -1,29 +1,85 @@
 (ns playground.benchmark-runner
+  (:require-macros [playground.node-lib.macros :refer [node-require]])
   (:require [cljs.nodejs :as nodejs]
             [schema.core :as s]
-            [playground.benchmark :refer [time-several!]]
             [playground.node-api.process :as process]
-            [playground.task5.benchmark :refer [write-records-to-log
-                                                write-records-to-log-cb]]
-            [playground.task5.implementations :as implementations]
-            [playground.task5.benchmark-fixtures :refer [random-buffers megabytes]]
-            [playground.task6.benchmark :refer [callback-benchmark async-benchmark]]))
+            [playground.task5.benchmark :refer [callback-callback-log-bench
+                                                callback-log-bench]]))
 
 
 (nodejs/enable-util-print!)
 
+(node-require benchmark)
+
+(defn- time-it-sync! [f]
+  (println (.run (benchmark f))))
+
+(def params
+  (->>  process/argv
+        (drop 2)
+        (partition 2)
+        (map (fn [[arg val]] [(keyword arg) val]))
+        (into {})))
+
+
+(defn- report [event]
+  (println "...done!")
+  (println (js/String (.-target event))))
+
+(defn time-it! [f & {:keys [name] :or {:name "cljs"}}]
+  (println "Start async benchmark...")
+  (doto (.Suite benchmark)
+    (.add (str name) (clj->js {:defer true
+                               :fn (fn [deferred] (f #(.resolve deferred)))}))
+    (.on "cycle" report)
+    (.run)))
+
+
+(defn add-to-suite! [suite bench]
+  (let [{:keys [name env f]} (bench params)
+        params {:defer true
+                :fn (fn [defered]
+                      (f #(.resolve defered) env))}]
+    (.add suite name (clj->js params))))
+
+
+(defn- now []
+  (.now js/Date))
+
+
+(def benchmarks
+  [
+   callback-callback-log-bench
+   callback-log-bench
+   ])
+
+
+(defn- run-once []
+  (letfn [(loop-fn [[b & rest]]
+            (when b
+              (let [{:keys [name env f]} (b params)
+                    start (now)]
+                (println "start" name)
+                (f (fn []
+                     (println "done" (/ (- (now) start) 1000) "seconds\n")
+                     (loop-fn rest))
+                   env))))]
+    (loop-fn benchmarks)))
+
+
+(defn- run-suite []
+  (let [suite (.Suite benchmark)]
+    (doseq [b benchmarks]
+      (add-to-suite! suite b))
+    (doto suite
+      (.on  "cycle" report)
+      (.run))))
 
 
 (defn -main []
   (s/set-fn-validation! false)
-  (let [records (random-buffers 10000 (megabytes 50))
-        f-cb-async (fn [done]
-                     (write-records-to-log implementations/callback-log records done))
-        f-cb (fn [done]
-               (write-records-to-log-cb records done))]
-
-    (time-several!
-     {:async f-cb-async
-      :callback f-cb})))
+  (if (:once params)
+    (run-once)
+    (run-suite)))
 
 (set! *main-cli-fn* -main)

@@ -20,7 +20,8 @@ class Log
 
   avgTime: ->
     micros = (@times.reduce((a, b) -> a + b) / @times.length) / 1000
-    console.log("avg write", micros, "microseconds")
+    console.log("avg writeRecord", micros, "microseconds")
+    @storage.avgTime()
 
 
   start: (callback) ->

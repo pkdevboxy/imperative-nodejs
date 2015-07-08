@@ -10,7 +10,7 @@
 (defn write-records-to-log [{:keys [<start <add-record]}
                             path size records report done]
   (go
-    (let [l (result/unwrap! (<! (<start path size)))]
+    (let [l (result/unwrap! (<! (<start path (megabytes size))))]
       (doseq [r records]
         (result/unwrap! (<! (<add-record l r))))
       (when report

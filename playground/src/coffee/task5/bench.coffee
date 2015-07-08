@@ -30,14 +30,15 @@ writeRecordsToLog = (log, records, callback) ->
   i = 0
   f = ->
     if i == records.length
-      # callback()
-      console.log("Done")
+      callback()
+      log.avgTime()
+      # console.log("Done")
       return
     log.writeRecord records[i], (err, offset) ->
       throw err if err
       i += 1
       f()
-  f()
+  log.start(f)
 
 
 data = randomBuffers(megabytes(10), 1000)
@@ -50,13 +51,13 @@ fn = (d) ->
 
 suite = Benchmark.Suite()
 
-# suite
-#   .add('test', {defer: true, fn})
-#   .on('cycle', (event)->
-#     console.log("Done!")
-#     console.log(event.target.toString()))
+suite
+  .add('test', {defer: true, fn})
+  .on('cycle', (event)->
+    console.log("Done!")
+    console.log(event.target.toString()))
 
 
-# suite.run(async: true)
-console.log("Start")
-fn()
+suite.run(async: true)
+# console.log("Start")
+# fn()

@@ -16,6 +16,11 @@ class Log
     @currentOffset = 0
     @pendingWrites = []
     @writeInFlight = false
+    @times = []
+
+  avgTime: ->
+    micros = (@times.reduce((a, b) -> a + b) / @times.length) / 1000
+    console.log("avg write", micros, "microseconds")
 
 
   start: (callback) ->
@@ -25,7 +30,10 @@ class Log
 
   writeRecord: (record, callback) ->
     record = appendZeroByte(record)
-    @_enqueueWrite([record, callback])
+    start = process.hrtime()
+    @_enqueueWrite([record, (args...)=>
+      @times.push(process.hrtime(start)[1])
+      callback(args...)])
 
 
   readRecord: (offset, callback) ->

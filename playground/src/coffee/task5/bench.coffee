@@ -30,9 +30,9 @@ writeRecordsToLog = (log, records, callback) ->
   i = 0
   f = ->
     if i == records.length
-      callback()
+      # callback()
       log.avgTime()
-      # console.log("Done")
+      console.log("done", process.hrtime(start)[0], "seconds")
       return
     log.writeRecord records[i], (err, offset) ->
       throw err if err
@@ -41,23 +41,24 @@ writeRecordsToLog = (log, records, callback) ->
   log.start(f)
 
 
-data = randomBuffers(megabytes(10), 1000)
+data = randomBuffers(megabytes(100), 1000)
 
 
 fn = (d) ->
   fs = new FileStorage("/tmp/bench")
-  log = new Log(fs, (megabytes 0.5))
+  log = new Log(fs, (megabytes 5))
   writeRecordsToLog(log, data, ->d.resolve())
 
-suite = Benchmark.Suite()
+# suite = Benchmark.Suite()
 
-suite
-  .add('test', {defer: true, fn})
-  .on('cycle', (event)->
-    console.log("Done!")
-    console.log(event.target.toString()))
+# suite
+#   .add('test', {defer: true, fn})
+#   .on('cycle', (event)->
+#     console.log("Done!")
+#     console.log(event.target.toString()))
 
 
-suite.run(async: true)
-# console.log("Start")
-# fn()
+# suite.run(async: true)
+console.log("Start")
+start = process.hrtime()
+fn()

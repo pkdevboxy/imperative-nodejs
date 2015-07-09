@@ -6,7 +6,8 @@
             [playground.task5.benchmark :refer [callback-callback-log-bench
                                                 callback-log-bench
                                                 callback-log-shared-chan
-                                                callback-log-bench-hack-goog]]))
+                                                callback-log-bench-hack-goog
+                                                callback-log-bench-hack-goog-shared-chan]]))
 
 
 (nodejs/enable-util-print!)
@@ -55,6 +56,7 @@
    callback-log-bench
    callback-log-shared-chan
    callback-log-bench-hack-goog
+   callback-log-bench-hack-goog-shared-chan
    ])
 
 

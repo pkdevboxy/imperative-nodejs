@@ -19,6 +19,20 @@
                                                    0 :ok
                                                    1 (first args)
                                                    args)))))]
+    (apply f (concat args [callback]))
+    >result))
+
+
+(defn <<<ch
+  [>result f & args]
+  (let [callback (fn [err & args]
+                   (async/put! >result
+                               (if err
+                                 (result/failure err)
+                                 (result/ok (condp = (count args)
+                                              0 :ok
+                                              1 (first args)
+                                              args)))))]
 
     (apply f (concat args [callback]))
     >result))

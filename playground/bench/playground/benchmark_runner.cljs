@@ -5,6 +5,7 @@
             [playground.node-api.process :as process]
             [playground.task5.benchmark :refer [callback-callback-log-bench
                                                 callback-log-bench
+                                                callback-log-shared-chan
                                                 callback-log-bench-hack-goog]]))
 
 
@@ -52,6 +53,7 @@
   [
    callback-callback-log-bench
    callback-log-bench
+   callback-log-shared-chan
    callback-log-bench-hack-goog
    ])
 

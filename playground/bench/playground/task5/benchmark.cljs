@@ -34,6 +34,21 @@
                               log-file-size records report-write-time done))})
 
 
+(defn callback-log-shared-chan [{:keys [record-size log-file-size log-size
+                                        dir report-write-time]
+                                 :or {record-size 1000
+                                      log-file-size 5
+                                      log-size 100
+                                      dir "/tmp/bench"
+                                      report-write-time false}}]
+  {:name "callback log shared chan"
+   :env {:records (random-buffers record-size (megabytes log-size))}
+
+   :f (fn [done {:keys [records]}]
+        (write-records-to-log implementations/callback-log-shared-chan dir
+                              log-file-size records report-write-time done))})
+
+
 (defn callback-log-bench-hack-goog [{:keys [record-size log-file-size log-size
                                             dir report-write-time]
                                      :or {record-size 1000

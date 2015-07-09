@@ -4,7 +4,8 @@
             [schema.core :as s]
             [playground.node-api.process :as process]
             [playground.task5.benchmark :refer [callback-callback-log-bench
-                                                callback-log-bench]]))
+                                                callback-log-bench
+                                                callback-log-bench-hack-goog]]))
 
 
 (nodejs/enable-util-print!)
@@ -51,6 +52,7 @@
   [
    callback-callback-log-bench
    callback-log-bench
+   callback-log-bench-hack-goog
    ])
 
 

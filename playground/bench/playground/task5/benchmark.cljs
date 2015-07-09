@@ -4,7 +4,8 @@
             [playground.node-lib.result :as result]
             [playground.node-lib.utils :refer [require-main]]
             [playground.task5.benchmark-fixtures :refer [megabytes random-buffers]]
-            [playground.task5.implementations :as implementations]))
+            [playground.task5.implementations :as implementations]
+            goog.async.nextTick))
 
 
 (defn write-records-to-log [{:keys [<start <add-record]}
@@ -31,6 +32,34 @@
    :f (fn [done {:keys [records]}]
         (write-records-to-log implementations/callback-log dir
                               log-file-size records report-write-time done))})
+
+
+(defn callback-log-bench-hack-goog [{:keys [record-size log-file-size log-size
+                                            dir report-write-time]
+                                     :or {record-size 1000
+                                          log-file-size 5
+                                          log-size 100
+                                          dir "/tmp/bench"
+                                          report-write-time false}}]
+  (let [original (.. js/goog -async -nextTick)
+        set-nextTick (fn [f]
+                       (-> js/goog
+                           .-async
+                           .-nextTick
+                           (set! f)))
+        hack! #(set-nextTick (.-nextTick js/process))
+        restore! #(set-nextTick original)]
+
+    {:name "callback log use process.nextTick"
+     :env {:records (random-buffers record-size (megabytes log-size))}
+
+     :f (fn [done {:keys [records]}]
+          (hack!)
+          (write-records-to-log implementations/callback-log dir
+                                log-file-size records report-write-time
+                                (fn []
+                                  (restore!)
+                                  (done))))}))
 
 
 (defn callback-callback-log-bench [{:keys [record-size log-file-size log-size

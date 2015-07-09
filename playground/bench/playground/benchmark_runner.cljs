@@ -3,7 +3,9 @@
   (:require [cljs.nodejs :as nodejs]
             [schema.core :as s]
             [playground.node-api.process :as process]
-            [playground.task5.benchmark :refer [callback-callback-log-bench
+            [playground.task5.benchmark :refer [async-log-bench
+                                                async-log-bench-hack-goog
+                                                callback-callback-log-bench
                                                 callback-log-bench
                                                 callback-log-shared-chan
                                                 callback-log-bench-hack-goog
@@ -52,6 +54,8 @@
 
 (def benchmarks
   [
+   ;; async-log-bench
+   ;; async-log-bench-hack-goog
    callback-callback-log-bench
    callback-log-bench
    callback-log-shared-chan

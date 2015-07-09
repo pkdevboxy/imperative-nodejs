@@ -9,32 +9,16 @@ zeroBuffer = (size) ->
 
 class FileStorage
   constructor: (@path) ->
-    @times = []
-
-  avgTime: ->
-    micros = (@times.reduce(((a, b) -> a + b), 0) / @times.length) / 1000
-    console.log("avg writeToFile", micros, "microseconds")
 
   addFile: (name, size, callback) ->
-    @_openNew name, (err, fd) ->
+    @_openNew name, (err, fd) =>
       return callback(err) if err
-      fs.write fd, zeroBuffer(size), 0, size, 0, (err) ->
-        fs.close(fd, ->)
-        callback(err)
+      @_writeToFd(fd, zeroBuffer(size), 0, callback)
 
   writeToFile: (name, buffer, offset, callback) ->
-    start = process.hrtime()
     @_openForWritting name, (err, fd) =>
       return callback(err) if err
-      stream = fs.createWriteStream(null, {fd, start: offset})
-      stream.on('error', (error) ->
-        # empty
-      )
-
-      stream.write(buffer, (error)=>
-        @times.push(process.hrtime(start)[1])
-        fs.close(fd, ->)
-        callback(error))
+      @_writeToFd(fd, buffer, offset, callback)
 
   readFromFile: (name, buffer, offset, callback) ->
     @_openForReading name, (err, fd) ->
@@ -55,6 +39,16 @@ class FileStorage
 
   _openForReading: (name, callback) ->
     fs.open(@_pathToFile(name), "r", callback)
+
+  _writeToFd: (fd, buffer, offset, callback) ->
+    stream = fs.createWriteStream(null, {fd, start: offset})
+    stream.on('error', (error) ->
+      # empty
+    )
+
+    stream.write(buffer, (error)->
+      fs.close(fd, ->)
+      callback(error))
 
 
 module.exports = FileStorage

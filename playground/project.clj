@@ -72,8 +72,12 @@
                         :output-dir "out/bench"
                         :language-in  :ecmascript5
                         :language-out :ecmascript5
-                        :static-fns true
                         :target :nodejs
                         :pretty-print true
+                        :print-input-delimiter true
+                        :closure-defines {"goog.DEBUG" false}
                         :optimizations :simple
+                        :static-fns true
+                        :pseudo-names true
+                        :elide-asserts true
                         :source-map "out/bench.js.map"}}]})

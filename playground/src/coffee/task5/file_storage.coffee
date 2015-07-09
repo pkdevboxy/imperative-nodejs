@@ -7,6 +7,18 @@ zeroBuffer = (size) ->
   buf.fill(0)
   buf
 
+
+readCString = (buffer) ->
+  for i in [0..buffer.length - 1]
+    if buffer[i] == 0
+      return buffer.slice(0, i)
+
+  return buffer
+
+
+closeIgnoreError = (fd) -> fs.close(fd, ->)
+
+
 class FileStorage
   constructor: (@path) ->
 
@@ -20,13 +32,10 @@ class FileStorage
       return callback(err) if err
       @_writeToFd(fd, buffer, offset, callback)
 
-  readFromFile: (name, buffer, offset, callback) ->
-    @_openForReading name, (err, fd) ->
+  readCStringFromFile: (name, offset, callback) ->
+    @_openForReading name, (err, fd) =>
       return callback(err) if err
-
-      fs.read fd, buffer, 0, buffer.length, offset, (err) ->
-        fs.close(fd, ->)
-        callback(err)
+      @_readRecordFromFd(fd, offset, callback)
 
   _pathToFile: (name) ->
     path.join(@path, name)
@@ -47,8 +56,39 @@ class FileStorage
     )
 
     stream.write(buffer, (error)->
-      fs.close(fd, ->)
+      closeIgnoreError(fd)
       callback(error))
+
+  _readRecordFromFd: (fd, start, callback) ->
+    chunks = []
+    stream = fs.createReadStream(null, {fd, start, autoClose: false})
+
+    onError = (error) ->
+      return if chunks == null
+      chunks = null
+      stream.pause()
+      closeIgnoreError(fd)
+      callback(error)
+
+    onDone = ->
+      return if chunks == null
+      result = Buffer.concat(chunks)
+      chunks = null
+      stream.pause()
+      closeIgnoreError(fd)
+      callback(null, result)
+
+    onData = (chunk) ->
+      return if chunks == null
+      cstr = readCString(chunk)
+      chunks.push(cstr)
+      if cstr.length != chunk.length
+        onDone()
+
+    stream.on('error', onError)
+    stream.on('end', onDone)
+    stream.on('data', onData)
+
 
 
 module.exports = FileStorage

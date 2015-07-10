@@ -1,11 +1,9 @@
 (ns playground.task5.callback.log-impl
-  (:require-macros [cljs.core.async.macros :refer [go go-loop]]
+  (:require-macros [cljs.core.async.macros :refer [go-loop]]
                    [playground.task5.callback.macros :refer [try->]])
   (:require [cljs.core.async :as async :refer [<! >!]]
             [schema.core :as s]
-            [playground.async-utils :refer [Chan-of Chan]]
             [playground.schemas :refer [Atom-of]]
-            [playground.node-lib.result :as result :refer [Result Result-of]]
             [playground.task5.callback.file-storage :as storage]))
 
 

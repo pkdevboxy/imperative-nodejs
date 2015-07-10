@@ -1,4 +1,4 @@
-(ns playground.task5-async.buffer
+(ns playground.task5.buffer
   (:require [schema.core :as s]))
 
 

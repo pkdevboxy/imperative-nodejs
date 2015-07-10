@@ -4,7 +4,7 @@
             [schema.core :as s]
             [playground.async-utils :refer [Chan-of]]
             [playground.task5-async.log-impl :as impl :refer [Log RecordOffset]]
-            [playground.task5-async.buffer :as buffer]
+            [playground.task5.buffer :as buffer]
             [playground.task5-async.file-storage :refer [FileStorage]]
             [playground.node-lib.result :as result :refer [Result-of]]))
 

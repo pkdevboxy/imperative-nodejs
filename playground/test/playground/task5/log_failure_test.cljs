@@ -58,3 +58,8 @@
   (t/async
    done
    (test-log implementations/callback-log done)))
+
+(deftest callback-cljs-log-reads-all-that-is-written
+  (t/async
+   done
+   (test-log implementations/callback-cljs-log done)))

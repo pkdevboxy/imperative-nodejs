@@ -37,7 +37,13 @@
    (test-log implementations/async-log done)))
 
 
-(deftest test-coffee-log
+(deftest test-callback-log
   (t/async
    done
    (test-log implementations/callback-log done)))
+
+
+(deftest test-callback-cljs-log
+  (t/async
+   done
+   (test-log implementations/callback-cljs-log done)))

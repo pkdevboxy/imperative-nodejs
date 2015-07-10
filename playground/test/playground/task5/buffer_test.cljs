@@ -1,6 +1,6 @@
 (ns playground.task5.buffer-test
   (:require [cljs.test :as t :refer-macros [deftest is]]
-            [playground.task5-async.buffer :as buffer]))
+            [playground.task5.buffer :as buffer]))
 
 
 (deftest null-terminates-buffer

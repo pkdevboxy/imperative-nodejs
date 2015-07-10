@@ -1,16 +1,21 @@
 (ns playground.task5.implementations
   (:require [cljs.core.async :as async]
-            [playground.task5-async.file-storage :as storage]
-            [playground.task5-async.log :as log]
+            [playground.task5-async.file-storage]
+            [playground.task5-async.log]
+            [playground.task5.callback.file-storage]
+            [playground.task5.callback.log]
+
             [playground.node-lib.utils :refer [<<< <<<ch require-main]]))
 
 
 (def async-log
   {:<start (fn [dir file-size]
-             (let [file-storage (storage/new-file-storage dir)]
-               (log/<start (log/new-log file-storage file-size))))
-   :<add-record log/<add-record
-   :<fetch-record log/<fetch-record})
+             (let [file-storage (playground.task5-async.file-storage/new-file-storage dir)]
+               (playground.task5-async.log/<start
+                (playground.task5-async.log/new-log file-storage file-size))))
+
+   :<add-record playground.task5-async.log/<add-record
+   :<fetch-record playground.task5-async.log/<fetch-record})
 
 
 (defn- start! [l cb] (.start l cb))
@@ -31,6 +36,19 @@
 
    :<fetch-record (fn [l offset]
                     (<<< read-record! l offset))})
+
+
+(def callback-cljs-log
+  {:<start (fn [dir file-size]
+             (let [storage (playground.task5.callback.file-storage/new-file-storage dir)
+                   l (playground.task5.callback.log/new-log storage file-size)]
+               (<<< playground.task5.callback.log/start l)))
+
+   :<add-record (fn [l record]
+                  (<<< playground.task5.callback.log/add-record l record))
+
+   :<fetch-record (fn [l offset]
+                    (<<< playground.task5.callback.log/fetch-record l offset))})
 
 
 

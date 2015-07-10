@@ -7,7 +7,7 @@
             [playground.node-lib.utils :refer [<<<]]
             [playground.node-lib.result :as result :refer [Result Result-of]]
             [playground.task5-async.file-storage :as storage]
-            [playground.task5-async.buffer :as buffer]))
+            [playground.task5.buffer :as buffer]))
 
 (def RecordOffset s/Int)
 (def NullTerminatedBuffer (s/both js/Buffer

@@ -5,7 +5,6 @@
             [schema.core :as s]
             [playground.async-utils :refer [Chan-of Chan]]
             [playground.schemas :refer [Atom-of]]
-            [playground.node-lib.utils :refer [<<<ch]]
             [playground.node-lib.result :as result :refer [Result Result-of]]
             [playground.task5.callback.file-storage :as storage]))
 
@@ -135,9 +134,11 @@
   (let [ch (async/chan 1)]
     (go-loop []
       (when-let [[buffer callback] (<! (:<writes log))]
-        (result/match (<! (<<<ch ch write-record! log buffer))
-          err (callback err)
-          offset (callback nil offset))
+        (write-record! log buffer
+                       (fn [error offset]
+                         (async/put! ch :ready)
+                         (callback error offset)))
+        (<! ch)
         (recur)))))
 
 

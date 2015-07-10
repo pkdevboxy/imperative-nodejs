@@ -5,6 +5,9 @@
             [playground.node-lib.utils :refer [require-main]]
             [playground.task5.benchmark-fixtures :refer [megabytes random-buffers]]
             [playground.task5.implementations :as implementations]
+            [playground.task5.callback.file-storage]
+            [playground.task5.callback.log]
+
             goog.async.nextTick))
 
 
@@ -62,6 +65,38 @@
    :f (fn [done {:keys [records]}]
         (write-records-to-log implementations/callback-log-shared-chan dir
                               log-file-size records report-write-time done))})
+
+
+(defn callback-cljs-log-bench [{:keys [record-size log-file-size log-size
+                                       dir report-write-time]
+                                :or {record-size 1000
+                                     log-file-size 5
+                                     log-size 100
+                                     dir "/tmp/bench"
+                                     report-write-time false}}]
+  {:name "callback cljs log"
+   :env {:records (random-buffers record-size (megabytes log-size))}
+
+   :f (fn [done {:keys [records]}]
+        (let [log (playground.task5.callback.log/new-log
+                   (playground.task5.callback.file-storage/new-file-storage dir)
+                   (megabytes log-file-size))
+              i (atom 0)]
+
+          (letfn [(callback [error log]
+                    (if (= @i (count records))
+                      (do
+                        (done))
+                      (playground.task5.callback.log/add-record
+                       log
+                       (nth records @i)
+                       (fn [err offset]
+                         (when err (throw err))
+                         (swap! i inc)
+                         (callback nil log)))))]
+
+            (playground.task5.callback.log/start log callback))))})
+
 
 
 (defn callback-log-bench-hack-goog [{:keys [record-size log-file-size log-size

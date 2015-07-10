@@ -9,7 +9,8 @@
                                                 callback-log-bench
                                                 callback-log-shared-chan
                                                 callback-log-bench-hack-goog
-                                                callback-log-bench-hack-goog-shared-chan]]))
+                                                callback-log-bench-hack-goog-shared-chan
+                                                callback-cljs-log-bench]]))
 
 
 (nodejs/enable-util-print!)
@@ -57,10 +58,11 @@
    ;; async-log-bench
    ;; async-log-bench-hack-goog
    callback-callback-log-bench
-   callback-log-bench
-   callback-log-shared-chan
-   callback-log-bench-hack-goog
-   callback-log-bench-hack-goog-shared-chan
+   callback-cljs-log-bench
+   ;; callback-log-bench
+   ;; callback-log-shared-chan
+   ;; callback-log-bench-hack-goog
+   ;; callback-log-bench-hack-goog-shared-chan
    ])
 
 

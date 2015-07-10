@@ -14,7 +14,8 @@
   :node-dependencies [[source-map-support "0.2.8"]
                       [async "^1.2.1"]
                       [bluebird "^2.9.30"]
-                      [benchmark "1.0.0"]]
+                      [benchmark "1.0.0"]
+                      [closurecompiler-externs "1.0.4"]]
 
   :plugins [[lein-cljsbuild "1.0.6"]
             [lein-npm "0.5.0"]
@@ -76,8 +77,35 @@
                         :pretty-print true
                         :print-input-delimiter true
                         :closure-defines {"goog.DEBUG" false}
+                        :externs ["node_modules/closurecompiler-externs/assert.js"
+                                  "node_modules/closurecompiler-externs/buffer.js"
+                                  "node_modules/closurecompiler-externs/child_process.js"
+                                  "node_modules/closurecompiler-externs/cluster.js"
+                                  "node_modules/closurecompiler-externs/core.js"
+                                  "node_modules/closurecompiler-externs/crypto.js"
+                                  "node_modules/closurecompiler-externs/dgram.js"
+                                  "node_modules/closurecompiler-externs/dns.js"
+                                  "node_modules/closurecompiler-externs/domain.js"
+                                  "node_modules/closurecompiler-externs/events.js"
+                                  "node_modules/closurecompiler-externs/fs.js"
+                                  "node_modules/closurecompiler-externs/http.js"
+                                  "node_modules/closurecompiler-externs/https.js"
+                                  "node_modules/closurecompiler-externs/net.js"
+                                  "node_modules/closurecompiler-externs/os.js"
+                                  "node_modules/closurecompiler-externs/path.js"
+                                  "node_modules/closurecompiler-externs/process.js"
+                                  "node_modules/closurecompiler-externs/punycode.js"
+                                  "node_modules/closurecompiler-externs/querystring.js"
+                                  "node_modules/closurecompiler-externs/readline.js"
+                                  "node_modules/closurecompiler-externs/repl.js"
+                                  "node_modules/closurecompiler-externs/stream.js"
+                                  "node_modules/closurecompiler-externs/string_decoder.js"
+                                  "node_modules/closurecompiler-externs/tls.js"
+                                  "node_modules/closurecompiler-externs/tty.js"
+                                  "node_modules/closurecompiler-externs/url.js"
+                                  "node_modules/closurecompiler-externs/util.js"
+                                  "node_modules/closurecompiler-externs/vm.js"
+                                  "node_modules/closurecompiler-externs/zlib.js"]
                         :optimizations :simple
-                        :static-fns true
-                        :pseudo-names true
                         :elide-asserts true
                         :source-map "out/bench.js.map"}}]})

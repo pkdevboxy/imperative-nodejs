@@ -40,42 +40,42 @@
            {:records (random-buffers record-size (megabytes log-size))})))
 
 
-(defn- write-records-to-log [{:keys [<start <add-record]}
-                            path size records report done]
+(defn- write-records-to-log [{{:keys [<start <add-record]} :impl
+                              :keys [done dir log-file-size report-write-time records]}]
   (go
-    (let [l (result/unwrap! (<! (<start path (megabytes size))))]
+    (let [l (result/unwrap! (<! (<start dir (megabytes log-file-size))))]
       (doseq [r records]
         (result/unwrap! (<! (<add-record l r))))
-      (when report
+      (when report-write-time
         (.avgTime l))
       (done))))
 
 
 (def callback-log-bench
   {:name "callback log"
-   :env make-env
+   :env (comp
+         #(merge % {:impl implementations/callback-log})
+         make-env)
 
-   :f (fn [{:keys [done records dir log-file-size report-write-time]}]
-        (write-records-to-log implementations/callback-log dir
-                              log-file-size records report-write-time done))})
+   :f write-records-to-log})
 
 
 (def async-log-bench
   {:name "async log"
-   :env make-env
+   :env (comp
+         #(merge % {:impl implementations/async-log})
+         make-env)
 
-   :f (fn [{:keys [done records dir log-file-size report-write-time]}]
-        (write-records-to-log implementations/async-log dir
-                              log-file-size records report-write-time done))})
+   :f write-records-to-log})
 
 
 (def callback-log-shared-chan
   {:name "callback log shared chan"
-   :env make-env
+   :env (comp
+         #(merge % {:impl implementations/callback-log-shared-chan})
+         make-env)
 
-   :f (fn [{:keys [done records dir log-file-size report-write-time]}]
-        (write-records-to-log implementations/callback-log-shared-chan dir
-                              log-file-size records report-write-time done))})
+   :f write-records-to-log})
 
 
 (def callback-cljs-log-bench
@@ -106,40 +106,46 @@
 
 (def callback-log-bench-hack-goog
   {:name "callback log use process.nextTick"
-   :env make-env
+   :env (comp
+         #(merge % {:impl implementations/callback-log})
+         make-env)
 
-   :f (fn [{:keys [done records dir log-file-size report-write-time]}]
+   :f (fn [config]
         (hack!)
-        (write-records-to-log implementations/callback-log dir
-                              log-file-size records report-write-time
-                              (fn []
-                                (restore!)
-                                (done))))})
+        (write-records-to-log
+         (update-in config [:done] (fn [done]
+                                     (fn []
+                                       (restore!)
+                                       (done))))))})
 
 (def async-log-bench-hack-goog
   {:name "async log use process.nextTick"
-   :env make-env
+   :env (comp
+         #(merge % {:impl implementations/async-log})
+         make-env)
 
-   :f (fn [{:keys [done records dir log-file-size report-write-time]}]
+   :f (fn [config]
         (hack!)
-        (write-records-to-log implementations/async-log dir
-                              log-file-size records report-write-time
-                              (fn []
-                                (restore!)
-                                (done))))})
+        (write-records-to-log
+         (update-in config [:done] (fn [done]
+                                     (fn []
+                                       (restore!)
+                                       (done))))))})
 
 
 (def callback-log-bench-hack-goog-shared-chan
   {:name "callback log use process.nextTick and shared channel"
-   :env make-env
+   :env (comp
+         #(merge % {:impl implementations/callback-log-shared-chan})
+         make-env)
 
-   :f (fn [{:keys [done records dir log-file-size report-write-time]}]
+   :f (fn [config]
         (hack!)
-        (write-records-to-log implementations/callback-log-shared-chan dir
-                              log-file-size records report-write-time
-                              (fn []
-                                (restore!)
-                                (done))))})
+        (write-records-to-log
+         (update-in config [:done] (fn [done]
+                                     (fn []
+                                       (restore!)
+                                       (done))))))})
 
 
 (def callback-callback-log-bench

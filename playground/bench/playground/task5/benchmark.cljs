@@ -49,8 +49,10 @@
                       (done)))))))
 
 
-(defn- write-records-to-log [{{:keys [<start <add-record]} :impl
-                              :keys [done dir log-file-size report-write-time records]}]
+(defn- <write-records-to-log
+  [{{:keys [<start <add-record]} :impl
+    :keys [done dir log-file-size report-write-time records]}]
+
   (go
     (let [l (result/unwrap! (<! (<start dir (megabytes log-file-size))))]
       (doseq [r records]
@@ -60,13 +62,52 @@
       (done))))
 
 
+(defn- write-records-to-log
+  [{{:keys [start add-record]} :impl
+    :keys [done records dir log-file-size report-write-time]}]
+
+  (let [i (atom 0)]
+
+    (letfn [(callback [error log]
+              (if (= @i (count records))
+                (done)
+                (add-record
+                 log
+                 (nth records @i)
+                 (fn [err offset]
+                   (when err (throw err))
+                   (swap! i inc)
+                   (callback nil log)))))]
+
+      (start dir (megabytes log-file-size) callback))))
+
+
+(def cljs-callback-impl
+  {:start (fn [dir size callback]
+            (let [log (playground.task5.callback.log/new-log
+                       (playground.task5.callback.file-storage/new-file-storage dir)
+                       size)]
+              (playground.task5.callback.log/start log callback)))
+   :add-record playground.task5.callback.log/add-record})
+
+
+(def coffee-callback-impl
+  {:start (fn [dir size callbck]
+            (let [FileStorage (require-main "./playground/task5/file_storage")
+                  Log (require-main "./playground/task5/log")
+                  log (Log. (FileStorage. dir) size)]
+              (.start log callbck)))
+   :add-record (fn [log record callback]
+                 (.writeRecord log record callback))})
+
+
 (def callback-log-bench
   {:name "callback log"
    :env (comp
          #(merge % {:impl implementations/callback-log})
          make-env)
 
-   :f write-records-to-log})
+   :f <write-records-to-log})
 
 
 (def async-log-bench
@@ -75,7 +116,7 @@
          #(merge % {:impl implementations/async-log})
          make-env)
 
-   :f write-records-to-log})
+   :f <write-records-to-log})
 
 
 (def callback-log-shared-chan
@@ -84,32 +125,16 @@
          #(merge % {:impl implementations/callback-log-shared-chan})
          make-env)
 
-   :f write-records-to-log})
+   :f <write-records-to-log})
 
 
 (def callback-cljs-log-bench
   {:name "callback cljs log"
-   :env make-env
+   :env (comp
+         #(merge % {:impl cljs-callback-impl})
+         make-env)
 
-   :f (fn [{:keys [done records dir log-file-size report-write-time]}]
-        (let [log (playground.task5.callback.log/new-log
-                   (playground.task5.callback.file-storage/new-file-storage dir)
-                   (megabytes log-file-size))
-              i (atom 0)]
-
-          (letfn [(callback [error log]
-                    (if (= @i (count records))
-                      (do
-                        (done))
-                      (playground.task5.callback.log/add-record
-                       log
-                       (nth records @i)
-                       (fn [err offset]
-                         (when err (throw err))
-                         (swap! i inc)
-                         (callback nil log)))))]
-
-            (playground.task5.callback.log/start log callback))))})
+   :f write-records-to-log})
 
 
 
@@ -121,7 +146,7 @@
 
    :f (with-fixtures
         hack!
-        write-records-to-log
+        <write-records-to-log
         restore!)})
 
 (def async-log-bench-hack-goog
@@ -132,7 +157,7 @@
 
    :f (with-fixtures
         hack!
-        write-records-to-log
+        <write-records-to-log
         restore!)})
 
 
@@ -144,7 +169,7 @@
 
    :f (with-fixtures
         hack!
-        write-records-to-log
+        <write-records-to-log
         restore!)})
 
 
@@ -152,27 +177,7 @@
 
   {:name "callback callback log"
    :env (comp
-         #(merge %
-                 {:FileStorage (require-main "./playground/task5/file_storage")
-                  :Log (require-main "./playground/task5/log")})
+         #(merge % {:impl coffee-callback-impl})
          make-env)
 
-   :f (fn [{:keys [done records dir log-file-size report-write-time
-                        FileStorage Log]}]
-
-        (let [log (Log. (FileStorage. dir) (megabytes log-file-size))
-              i (atom 0)]
-
-          (letfn [(callback []
-                    (if (= @i (count records))
-                      (do
-                        (when report-write-time
-                          (.avgTime log))
-                        (done))
-                      (.writeRecord log (nth records @i)
-                                    (fn [err offset]
-                                      (when err (throw err))
-                                      (swap! i inc)
-                                      (callback)))))]
-
-            (.start log callback))))})
+   :f write-records-to-log})

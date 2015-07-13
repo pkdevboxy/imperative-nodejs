@@ -41,12 +41,12 @@
     (.run)))
 
 
-(defn add-to-suite! [suite bench]
-  (let [{:keys [name env f]} (bench params)
-        params {:defer true
-                :fn (fn [defered]
-                      (f #(.resolve defered) env))}]
-    (.add suite name (clj->js params))))
+(defn add-to-suite! [suite {:keys [name env f]}]
+  (let [e (env params)
+        options #js {:defer true
+                     :fn (fn [defered]
+                           (f #(.resolve defered) e))}]
+    (.add suite name (clj->js options))))
 
 
 (defn- now []
@@ -68,14 +68,14 @@
 
 (defn- run-once []
   (letfn [(loop-fn [[b & rest]]
-            (when b
-              (let [{:keys [name env f]} (b params)
+            (when-let [{:keys [name env f]} b]
+              (let [e (env params)
                     start (now)]
                 (println "start" name)
                 (f (fn []
                      (println "done" (/ (- (now) start) 1000) "seconds\n")
                      (loop-fn rest))
-                   env))))]
+                   e))))]
     (loop-fn benchmarks)))
 
 

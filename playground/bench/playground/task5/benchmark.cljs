@@ -11,7 +11,7 @@
             goog.async.nextTick))
 
 
-(def original-nextTick (.. js/goog -async -nextTick))
+(def ^:private original-nextTick (.. js/goog -async -nextTick))
 (defn- set-nextTick [f]
   (-> js/goog
       .-async
@@ -24,7 +24,23 @@
 (defn- restore! []
   (set-nextTick original-nextTick))
 
-(defn write-records-to-log [{:keys [<start <add-record]}
+
+(def ^:private default-config
+  {:record-size 1000
+   :log-file-size 5
+   :log-size 100
+   :dir "/tmp/bench"
+   :report-write-time false})
+
+(defn- make-env [config]
+  (let [{:keys [record-size log-size]
+         :as config} (merge default-config config)]
+
+    (merge config
+           {:records (random-buffers record-size (megabytes log-size))})))
+
+
+(defn- write-records-to-log [{:keys [<start <add-record]}
                             path size records report done]
   (go
     (let [l (result/unwrap! (<! (<start path (megabytes size))))]
@@ -35,62 +51,38 @@
       (done))))
 
 
-(defn callback-log-bench [{:keys [record-size log-file-size log-size
-                                  dir report-write-time]
-                           :or {record-size 1000
-                                log-file-size 5
-                                log-size 100
-                                dir "/tmp/bench"
-                                report-write-time false}}]
+(def callback-log-bench
   {:name "callback log"
-   :env {:records (random-buffers record-size (megabytes log-size))}
+   :env make-env
 
-   :f (fn [done {:keys [records]}]
+   :f (fn [done {:keys [records dir log-file-size report-write-time]}]
         (write-records-to-log implementations/callback-log dir
                               log-file-size records report-write-time done))})
 
 
-(defn async-log-bench [{:keys [record-size log-file-size log-size
-                               dir report-write-time]
-                        :or {record-size 1000
-                             log-file-size 5
-                             log-size 100
-                             dir "/tmp/bench"
-                             report-write-time false}}]
+(def async-log-bench
   {:name "async log"
-   :env {:records (random-buffers record-size (megabytes log-size))}
+   :env make-env
 
-   :f (fn [done {:keys [records]}]
+   :f (fn [done {:keys [records dir log-file-size report-write-time]}]
         (write-records-to-log implementations/async-log dir
                               log-file-size records report-write-time done))})
 
 
-(defn callback-log-shared-chan [{:keys [record-size log-file-size log-size
-                                        dir report-write-time]
-                                 :or {record-size 1000
-                                      log-file-size 5
-                                      log-size 100
-                                      dir "/tmp/bench"
-                                      report-write-time false}}]
+(def callback-log-shared-chan
   {:name "callback log shared chan"
-   :env {:records (random-buffers record-size (megabytes log-size))}
+   :env make-env
 
-   :f (fn [done {:keys [records]}]
+   :f (fn [done {:keys [records dir log-file-size report-write-time]}]
         (write-records-to-log implementations/callback-log-shared-chan dir
                               log-file-size records report-write-time done))})
 
 
-(defn callback-cljs-log-bench [{:keys [record-size log-file-size log-size
-                                       dir report-write-time]
-                                :or {record-size 1000
-                                     log-file-size 5
-                                     log-size 100
-                                     dir "/tmp/bench"
-                                     report-write-time false}}]
+(def callback-cljs-log-bench
   {:name "callback cljs log"
-   :env {:records (random-buffers record-size (megabytes log-size))}
+   :env make-env
 
-   :f (fn [done {:keys [records]}]
+   :f (fn [done {:keys [records dir log-file-size report-write-time]}]
         (let [log (playground.task5.callback.log/new-log
                    (playground.task5.callback.file-storage/new-file-storage dir)
                    (megabytes log-file-size))
@@ -112,17 +104,11 @@
 
 
 
-(defn callback-log-bench-hack-goog [{:keys [record-size log-file-size log-size
-                                            dir report-write-time]
-                                     :or {record-size 1000
-                                          log-file-size 5
-                                          log-size 100
-                                          dir "/tmp/bench"
-                                          report-write-time false}}]
+(def callback-log-bench-hack-goog
   {:name "callback log use process.nextTick"
-   :env {:records (random-buffers record-size (megabytes log-size))}
+   :env make-env
 
-   :f (fn [done {:keys [records]}]
+   :f (fn [done {:keys [records dir log-file-size report-write-time]}]
         (hack!)
         (write-records-to-log implementations/callback-log dir
                               log-file-size records report-write-time
@@ -130,17 +116,11 @@
                                 (restore!)
                                 (done))))})
 
-(defn async-log-bench-hack-goog [{:keys [record-size log-file-size log-size
-                                            dir report-write-time]
-                                     :or {record-size 1000
-                                          log-file-size 5
-                                          log-size 100
-                                          dir "/tmp/bench"
-                                          report-write-time false}}]
+(def async-log-bench-hack-goog
   {:name "async log use process.nextTick"
-   :env {:records (random-buffers record-size (megabytes log-size))}
+   :env make-env
 
-   :f (fn [done {:keys [records]}]
+   :f (fn [done {:keys [records dir log-file-size report-write-time]}]
         (hack!)
         (write-records-to-log implementations/async-log dir
                               log-file-size records report-write-time
@@ -149,17 +129,11 @@
                                 (done))))})
 
 
-(defn callback-log-bench-hack-goog-shared-chan [{:keys [record-size log-file-size log-size
-                                                        dir report-write-time]
-                                                 :or {record-size 1000
-                                                      log-file-size 5
-                                                      log-size 100
-                                                      dir "/tmp/bench"
-                                                      report-write-time false}}]
+(def callback-log-bench-hack-goog-shared-chan
   {:name "callback log use process.nextTick and shared channel"
-   :env {:records (random-buffers record-size (megabytes log-size))}
+   :env make-env
 
-   :f (fn [done {:keys [records]}]
+   :f (fn [done {:keys [records dir log-file-size report-write-time]}]
         (hack!)
         (write-records-to-log implementations/callback-log-shared-chan dir
                               log-file-size records report-write-time
@@ -168,20 +142,18 @@
                                 (done))))})
 
 
-(defn callback-callback-log-bench [{:keys [record-size log-file-size log-size
-                                           dir report-write-time]
-                                    :or {record-size 1000
-                                         log-file-size 5
-                                         log-size 100
-                                         dir "/tmp/bench"
-                                         report-write-time false}}]
+(def callback-callback-log-bench
 
   {:name "callback callback log"
-   :env {:records (random-buffers record-size (megabytes log-size))
-         :FileStorage (require-main "./playground/task5/file_storage")
-         :Log (require-main "./playground/task5/log")}
+   :env (comp
+         #(merge %
+                 {:FileStorage (require-main "./playground/task5/file_storage")
+                  :Log (require-main "./playground/task5/log")})
+         make-env)
 
-   :f (fn [done {:keys [records FileStorage Log]}]
+   :f (fn [done {:keys [records dir log-file-size report-write-time
+                        FileStorage Log]}]
+
         (let [log (Log. (FileStorage. dir) (megabytes log-file-size))
               i (atom 0)]
 

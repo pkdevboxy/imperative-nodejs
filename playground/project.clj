@@ -1,4 +1,8 @@
 (defproject playground "0.1.0-SNAPSHOT"
+  :license {:name "Apache License 2.0"
+            :url "http://www.apache.org/licenses/LICENSE-2.0.html"
+            :year 2015
+            :key "apache-2.0"}
   :description "FIXME: write this!"
   :url "http://example.com/FIXME"
 

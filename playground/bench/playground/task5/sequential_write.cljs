@@ -1,28 +1,15 @@
-(ns playground.task5.benchmark
+(ns playground.task5.sequential-write
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [<! >!]]
             [playground.node-lib.result :as result]
             [playground.node-lib.utils :refer [require-main]]
-            [playground.task5.benchmark-fixtures :refer [megabytes random-buffers]]
             [playground.task5.implementations :as implementations]
+            [playground.task5.benchmark-fixtures :refer [hack! restore!
+                                                         with-fixtures
+                                                         megabytes
+                                                         random-buffers]]
             [playground.task5.callback.file-storage]
-            [playground.task5.callback.log]
-
-            goog.async.nextTick))
-
-
-(def ^:private original-nextTick (.. js/goog -async -nextTick))
-(defn- set-nextTick [f]
-  (-> js/goog
-      .-async
-      .-nextTick
-      (set! f)))
-
-(defn- hack! []
-  (set-nextTick (.-nextTick js/process)))
-
-(defn- restore! []
-  (set-nextTick original-nextTick))
+            [playground.task5.callback.log]))
 
 
 (def ^:private default-config
@@ -32,21 +19,13 @@
    :dir "/tmp/bench"
    :report-write-time false})
 
+
 (defn- make-env [config]
   (let [{:keys [record-size log-size]
          :as config} (merge default-config config)]
 
     (merge config
            {:records (random-buffers record-size (megabytes log-size))})))
-
-(defn- with-fixtures [before f after]
-  (fn [config]
-    (before)
-    (f (update-in config [:done]
-                  (fn [done]
-                    (fn []
-                      (after)
-                      (done)))))))
 
 
 (defn- <write-records-to-log

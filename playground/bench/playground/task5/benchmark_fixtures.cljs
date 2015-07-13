@@ -1,4 +1,5 @@
-(ns playground.task5.benchmark-fixtures)
+(ns playground.task5.benchmark-fixtures
+  (:require goog.async.nextTick))
 
 
 (defn random-buffer [max-length]
@@ -25,3 +26,27 @@
       result
       (let [buff (random-buffer max-length)]
         (recur (conj result buff) (+ current-length (.-length buff))))))))
+
+
+(def ^:private original-nextTick (.. js/goog -async -nextTick))
+(defn- set-nextTick [f]
+  (-> js/goog
+      .-async
+      .-nextTick
+      (set! f)))
+
+(defn- hack! []
+  (set-nextTick (.-nextTick js/process)))
+
+(defn- restore! []
+  (set-nextTick original-nextTick))
+
+
+(defn- with-fixtures [before f after]
+  (fn [config]
+    (before)
+    (f (update-in config [:done]
+                  (fn [done]
+                    (fn []
+                      (after)
+                      (done)))))))

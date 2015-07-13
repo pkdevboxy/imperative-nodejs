@@ -11,6 +11,19 @@
             goog.async.nextTick))
 
 
+(def original-nextTick (.. js/goog -async -nextTick))
+(defn- set-nextTick [f]
+  (-> js/goog
+      .-async
+      .-nextTick
+      (set! f)))
+
+(defn- hack! []
+  (set-nextTick (.-nextTick js/process)))
+
+(defn- restore! []
+  (set-nextTick original-nextTick))
+
 (defn write-records-to-log [{:keys [<start <add-record]}
                             path size records report done]
   (go
@@ -106,25 +119,16 @@
                                           log-size 100
                                           dir "/tmp/bench"
                                           report-write-time false}}]
-  (let [original (.. js/goog -async -nextTick)
-        set-nextTick (fn [f]
-                       (-> js/goog
-                           .-async
-                           .-nextTick
-                           (set! f)))
-        hack! #(set-nextTick (.-nextTick js/process))
-        restore! #(set-nextTick original)]
+  {:name "callback log use process.nextTick"
+   :env {:records (random-buffers record-size (megabytes log-size))}
 
-    {:name "callback log use process.nextTick"
-     :env {:records (random-buffers record-size (megabytes log-size))}
-
-     :f (fn [done {:keys [records]}]
-          (hack!)
-          (write-records-to-log implementations/callback-log dir
-                                log-file-size records report-write-time
-                                (fn []
-                                  (restore!)
-                                  (done))))}))
+   :f (fn [done {:keys [records]}]
+        (hack!)
+        (write-records-to-log implementations/callback-log dir
+                              log-file-size records report-write-time
+                              (fn []
+                                (restore!)
+                                (done))))})
 
 (defn async-log-bench-hack-goog [{:keys [record-size log-file-size log-size
                                             dir report-write-time]
@@ -133,25 +137,16 @@
                                           log-size 100
                                           dir "/tmp/bench"
                                           report-write-time false}}]
-  (let [original (.. js/goog -async -nextTick)
-        set-nextTick (fn [f]
-                       (-> js/goog
-                           .-async
-                           .-nextTick
-                           (set! f)))
-        hack! #(set-nextTick (.-nextTick js/process))
-        restore! #(set-nextTick original)]
+  {:name "async log use process.nextTick"
+   :env {:records (random-buffers record-size (megabytes log-size))}
 
-    {:name "async log use process.nextTick"
-     :env {:records (random-buffers record-size (megabytes log-size))}
-
-     :f (fn [done {:keys [records]}]
-          (hack!)
-          (write-records-to-log implementations/async-log dir
-                                log-file-size records report-write-time
-                                (fn []
-                                  (restore!)
-                                  (done))))}))
+   :f (fn [done {:keys [records]}]
+        (hack!)
+        (write-records-to-log implementations/async-log dir
+                              log-file-size records report-write-time
+                              (fn []
+                                (restore!)
+                                (done))))})
 
 
 (defn callback-log-bench-hack-goog-shared-chan [{:keys [record-size log-file-size log-size
@@ -161,25 +156,16 @@
                                                       log-size 100
                                                       dir "/tmp/bench"
                                                       report-write-time false}}]
-  (let [original (.. js/goog -async -nextTick)
-        set-nextTick (fn [f]
-                       (-> js/goog
-                           .-async
-                           .-nextTick
-                           (set! f)))
-        hack! #(set-nextTick (.-nextTick js/process))
-        restore! #(set-nextTick original)]
+  {:name "callback log use process.nextTick and shared channel"
+   :env {:records (random-buffers record-size (megabytes log-size))}
 
-    {:name "callback log use process.nextTick and shared channel"
-     :env {:records (random-buffers record-size (megabytes log-size))}
-
-     :f (fn [done {:keys [records]}]
-          (hack!)
-          (write-records-to-log implementations/callback-log-shared-chan dir
-                                log-file-size records report-write-time
-                                (fn []
-                                  (restore!)
-                                  (done))))}))
+   :f (fn [done {:keys [records]}]
+        (hack!)
+        (write-records-to-log implementations/callback-log-shared-chan dir
+                              log-file-size records report-write-time
+                              (fn []
+                                (restore!)
+                                (done))))})
 
 
 (defn callback-callback-log-bench [{:keys [record-size log-file-size log-size

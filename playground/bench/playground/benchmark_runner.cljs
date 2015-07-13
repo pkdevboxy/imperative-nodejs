@@ -45,7 +45,7 @@
   (let [e (env params)
         options #js {:defer true
                      :fn (fn [defered]
-                           (f #(.resolve defered) e))}]
+                           (f (conj e [:done #(.resolve defered)])))}]
     (.add suite name (clj->js options))))
 
 
@@ -72,10 +72,10 @@
               (let [e (env params)
                     start (now)]
                 (println "start" name)
-                (f (fn []
-                     (println "done" (/ (- (now) start) 1000) "seconds\n")
-                     (loop-fn rest))
-                   e))))]
+                (f (conj e
+                         [:done (fn []
+                                  (println "done" (/ (- (now) start) 1000) "seconds\n")
+                                  (loop-fn rest))])))))]
     (loop-fn benchmarks)))
 
 

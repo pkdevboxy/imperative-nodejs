@@ -55,7 +55,7 @@
   {:name "callback log"
    :env make-env
 
-   :f (fn [done {:keys [records dir log-file-size report-write-time]}]
+   :f (fn [{:keys [done records dir log-file-size report-write-time]}]
         (write-records-to-log implementations/callback-log dir
                               log-file-size records report-write-time done))})
 
@@ -64,7 +64,7 @@
   {:name "async log"
    :env make-env
 
-   :f (fn [done {:keys [records dir log-file-size report-write-time]}]
+   :f (fn [{:keys [done records dir log-file-size report-write-time]}]
         (write-records-to-log implementations/async-log dir
                               log-file-size records report-write-time done))})
 
@@ -73,7 +73,7 @@
   {:name "callback log shared chan"
    :env make-env
 
-   :f (fn [done {:keys [records dir log-file-size report-write-time]}]
+   :f (fn [{:keys [done records dir log-file-size report-write-time]}]
         (write-records-to-log implementations/callback-log-shared-chan dir
                               log-file-size records report-write-time done))})
 
@@ -82,7 +82,7 @@
   {:name "callback cljs log"
    :env make-env
 
-   :f (fn [done {:keys [records dir log-file-size report-write-time]}]
+   :f (fn [{:keys [done records dir log-file-size report-write-time]}]
         (let [log (playground.task5.callback.log/new-log
                    (playground.task5.callback.file-storage/new-file-storage dir)
                    (megabytes log-file-size))
@@ -108,7 +108,7 @@
   {:name "callback log use process.nextTick"
    :env make-env
 
-   :f (fn [done {:keys [records dir log-file-size report-write-time]}]
+   :f (fn [{:keys [done records dir log-file-size report-write-time]}]
         (hack!)
         (write-records-to-log implementations/callback-log dir
                               log-file-size records report-write-time
@@ -120,7 +120,7 @@
   {:name "async log use process.nextTick"
    :env make-env
 
-   :f (fn [done {:keys [records dir log-file-size report-write-time]}]
+   :f (fn [{:keys [done records dir log-file-size report-write-time]}]
         (hack!)
         (write-records-to-log implementations/async-log dir
                               log-file-size records report-write-time
@@ -133,7 +133,7 @@
   {:name "callback log use process.nextTick and shared channel"
    :env make-env
 
-   :f (fn [done {:keys [records dir log-file-size report-write-time]}]
+   :f (fn [{:keys [done records dir log-file-size report-write-time]}]
         (hack!)
         (write-records-to-log implementations/callback-log-shared-chan dir
                               log-file-size records report-write-time
@@ -151,7 +151,7 @@
                   :Log (require-main "./playground/task5/log")})
          make-env)
 
-   :f (fn [done {:keys [records dir log-file-size report-write-time
+   :f (fn [{:keys [done records dir log-file-size report-write-time
                         FileStorage Log]}]
 
         (let [log (Log. (FileStorage. dir) (megabytes log-file-size))

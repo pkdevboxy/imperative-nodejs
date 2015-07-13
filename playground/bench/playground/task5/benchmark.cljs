@@ -39,6 +39,15 @@
     (merge config
            {:records (random-buffers record-size (megabytes log-size))})))
 
+(defn- with-fixtures [before f after]
+  (fn [config]
+    (before)
+    (f (update-in config [:done]
+                  (fn [done]
+                    (fn []
+                      (after)
+                      (done)))))))
+
 
 (defn- write-records-to-log [{{:keys [<start <add-record]} :impl
                               :keys [done dir log-file-size report-write-time records]}]
@@ -110,13 +119,10 @@
          #(merge % {:impl implementations/callback-log})
          make-env)
 
-   :f (fn [config]
-        (hack!)
-        (write-records-to-log
-         (update-in config [:done] (fn [done]
-                                     (fn []
-                                       (restore!)
-                                       (done))))))})
+   :f (with-fixtures
+        hack!
+        write-records-to-log
+        restore!)})
 
 (def async-log-bench-hack-goog
   {:name "async log use process.nextTick"
@@ -124,13 +130,10 @@
          #(merge % {:impl implementations/async-log})
          make-env)
 
-   :f (fn [config]
-        (hack!)
-        (write-records-to-log
-         (update-in config [:done] (fn [done]
-                                     (fn []
-                                       (restore!)
-                                       (done))))))})
+   :f (with-fixtures
+        hack!
+        write-records-to-log
+        restore!)})
 
 
 (def callback-log-bench-hack-goog-shared-chan
@@ -139,13 +142,10 @@
          #(merge % {:impl implementations/callback-log-shared-chan})
          make-env)
 
-   :f (fn [config]
-        (hack!)
-        (write-records-to-log
-         (update-in config [:done] (fn [done]
-                                     (fn []
-                                       (restore!)
-                                       (done))))))})
+   :f (with-fixtures
+        hack!
+        write-records-to-log
+        restore!)})
 
 
 (def callback-callback-log-bench

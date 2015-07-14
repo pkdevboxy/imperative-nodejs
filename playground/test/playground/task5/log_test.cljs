@@ -47,3 +47,8 @@
   (t/async
    done
    (test-log implementations/callback-cljs-log done)))
+
+(deftest test-iced-callback-log
+  (t/async
+   done
+   (test-log implementations/iced-log done)))

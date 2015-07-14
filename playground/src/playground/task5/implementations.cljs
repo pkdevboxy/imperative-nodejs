@@ -38,6 +38,22 @@
                     (<<< read-record! l offset))})
 
 
+(def iced-log
+  {:<start (fn [dir file-size]
+             (let [Filestorage (require-main "./playground/task5/iced/file_storage")
+                   Log (require-main "./playground/task5/iced/log")
+                   storage (Filestorage. dir)
+                   l (Log. storage file-size)]
+
+               (<<< start! l)))
+
+   :<add-record (fn [l record]
+                  (<<< write-record! l record))
+
+   :<fetch-record (fn [l offset]
+                    (<<< read-record! l offset))})
+
+
 (def callback-cljs-log
   {:<start (fn [dir file-size]
              (let [storage (playground.task5.callback.file-storage/new-file-storage dir)

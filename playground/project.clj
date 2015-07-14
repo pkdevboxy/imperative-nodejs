@@ -19,7 +19,9 @@
                       [async "^1.2.1"]
                       [bluebird "^2.9.30"]
                       [benchmark "1.0.0"]
-                      [closurecompiler-externs "1.0.4"]]
+                      [closurecompiler-externs "1.0.4"]
+                      [iced-coffee-script "108.0.6"]
+                      [npm install iced-runtime "1.0.2"]]
 
   :plugins [[lein-cljsbuild "1.0.6"]
             [lein-npm "0.5.0"]

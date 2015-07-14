@@ -63,3 +63,8 @@
   (t/async
    done
    (test-log implementations/callback-cljs-log done)))
+
+(deftest iced-log-reads-all-that-is-written
+  (t/async
+   done
+   (test-log implementations/iced-log done)))

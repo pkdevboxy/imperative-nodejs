@@ -41,13 +41,44 @@ writeRecordsToLog = (log, records, callback) ->
   log.start(f)
 
 
-data = randomBuffers(megabytes(100), 1000)
+writeReadRecords = (log, records, reads, callback) ->
+  recordMap = []
+  w = 0
+  writeLoop = ->
+    if w == records.length
+      return readLoop()
 
+    log.writeRecord records[w], (error, offset) ->
+      throw error if error
+      recordMap[w] = offset
+      w += 1
+      writeLoop()
+
+  r = 0
+  readLoop = ->
+    if r == reads.length
+      console.log("done", process.hrtime(start)[0], "seconds")
+      return
+    i = reads[r]
+    log.readRecord recordMap[i], (error, buffer) ->
+      throw error if error
+
+      unless buffer.equals(records[i])
+        throw new Error("Log is broken")
+
+      r += 1
+      readLoop()
+
+  log.start(writeLoop)
+
+
+data = randomBuffers(megabytes(5), 1000)
+reads = (Math.floor(Math.random() * data.length) for _ in [0..data.length*10])
 
 fn = (d) ->
   fs = new FileStorage("/tmp/bench")
   log = new Log(fs, (megabytes 5))
-  writeRecordsToLog(log, data, ->d.resolve())
+  writeReadRecords(log, data, reads, ->d.resolve())
 
 # suite = Benchmark.Suite()
 

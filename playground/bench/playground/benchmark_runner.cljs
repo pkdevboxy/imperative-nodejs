@@ -3,14 +3,14 @@
   (:require [cljs.nodejs :as nodejs]
             [schema.core :as s]
             [playground.node-api.process :as process]
-            [playground.task5.sequential-write :refer [async-log-bench
-                                                       async-log-bench-hack-goog
-                                                       callback-callback-log-bench
-                                                       callback-log-bench
-                                                       callback-log-shared-chan
-                                                       callback-log-bench-hack-goog
-                                                       callback-log-bench-hack-goog-shared-chan
-                                                       callback-cljs-log-bench]]))
+            [playground.task5.sequential-write
+             :refer [async-log-bench async-log-bench-hack-goog
+                     callback-callback-log-bench callback-log-bench
+                     callback-log-shared-chan callback-log-bench-hack-goog
+                     callback-log-bench-hack-goog-shared-chan
+                     callback-cljs-log-bench]]
+            [playground.task5.read-write :refer [callback-read-write-bench
+                                                  callback-cljs-read-write-bench]]))
 
 
 (nodejs/enable-util-print!)
@@ -55,14 +55,8 @@
 
 (def benchmarks
   [
-   async-log-bench
-   async-log-bench-hack-goog
-   callback-callback-log-bench
-   callback-cljs-log-bench
-   callback-log-bench
-   callback-log-shared-chan
-   callback-log-bench-hack-goog
-   callback-log-bench-hack-goog-shared-chan
+   callback-read-write-bench
+   callback-cljs-read-write-bench
    ])
 
 

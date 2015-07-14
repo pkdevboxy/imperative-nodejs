@@ -9,6 +9,7 @@
   {:record-size 1000
    :log-file-size 5
    :log-size 100
+   :read-ratio 10
    :dir "/tmp/bench"
    :report-write-time false})
 
@@ -19,7 +20,8 @@
                        (playground.task5.callback.file-storage/new-file-storage dir)
                        size)]
               (playground.task5.callback.log/start log callback)))
-   :add-record playground.task5.callback.log/add-record})
+   :add-record playground.task5.callback.log/add-record
+   :fetch-record playground.task5.callback.log/fetch-record})
 
 
 (def coffee-callback-impl
@@ -29,7 +31,9 @@
                   log (Log. (FileStorage. dir) size)]
               (.start log callbck)))
    :add-record (fn [log record callback]
-                 (.writeRecord log record callback))})
+                 (.writeRecord log record callback))
+   :fetch-record (fn [log offset callback]
+                   (.readRecord log offset callback))})
 
 
 (defn random-buffer [max-length]

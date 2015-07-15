@@ -1,5 +1,3 @@
-Log = require './log'
-FileStorage = require './file_storage'
 Benchmark = require 'benchmark'
 
 randomBuffer = (maxLenght) ->
@@ -72,24 +70,32 @@ writeReadRecords = (log, records, reads, callback) ->
   log.start(writeLoop)
 
 
+writeReadRecordsSync = (log, records, reads, callback) ->
+  recordMap = []
+  log.start()
+  records.forEach (record, i)->
+    recordMap[i] = log.writeRecord(record)
+
+  reads.forEach (i)->
+    buffer = log.readRecord(recordMap[i])
+    unless buffer.equals(records[i])
+      throw new Error("Log is broken")
+
+  log.printStats()
+  callback()
+
+
 data = randomBuffers(megabytes(10), 1000)
 reads = (Math.floor(Math.random() * data.length) for _ in [0..data.length*10])
 
 fn = ->
+  Log = require './sync/log'
+  FileStorage = require './sync/file_storage'
   fs = new FileStorage("/tmp/bench")
   log = new Log(fs, (megabytes 5))
-  writeReadRecords(log, data, reads, ->console.timeEnd("read-write"))
-
-# suite = Benchmark.Suite()
-
-# suite
-#   .add('test', {defer: true, fn})
-#   .on('cycle', (event)->
-#     console.log("Done!")
-#     console.log(event.target.toString()))
+  writeReadRecordsSync(log, data, reads, ->console.timeEnd("read-write"))
 
 
-# suite.run(async: true)
 console.log("Start")
 console.time("read-write")
 fn()

@@ -11,10 +11,10 @@ class Log
     @writeInFlight = false
     @times = []
 
-  avgTime: ->
+  printStats: ->
     micros = (@times.reduce(((a, b) -> a + b), 0) / @times.length) / 1000
     console.log("avg writeRecord", micros, "microseconds")
-
+    @storage.printStats()
 
   start: (callback) ->
     await @storage.addFile "0", @logFileSize, defer(error)

@@ -33,7 +33,8 @@
    :add-record (fn [log record callback]
                  (.writeRecord log record callback))
    :fetch-record (fn [log offset callback]
-                   (.readRecord log offset callback))})
+                   (.readRecord log offset callback))
+   :print-stats (fn [log] (.printStats log))})
 
 
 (defn random-buffer [max-length]

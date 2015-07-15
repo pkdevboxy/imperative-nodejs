@@ -30,9 +30,8 @@ writeRecordsToLog = (log, records, callback) ->
   i = 0
   f = ->
     if i == records.length
-      # callback()
-      log.avgTime()
-      console.log("done", process.hrtime(start)[0], "seconds")
+      log.printStats()
+      callback()
       return
     log.writeRecord records[i], (err, offset) ->
       throw err if err
@@ -57,7 +56,8 @@ writeReadRecords = (log, records, reads, callback) ->
   r = 0
   readLoop = ->
     if r == reads.length
-      console.log("done", process.hrtime(start)[0], "seconds")
+      log.printStats()
+      callback()
       return
     i = reads[r]
     log.readRecord recordMap[i], (error, buffer) ->
@@ -72,13 +72,13 @@ writeReadRecords = (log, records, reads, callback) ->
   log.start(writeLoop)
 
 
-data = randomBuffers(megabytes(5), 1000)
+data = randomBuffers(megabytes(10), 1000)
 reads = (Math.floor(Math.random() * data.length) for _ in [0..data.length*10])
 
-fn = (d) ->
+fn = ->
   fs = new FileStorage("/tmp/bench")
   log = new Log(fs, (megabytes 5))
-  writeReadRecords(log, data, reads, ->d.resolve())
+  writeReadRecords(log, data, reads, ->console.timeEnd("read-write"))
 
 # suite = Benchmark.Suite()
 
@@ -91,5 +91,5 @@ fn = (d) ->
 
 # suite.run(async: true)
 console.log("Start")
-start = process.hrtime()
+console.time("read-write")
 fn()

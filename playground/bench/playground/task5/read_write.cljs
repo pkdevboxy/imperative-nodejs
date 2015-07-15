@@ -2,7 +2,7 @@
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [<! >!]]
             [playground.task5.benchmark-fixtures
-             :refer [megabytes random-buffers
+             :refer [megabytes random-buffers with-fixtures hack! restore!
                      cljs-callback-impl coffee-callback-impl default-config]]))
 
 
@@ -20,7 +20,7 @@
 
 
 (defn- write-read-records
-  [{{:keys [start add-record fetch-record]} :impl
+  [{{:keys [start add-record fetch-record print-stats]} :impl
     :keys [done records reads dir log-file-size report-write-time]}]
 
   (let [ch (async/chan 1)]
@@ -41,22 +41,24 @@
                             (fetch-record log offset (fn [err buffer]
                                                        (when err (throw err))
                                                        (async/put! ch buffer)))
-                            ch)
+                            ch)]
 
+        (let [record-map
+              (loop [result []
+                     [buffer & rest] records]
 
-            record-map (loop [result []
-                              [buffer & rest] records]
+                (if buffer
+                  (recur
+                   (conj result [(<! (<add-record buffer)) buffer])
+                   rest)
+                  result))]
 
-                         (if buffer
-                           (recur
-                            (conj result [(<! (<add-record buffer)) buffer])
-                            rest)
-                           result))]
-
-        (doseq [i reads
-                :let [[offset buffer] (nth record-map i)]]
-          (when-not (.equals buffer (<! (<fetch-record offset)))
-            (throw (js/Error "log is broken"))))
+          (doseq [i reads
+                  :let [[offset buffer] (nth record-map i)]]
+            (when-not (.equals buffer (<! (<fetch-record offset)))
+              (throw (js/Error "log is broken")))))
+        (when print-stats
+          (print-stats log))
         (done)))))
 
 

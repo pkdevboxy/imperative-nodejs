@@ -21,6 +21,13 @@ closeIgnoreError = (fd) -> fs.close(fd, ->)
 
 class FileStorage
   constructor: (@path) ->
+    @bytesWritten = 0
+    @bytesRead = 0
+
+  printStats: ->
+    mb = 1024 * 1024
+    console.log("MB written", @bytesWritten / mb)
+    console.log("MB read", @bytesRead / mb)
 
   addFile: (name, size, callback) ->
     await @_openNew name, defer err, fd
@@ -30,6 +37,7 @@ class FileStorage
     callback(err)
 
   writeToFile: (name, buffer, offset, callback) ->
+    @bytesWritten += buffer.length
     await @_openForWritting name, defer(err, fd)
     unless err
       await @_writeToFd fd, buffer, offset, defer(err)
@@ -82,6 +90,7 @@ class FileStorage
       chunks = null
       stream.pause()
       closeIgnoreError(fd)
+      @bytesRead += result.length
       callback(null, result)
 
     onData = (chunk) ->

@@ -89,11 +89,11 @@ data = randomBuffers(megabytes(10), 1000)
 reads = (Math.floor(Math.random() * data.length) for _ in [0..data.length*10])
 
 fn = ->
-  Log = require './sync/log'
-  FileStorage = require './sync/file_storage'
+  Log = require './log'
+  FileStorage = require './file_storage'
   fs = new FileStorage("/tmp/bench")
   log = new Log(fs, (megabytes 5))
-  writeReadRecordsSync(log, data, reads, ->console.timeEnd("read-write"))
+  writeReadRecords(log, data, reads, ->console.timeEnd("read-write"))
 
 
 console.log("Start")

@@ -69,7 +69,8 @@ class FileStorage
 
   _readRecordFromFd: (fd, start, callback) ->
     chunks = []
-    stream = fs.createReadStream(null, {fd, start, autoClose: false})
+    stream = fs.createReadStream(null,
+      {fd, start, autoClose: false, highWaterMark: 2 * 1024})
 
     onError = (error) ->
       return if chunks == null

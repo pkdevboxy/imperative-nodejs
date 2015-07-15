@@ -61,7 +61,7 @@ class FileStorage
     fs.closeSync(fd)
 
   _readRecordFromFd: (fd, start) ->
-    buff = zeroBuffer(64 * 1024)
+    buff = zeroBuffer(2 * 1024)
     result = []
     loop
       written = fs.readSync(fd, buff, 0, buff.length, start)

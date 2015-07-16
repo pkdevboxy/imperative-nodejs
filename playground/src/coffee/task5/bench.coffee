@@ -8,8 +8,6 @@ randomBuffer = (maxLenght) ->
       buffer[i] = 1
   buffer
 
-
-
 megabytes = (n) -> n * 1024 * 1024
 
 
@@ -23,6 +21,18 @@ randomBuffers = (totalSize, maxLenght=1000) ->
 
   result
 
+buffersToStrings = (buffers)->
+  chars = 'abcdefghijklmnopqrstuvwxyz'
+  chars += chars.toUpperCase()
+  chars += '0123456789'
+  result = []
+  for bf in buffers
+    string = ''
+    for i in [0...bf.length]
+      index = bf.readUInt8(i) % chars.length
+      string += chars.charAt(index)
+    result.push(string)
+  return result
 
 writeRecordsToLog = (log, records, callback) ->
   i = 0
@@ -61,7 +71,9 @@ writeReadRecords = (log, records, reads, callback) ->
     log.readRecord recordMap[i], (error, buffer) ->
       throw error if error
 
-      unless buffer.equals(records[i])
+#      unless buffer.equals(records[i])
+#        throw new Error("Log is broken")
+      unless buffer == records[i]
         throw new Error("Log is broken")
 
       r += 1
@@ -86,13 +98,14 @@ writeReadRecordsSync = (log, records, reads, callback) ->
 
 
 data = randomBuffers(megabytes(10), 1000)
+data = buffersToStrings(data)
 reads = (Math.floor(Math.random() * data.length) for _ in [0..data.length*10])
 
 fn = ->
-  Log = require './log'
-  FileStorage = require './file_storage'
+  Log = require './doc/log'
+  FileStorage = require './doc/file_storage'
   fs = new FileStorage("/tmp/bench")
-  log = new Log(fs, (megabytes 5))
+  log = new Log(fs, 5000)
   writeReadRecords(log, data, reads, ->console.timeEnd("read-write"))
 
 

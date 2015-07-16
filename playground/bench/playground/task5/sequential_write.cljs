@@ -11,9 +11,8 @@
 (defn- make-env [config]
   (let [{:keys [record-size log-size]
          :as config} (merge default-config config)]
-
     (merge config
-           {:records (random-buffers record-size (megabytes log-size))})))
+           {:records (random-buffers (int record-size) (megabytes (int log-size)))})))
 
 
 (defn- <write-records-to-log

@@ -9,7 +9,7 @@
 (defn- make-env [config]
   (let [{:keys [record-size log-size read-ratio]
          :as config} (merge default-config config)
-         records (random-buffers record-size (megabytes log-size))
+         records (random-buffers (int record-size) (megabytes log-size))
          n-records (count records)
          reads (vec (repeatedly (* read-ratio n-records) #(rand-int n-records)))]
 

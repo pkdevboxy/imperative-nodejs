@@ -27,11 +27,11 @@ buffersToStrings = (buffers)->
   chars += '0123456789'
   result = []
   for bf in buffers
-    string = ''
+    temp = []
     for i in [0...bf.length]
       index = bf.readUInt8(i) % chars.length
-      string += chars.charAt(index)
-    result.push(string)
+      temp.push(chars.charAt(index))
+    result.push(temp.join(''))
   return result
 
 writeRecordsToLog = (log, records, callback) ->

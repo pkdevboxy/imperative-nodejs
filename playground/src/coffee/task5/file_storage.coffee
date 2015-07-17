@@ -45,6 +45,8 @@ class FileStorage
       return callback(err) if err
       @_readRecordFromFd(fd, offset, callback)
 
+  flush: ->
+
   _pathToFile: (name) ->
     path.join(@path, name)
 

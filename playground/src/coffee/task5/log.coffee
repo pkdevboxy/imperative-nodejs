@@ -37,6 +37,9 @@ class Log
       return callback(error) if error
       callback(null, buffer)
 
+  flush: ->
+    @storage.flush()
+
   _enqueueWrite: (cmd) ->
     @pendingWrites.push(cmd)
     @_writeNext()
@@ -77,6 +80,7 @@ class Log
       @currentOffset += amount
       process.nextTick -> callback(null)
     else
+      @flush()
       @storage.addFile @_fileIdForOffset(newOffset).toString(), @logFileSize,
         (error) =>
           return callback(error) if error

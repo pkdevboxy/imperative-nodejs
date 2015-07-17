@@ -22,7 +22,7 @@
               (playground.task5.callback.log/start log callback)))
    :add-record playground.task5.callback.log/add-record
    :fetch-record playground.task5.callback.log/fetch-record
-   :flush! (fn [log])})
+   :flush! playground.task5.callback.log/flush!})
 
 
 (def coffee-callback-impl
@@ -59,11 +59,11 @@
 (defn random-buffers
   ([total-size] (random-buffers 1000 total-size))
   ([max-length total-size]
-  (loop [result [] current-length 0]
-    (if (< total-size (+ current-length max-length))
-      result
-      (let [buff (random-buffer max-length)]
-        (recur (conj result buff) (+ current-length (.-length buff))))))))
+   (loop [result [] current-length 0]
+     (if (< total-size (+ current-length max-length))
+       result
+       (let [buff (random-buffer max-length)]
+         (recur (conj result buff) (+ current-length (.-length buff))))))))
 
 
 (def ^:private original-nextTick (.. js/goog -async -nextTick))

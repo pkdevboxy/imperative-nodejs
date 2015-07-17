@@ -6,8 +6,28 @@
             [playground.task5.buffer :as buffer]))
 
 
-(s/defrecord FileStorage [path :- s/Str])
+(s/defrecord FileStorage [path  :- s/Str
+                          cache
+                          dirty
+                          ])
 (def FileDescriptor s/Int)
+
+(s/defn ^:private add-to-cache!
+  [storage :- FileStorage
+   name    :- s/Str
+   buffer  :- js/Buffer]
+  (swap! (:cache storage) assoc name buffer))
+
+(s/defn ^:private get-from-cache!
+  [storage :- FileStorage
+   name    :- s/Str]
+  (@(:cache storage) name))
+
+(s/defn ^:private add-to-dirty!
+  [storage :- FileStorage
+   name    :- s/Str]
+
+  (swap! (:dirty storage) conj name))
 
 
 (s/defn ^:private path-to-file :- s/Str
@@ -17,88 +37,28 @@
   (path/join (:path storage) name))
 
 
-(s/defn ^:private open-new
-  [storage :- FileStorage
-   name    :- s/Str
-   callback]
-  (fs/open (path-to-file storage name) "w"  callback))
-
-
-(s/defn ^:private open-for-writting
-  [storage :- FileStorage
-   name    :- s/Str
-   callback]
-
-  (fs/open (path-to-file storage name) "r+" callback))
-
-
-(s/defn ^:private open-for-reading
-  [storage :- FileStorage
-   name    :- s/Str
-   callback]
-
-  (fs/open (path-to-file storage name) "r" callback))
-
-
-(s/defn ^:private close-fd!
-  [fd :- FileDescriptor]
-  (fs/close fd (fn []
-               ; ignore possible error
-                 )))
-
-
 (s/defn ^:private zero-buffer :- js/Buffer
   [size :- s/Int]
   (doto (js/Buffer. size)
     (.fill 0)))
 
 
-(s/defn ^:private write-to-fd
-  [fd     :- FileDescriptor
-   buffer :- js/Buffer
-   offset :- s/Int
+(s/defn ^:private read-to-cache
+  [storage :- FileStorage
+   name    :- s/Str
    callback]
 
-  (doto (fs/create-write-stream nil #js {:fd fd :start offset})
-    (.on "error" (fn [] "empty" ))
-    (.write buffer (fn [error]
-                     (close-fd! fd)
-                     (callback error)))))
-
-
-(s/defn ^:private read-from-fd
-  [fd      :- FileDescriptor
-   offset  :- s/Int
-   callback]
-
-  (let [stream (fs/create-read-stream nil #js {:fd fd
-                                               :start offset
-                                               :autoClose false})
-        chunks #js []
-        finished? (volatile! false)
-        finish! (fn [error]
-                  (when-not @finished?
-                    (vreset! finished? true)
-                    (.pause stream)
-                    (close-fd! fd)
-                    (if (nil? error)
-                      (callback nil (.concat js/Buffer chunks))
-                      (callback error))))]
-
-    (doto stream
-      (.on "error" finish!)
-      (.on "end" finish!)
-      (.on "data" (fn [chunk]
-                    (when-not @finished?
-                      (let [cstr (buffer/extract-c-str chunk)]
-                        (.push chunks cstr)
-                        (when (not= (.-length cstr) (.-length chunk))
-                          (finish! nil)))))))))
+  (if-let [result (get-from-cache! storage name)]
+    (.nextTick js/process #(callback nil result))
+    (try-> [result (fs/read-file (path-to-file storage name) nil)]
+      (catch-> callback)
+      (add-to-cache! storage name result)
+      (callback nil result))))
 
 
 (s/defn new-file-storage :- FileStorage
   [path :- s/Str]
-  (->FileStorage path))
+  (->FileStorage path (atom {}) (atom #{})))
 
 
 (s/defn add-file
@@ -108,11 +68,9 @@
    size    :- s/Int
    callback]
 
-  (try-> [fd (open-new storage name)
-          _ (write-to-fd fd (zero-buffer size) 0)]
-    (catch-> callback)
-
-    (callback)))
+  (add-to-cache! storage name (zero-buffer size))
+  (add-to-dirty! storage name)
+  (.nextTick js/process callback))
 
 
 (s/defn write-to-file
@@ -123,12 +81,11 @@
    buffer  :- js/Buffer
    offset  :- s/Int
    callback]
-
-  (try-> [fd (open-for-writting storage name)
-          _ (write-to-fd fd buffer offset)]
-    (catch-> callback)
-
-    (callback)))
+  (let [target (get-from-cache! storage name)]
+    (assert target)
+    (add-to-dirty! storage name)
+    (.copy buffer target offset)
+    (.nextTick js/process callback)))
 
 
 (s/defn read-c-str-from-file
@@ -139,8 +96,14 @@
    offset  :- s/Int
    callback]
 
-  (try-> [fd (open-for-reading storage name)
-          buffer (read-from-fd fd offset)]
+  (try-> [buf (read-to-cache storage name)]
     (catch-> callback)
+    (callback nil (buffer/extract-c-str (.slice buf offset)))))
 
-    (callback nil buffer)))
+(s/defn flush!
+  [storage :- FileStorage]
+  (doseq [name @(:dirty storage)]
+    (try-> [_ (fs/write-file (path-to-file storage name)
+                             (get-from-cache! storage name))]
+      (catch-> (fn [err] (throw err)))
+      (swap! (:dirty storage) disj name))))

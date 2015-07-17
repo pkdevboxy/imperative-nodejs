@@ -1,5 +1,6 @@
 (ns playground.task5.buffer
-  (:require [schema.core :as s]))
+  (:require [schema.core :as s]
+            [playground.node-lib.utils :refer [require-main]]))
 
 
 (s/defn null-terminated :- js/Buffer
@@ -12,8 +13,9 @@
     (.writeUInt8 result 0 (.-length buf))
     result))
 
+(def extract-c-str (.-readCString (require-main "./playground/task5/utils")))
 
-(s/defn extract-c-str :- js/Buffer
+#_(s/defn extract-c-str :- js/Buffer
   "Slices the buffer up to the first 0 or to the end.
   There is no zero bytes in the result"
   [buf :- js/Buffer]

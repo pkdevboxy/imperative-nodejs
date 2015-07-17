@@ -42,11 +42,11 @@
                                                        (when err (throw err))
                                                        (async/put! ch buffer)))
                             ch)]
-
         (let [record-map (let [result (transient [])]
                            (doseq [buffer records]
                              (conj! result [(<! (<add-record buffer)) buffer]))
-                           (persistent! result))]
+                           (do
+                             (persistent! result)))]
           (flush! log)
 
           (doseq [i reads
@@ -77,4 +77,7 @@
          #(merge % {:impl cljs-callback-impl})
          make-env)
 
-   :f write-read-records})
+   :f (with-fixtures
+        hack!
+        write-read-records
+        restore!)})

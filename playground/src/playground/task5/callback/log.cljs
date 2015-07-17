@@ -45,3 +45,7 @@
   {:pre (<= 0 offset @(:current-offset log))}
 
   (impl/read-record! log offset callback))
+
+
+(s/defn flush! [log :- Log]
+  (impl/flush! log))

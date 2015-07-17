@@ -55,8 +55,8 @@
 
 (def benchmarks
   [
-   callback-read-write-bench
    callback-cljs-read-write-bench
+   ;; callback-read-write-bench
    ])
 
 

@@ -79,11 +79,13 @@
         (commit!)
         (.nextTick js/process callback))
 
-      (try-> [_ (add-file log new-file-id)]
-        (catch-> callback)
+      (do
+        (storage/flush! (:storage log))
+        (try-> [_ (add-file log new-file-id)]
+          (catch-> callback)
 
-        (commit!)
-        (callback)))))
+          (commit!)
+          (callback))))))
 
 
 (s/defn ^:private fill-current-file-if-neccessary
@@ -153,3 +155,5 @@
                                   (str file-id)
                                   offset
                                   callback)))
+(s/defn flush! [log :- Log]
+  #_(storage/flush! (:storage log)))

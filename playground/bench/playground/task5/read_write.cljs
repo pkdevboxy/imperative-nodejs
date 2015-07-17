@@ -20,7 +20,7 @@
 
 
 (defn- write-read-records
-  [{{:keys [start add-record fetch-record print-stats]} :impl
+  [{{:keys [start add-record fetch-record print-stats flush!]} :impl
     :keys [done records reads dir log-file-size report-write-time]}]
 
   (let [ch (async/chan 1)]
@@ -43,20 +43,17 @@
                                                        (async/put! ch buffer)))
                             ch)]
 
-        (let [record-map
-              (loop [result []
-                     [buffer & rest] records]
-
-                (if buffer
-                  (recur
-                   (conj result [(<! (<add-record buffer)) buffer])
-                   rest)
-                  result))]
+        (let [record-map (let [result (transient [])]
+                           (doseq [buffer records]
+                             (conj! result [(<! (<add-record buffer)) buffer]))
+                           (persistent! result))]
+          (flush! log)
 
           (doseq [i reads
                   :let [[offset buffer] (nth record-map i)]]
             (when-not (.equals buffer (<! (<fetch-record offset)))
               (throw (js/Error "log is broken")))))
+
         (when print-stats
           (print-stats log))
         (done)))))
@@ -68,7 +65,10 @@
          #(merge % {:impl coffee-callback-impl})
          make-env)
 
-   :f write-read-records})
+   :f (with-fixtures
+        hack!
+        write-read-records
+        restore!)})
 
 
 (def callback-cljs-read-write-bench

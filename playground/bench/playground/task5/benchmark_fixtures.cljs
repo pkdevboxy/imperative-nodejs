@@ -21,12 +21,13 @@
                        size)]
               (playground.task5.callback.log/start log callback)))
    :add-record playground.task5.callback.log/add-record
-   :fetch-record playground.task5.callback.log/fetch-record})
+   :fetch-record playground.task5.callback.log/fetch-record
+   :flush! (fn [log])})
 
 
 (def coffee-callback-impl
   {:start (fn [dir size callbck]
-            (let [FileStorage (require-main "./playground/task5/file_storage")
+            (let [FileStorage (require-main "./playground/task5/caching_file_storage")
                   Log (require-main "./playground/task5/log")
                   log (Log. (FileStorage. dir) size)]
               (.start log callbck)))
@@ -34,6 +35,8 @@
                  (.writeRecord log record callback))
    :fetch-record (fn [log offset callback]
                    (.readRecord log offset callback))
+   :flush! (fn [log]
+             (.flush log))
    :print-stats (fn [log] (.printStats log))})
 
 

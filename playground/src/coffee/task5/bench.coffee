@@ -66,7 +66,7 @@ writeReadRecords = (log, records, reads, callback) ->
   r = 0
   readLoop = ->
     if r == reads.length
-      log.printStats()
+      # log.printStats()
       callback()
       return
     i = reads[r]
@@ -113,3 +113,6 @@ fn = ->
 console.log("Start")
 console.time("read-write")
 fn()
+
+# module.exports = (log) ->
+#   writeReadRecords(log, data, reads, ->console.timeEnd("read-write"))

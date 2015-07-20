@@ -1,4 +1,5 @@
 Benchmark = require 'benchmark'
+require('source-map-support').install()
 
 randomBuffer = (maxLenght) ->
   length = Math.floor(Math.random() * maxLenght)
@@ -103,7 +104,7 @@ reads = (Math.floor(Math.random() * data.length) for _ in [0..data.length*10])
 #data = [new Buffer("Hello"), new Buffer("World")]
 
 fn = ->
-  Log = require './log'
+  Log = require './generator_log'
   FileStorage = require './caching_file_storage'
   fs = new FileStorage("/tmp/bench")
   log = new Log(fs, megabytes(5))

@@ -40,7 +40,8 @@
   :source-paths ["src" "test" "bench"]
 
   :coffeescript [{:sources ["src/coffee/"]
-                  :output  "out/playground"}]
+                  :output  "out/playground"
+                  :map true}]
 
   :aliases {"test" ["do" "coffeescript" ["cljsbuild" "test" "all"]]
 

@@ -21,7 +21,7 @@
                       [benchmark "1.0.0"]
                       [closurecompiler-externs "1.0.4"]
                       [iced-coffee-script "108.0.6"]
-                      [npm install iced-runtime "1.0.2"]]
+                      [iced-runtime "1.0.2"]]
 
   :plugins [[lein-cljsbuild "1.0.6"]
             [lein-npm "0.5.0"]

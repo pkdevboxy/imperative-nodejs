@@ -28,7 +28,7 @@ class Log
       pop: -> (callback) ->
         pending_callbacks.push(callback)
         if pending_tasks.length > 0
-          pending_callbacks.pop()(pending_tasks.pop())
+          pending_callbacks.pop()(null, pending_tasks.pop())
     }
 
     run =>
@@ -67,7 +67,7 @@ class Log
     start = process.hrtime()
     @tasks.push([record, (args...)=>
       @times.push(process.hrtime(start)[1])
-      process.nextTick(-> callback(args...))
+      callback(args...)
     ])
 
   readRecord: (offset, callback) ->

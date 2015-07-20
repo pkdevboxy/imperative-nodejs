@@ -1,4 +1,6 @@
 Benchmark = require 'benchmark'
+{run, curry} = require './gen_utils'
+
 require('source-map-support').install()
 
 randomBuffer = (maxLenght) ->
@@ -48,6 +50,24 @@ writeRecordsToLog = (log, records, callback) ->
       i += 1
       f()
   log.start(f)
+
+writeReadRecordsGen = (log, records, reads, callback) ->
+  start = curry(log.start.bind(log))
+  writeRecord = curry(log.writeRecord.bind(log))
+  readRecord = curry(log.readRecord.bind(log))
+
+  run ->
+    yield start()
+    recordMap = []
+    for record, index in records
+      offset = yield writeRecord(record)
+      recordMap[index] = offset
+
+    for i in reads
+      buffer = yield readRecord(recordMap[i])
+      unless buffer.equals(records[i])
+        throw new Error("Log is broken")
+    callback()
 
 
 writeReadRecords = (log, records, reads, callback) ->

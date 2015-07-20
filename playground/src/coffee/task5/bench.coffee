@@ -1,4 +1,6 @@
 Benchmark = require 'benchmark'
+Promise = require 'bluebird'
+FileStorage = require './caching_file_storage'
 {run, curry} = require './gen_utils'
 
 require('source-map-support').install()
@@ -118,22 +120,68 @@ writeReadRecordsSync = (log, records, reads, callback) ->
   callback()
 
 
-data = randomBuffers(megabytes(10), 1000)
-#data = buffersToStrings(data)
-reads = (Math.floor(Math.random() * data.length) for _ in [0..data.length*10])
-#data = [new Buffer("Hello"), new Buffer("World")]
+implementations = [{
+  description: "Baseline: coffescript callback based log",
+  newLog: (dir, logFileSize) ->
+    Log = require './log'
+    fs = new FileStorage(dir)
+    new Log(fs, logFileSize)
+  },
+  {
+  description: "Generators: coffescript callback log + ES6 generators
+    for writes coordination",
+  newLog: (dir, logFileSize) ->
+    Log = require './generator_log'
+    fs = new FileStorage(dir)
+    new Log(fs, logFileSize)
+  },
+  {
+  description: "Iced: async/await rewriting by IcedCoffescript",
+  newLog: (dir, logFileSize) ->
+    Log = require './iced/log'
+    fs = new FileStorage(dir)
+    new Log(fs, logFileSize)
+  }
+  ]
 
-fn = ->
-  Log = require './generator_log'
-  FileStorage = require './caching_file_storage'
-  fs = new FileStorage("/tmp/bench")
-  log = new Log(fs, megabytes(5))
-  writeReadRecords(log, data, reads, ->console.timeEnd("read-write"))
 
+runBenchmarks = ->
+  logSize = 10
+  readRatio = 10
+  logFileSize = 5
+  console.log("\nGenerating #{logSize} megabytes of records to write.")
+  writes = randomBuffers(megabytes(10), 1000)
+  console.log("Generating reading requests for
+    #{logSize * readRatio} megabytes.")
+  randomRead =  -> Math.floor(Math.random() * writes.length)
+  reads = (randomRead() for _ in [0..writes.length * readRatio])
+  nRequests = writes.length + reads.length
+  console.log("There will be #{nRequests}
+    read/write requests.")
+  console.log("\nStart Benchmarks")
+  baseline = null
 
-console.log("Start")
-console.time("read-write")
-fn()
+  writeReadRecords = Promise.promisify(writeReadRecords)
+  Promise.coroutine(->
+    for impl in implementations
+      console.log()
+      console.log(impl.description)
 
-# module.exports = (log) ->
-#   writeReadRecords(log, data, reads, ->console.timeEnd("read-write"))
+      start = process.hrtime()
+      log = impl.newLog("/tmp", megabytes(logFileSize))
+      yield writeReadRecords(log, writes, reads)
+      stop = process.hrtime(start)
+
+      millis = Math.floor(stop[0] * 1000 + stop[1] / 1000000)
+      if baseline == null
+        baseline = millis
+      ratio = (millis / baseline).toFixed(2)
+
+      console.log("time:  #{millis} ms")
+      console.log("ratio: #{ratio} X" )
+      console.log()
+  )()
+
+module.exports =
+  implementations: implementations
+  runBenchmarks: runBenchmarks

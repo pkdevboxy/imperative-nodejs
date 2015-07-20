@@ -87,26 +87,31 @@
 
 (defn -main []
   (s/set-fn-validation! false)
-  (let [;; Log (require-main "./playground/task5/log")
-        ;; FileStorage (require-main "./playground/task5/caching_file_storage")
-        log (atom (playground.task5.callback.log/new-log
-                   (playground.task5.callback.file-storage/new-file-storage "/tmp/bench/")
-                   (* 5 1024 1024)))
-        benchmark (require-main "./playground/task5/bench")]
+  (let [benchmark (require-main "./playground/task5/bench")
+        impl #js
+        {:description "Core.async: Clojurescript callback log with core.async for synchronization"
+         :newLog
+         (fn [dir, log-file-size]
+           (let [log (atom
+                      (playground.task5.callback.log/new-log
+                       (playground.task5.callback.file-storage/new-file-storage dir)
+                       log-file-size))]
+             (reify
+               Object
+               (start [this callback]
+                 (playground.task5.callback.log/start @log
+                                                      (fn [err started-log]
+                                                        (reset! log started-log)
+                                                        (callback nil this))))
+               (flush [this] (playground.task5.callback.log/flush! @log))
+               (writeRecord [this record callback]
+                 (playground.task5.callback.log/add-record @log record callback))
+               (readRecord [this offset callback]
+                 (playground.task5.callback.log/fetch-record @log offset callback)))))}]
 
-    (benchmark
-     (reify
-       Object
-       (start [this callback]
-         (playground.task5.callback.log/start @log
-                                              (fn [err started-log]
-                                                (reset! log started-log)
-                                                (callback nil this))))
-       (flush [this] (playground.task5.callback.log/flush! @log))
-       (writeRecord [this record callback]
-         (playground.task5.callback.log/add-record @log record callback))
-       (readRecord [this offset callback]
-         (playground.task5.callback.log/fetch-record @log offset callback)))))
+    (.push (.-implementations benchmark) impl)
+    (.runBenchmarks benchmark))
+
   #_(if (:once params)
     (run-once)
     (run-suite)))

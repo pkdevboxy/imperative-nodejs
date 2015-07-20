@@ -37,6 +37,9 @@ class Log
     return callback(error) if error
     callback(null, buffer)
 
+  flush: ->
+    @storage.flush()
+
   _enqueueWrite: (cmd) ->
     @pendingWrites.push(cmd)
     @_writeNext()

@@ -1,11 +1,11 @@
-(ns playground.task5-async.log
+(ns playground.task5.async.log
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [<! >!]]
             [schema.core :as s]
             [playground.async-utils :refer [Chan-of]]
-            [playground.task5-async.log-impl :as impl :refer [Log RecordOffset]]
+            [playground.task5.async.log-impl :as impl :refer [Log RecordOffset]]
             [playground.task5.buffer :as buffer]
-            [playground.task5-async.file-storage :refer [FileStorage]]
+            [playground.task5.async.file-storage :refer [FileStorage]]
             [playground.node-lib.result :as result :refer [Result-of]]))
 
 

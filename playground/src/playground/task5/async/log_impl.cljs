@@ -1,4 +1,4 @@
-(ns playground.task5-async.log-impl
+(ns playground.task5.async.log-impl
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:require [cljs.core.async :as async :refer [<! >!]]
             [schema.core :as s]
@@ -6,7 +6,7 @@
             [playground.schemas :refer [Atom-of]]
             [playground.node-lib.utils :refer [<<<]]
             [playground.node-lib.result :as result :refer [Result Result-of]]
-            [playground.task5-async.file-storage :as storage]
+            [playground.task5.async.file-storage :as storage]
             [playground.task5.buffer :as buffer]))
 
 (def RecordOffset s/Int)

@@ -1,7 +1,7 @@
 (ns playground.task5.implementations
   (:require [cljs.core.async :as async]
-            [playground.task5-async.file-storage]
-            [playground.task5-async.log]
+            [playground.task5.async.file-storage]
+            [playground.task5.async.log]
             [playground.task5.callback.file-storage]
             [playground.task5.callback.log]
 
@@ -10,12 +10,12 @@
 
 (def async-log
   {:<start (fn [dir file-size]
-             (let [file-storage (playground.task5-async.file-storage/new-file-storage dir)]
-               (playground.task5-async.log/<start
-                (playground.task5-async.log/new-log file-storage file-size))))
+             (let [file-storage (playground.task5.async.file-storage/new-file-storage dir)]
+               (playground.task5.async.log/<start
+                (playground.task5.async.log/new-log file-storage file-size))))
 
-   :<add-record playground.task5-async.log/<add-record
-   :<fetch-record playground.task5-async.log/<fetch-record})
+   :<add-record playground.task5.async.log/<add-record
+   :<fetch-record playground.task5.async.log/<fetch-record})
 
 
 (defn- start! [l cb] (.start l cb))

@@ -1,6 +1,6 @@
 Benchmark = require 'benchmark'
 Promise = require 'bluebird'
-FileStorage = require './caching_file_storage'
+FileStorage = require './file_storage'
 {run, curry} = require './gen_utils'
 
 require('source-map-support').install()

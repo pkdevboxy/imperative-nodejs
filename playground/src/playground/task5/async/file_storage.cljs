@@ -1,4 +1,4 @@
-(ns playground.task5-async.file-storage
+(ns playground.task5.async.file-storage
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [<! >!]]
             [schema.core :as s]

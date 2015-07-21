@@ -27,7 +27,7 @@
 
 (def coffee-callback-impl
   {:start (fn [dir size callbck]
-            (let [FileStorage (require-main "./playground/task5/caching_file_storage")
+            (let [FileStorage (require-main "./playground/task5/file_storage")
                   Log (require-main "./playground/task5/log")
                   log (Log. (FileStorage. dir) size)]
               (.start log callbck)))

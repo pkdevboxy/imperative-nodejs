@@ -21,4 +21,7 @@ lein cljsbuild once bench
 
 Launch:
 
-`node --harmony-generators out/bench.js` or `iojs out/bench`. iojs is noticeably faster.
+`node --harmony-generators out/bench.js` or `iojs out/bench`. iojs is noticeably
+faster.
+
+To select particular benchmark, use `iojs out/bench readWrite` or `iojs out/bench multyReadWrite`

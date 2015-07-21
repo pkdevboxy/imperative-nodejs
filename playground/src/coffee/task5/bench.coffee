@@ -71,7 +71,22 @@ writeReadRecordsGen = (log, records, reads, callback) ->
     callback()
 
 
-writeReadRecords = (log, records, reads, callback) ->
+writeReadRecordsSync = (log, records, reads, callback) ->
+  recordMap = []
+  log.start()
+  records.forEach (record, i)->
+    recordMap[i] = log.writeRecord(record)
+
+  reads.forEach (i)->
+    buffer = log.readRecord(recordMap[i])
+    unless buffer.equals(records[i])
+      throw new Error("Log is broken")
+
+  log.printStats()
+  callback()
+
+
+writeReadRecords = ({log, records, reads}, callback) ->
   recordMap = []
   w = 0
   writeLoop = ->
@@ -88,7 +103,8 @@ writeReadRecords = (log, records, reads, callback) ->
   r = 0
   readLoop = ->
     if r == reads.length
-      # log.printStats()
+      # if log.printStats
+      #   log.printStats()
       callback()
       return
     i = reads[r]
@@ -101,22 +117,28 @@ writeReadRecords = (log, records, reads, callback) ->
       r += 1
       readLoop()
 
-  log.start(writeLoop)
+  writeLoop()
+
+multyReadWrite = (config, callback) ->
+  rw = Promise.promisify(writeReadRecords)
+  config.log.start ->
+    Promise.all(rw(config) for _ in [0...config.nThreads])
+      .then(-> callback())
 
 
-writeReadRecordsSync = (log, records, reads, callback) ->
-  recordMap = []
-  log.start()
-  records.forEach (record, i)->
-    recordMap[i] = log.writeRecord(record)
+benchmarks = {
+  readWrite: {
+    description: "Single threaded read-write" ,
+    fn: (config, callback) ->
+      config.log.start(-> writeReadRecords(config, callback))
+  },
 
-  reads.forEach (i)->
-    buffer = log.readRecord(recordMap[i])
-    unless buffer.equals(records[i])
-      throw new Error("Log is broken")
-
-  log.printStats()
-  callback()
+  multyReadWrite: {
+    description: "Multy thread read-write",
+    fn: multyReadWrite,
+    threaded: true,
+  }
+}
 
 
 implementations = [{
@@ -145,22 +167,38 @@ implementations = [{
 
 
 runBenchmarks = ->
+  benchmark = benchmarks.multyReadWrite
+  for k, v of benchmarks
+    if k == process.argv[2]
+      benchmark = v
+
+  fn = Promise.promisify(benchmark.fn)
   logSize = 10
   readRatio = 10
   logFileSize = 5
-  console.log("\nGenerating #{logSize} megabytes of records to write.")
-  writes = randomBuffers(megabytes(10), 1000)
+  nThreads = if benchmark.threaded then 5 else 1
+
+  console.log()
+  console.log("Node version: ", process.version)
+  console.log(benchmark.description)
+  console.log()
+  console.log("Generating #{logSize} megabytes of records to write.")
+  records = randomBuffers(megabytes(10), 1000)
+
   console.log("Generating reading requests for
     #{logSize * readRatio} megabytes.")
-  randomRead =  -> Math.floor(Math.random() * writes.length)
-  reads = (randomRead() for _ in [0..writes.length * readRatio])
-  nRequests = writes.length + reads.length
-  console.log("There will be #{nRequests}
-    read/write requests.")
-  console.log("\nStart Benchmarks")
-  baseline = null
+  randomRead =  -> Math.floor(Math.random() * records.length)
+  reads = (randomRead() for _ in [0..records.length * readRatio])
+  nRequests = records.length + reads.length
 
-  writeReadRecords = Promise.promisify(writeReadRecords)
+  console.log("\nThere will be #{nRequests}
+    read/write requests per thread.\n#{nThreads} threads will concurently
+    write #{logSize * nThreads} mb and
+    read #{logSize * readRatio * nThreads} mb")
+
+  console.log("\nStart benchmarks")
+
+  baseline = null
   Promise.coroutine(->
     for impl in implementations
       console.log()
@@ -168,7 +206,8 @@ runBenchmarks = ->
 
       start = process.hrtime()
       log = impl.newLog("/tmp", megabytes(logFileSize))
-      yield writeReadRecords(log, writes, reads)
+      config = {log, records, reads, nThreads}
+      yield fn(config)
       stop = process.hrtime(start)
 
       millis = Math.floor(stop[0] * 1000 + stop[1] / 1000000)

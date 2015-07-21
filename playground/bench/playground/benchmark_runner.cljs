@@ -18,38 +18,12 @@
 
 (nodejs/enable-util-print!)
 
-(node-require benchmark)
-
-(defn- time-it-sync! [f]
-  (println (.run (benchmark f))))
-
 (def params
   (->>  process/argv
         (drop 2)
         (partition 2)
         (map (fn [[arg val]] [(keyword arg) val]))
         (into {})))
-
-
-(defn- report [event]
-  (println "...done!")
-  (println (js/String (.-target event))))
-
-(defn time-it! [f & {:keys [name] :or {:name "cljs"}}]
-  (println "Start async benchmark...")
-  (doto (.Suite benchmark)
-    (.add (str name) (clj->js {:defer true
-                               :fn (fn [deferred] (f #(.resolve deferred)))}))
-    (.on "cycle" report)
-    (.run)))
-
-
-(defn add-to-suite! [suite {:keys [name env f]}]
-  (let [e (env params)
-        options #js {:defer true
-                     :fn (fn [defered]
-                           (f (conj e [:done #(.resolve defered)])))}]
-    (.add suite name (clj->js options))))
 
 
 (defn- now []
@@ -63,7 +37,7 @@
    ])
 
 
-(defn- run-once []
+(defn- run []
   (letfn [(loop-fn [[b & rest]]
             (when-let [{:keys [name env f]} b]
               (let [e (env params)
@@ -74,15 +48,6 @@
                                   (println "done" (/ (- (now) start) 1000) "seconds\n")
                                   (loop-fn rest))])))))]
     (loop-fn benchmarks)))
-
-
-(defn- run-suite []
-  (let [suite (.Suite benchmark)]
-    (doseq [b benchmarks]
-      (add-to-suite! suite b))
-    (doto suite
-      (.on  "cycle" report)
-      (.run))))
 
 
 (defn -main []
@@ -110,10 +75,6 @@
                  (playground.task5.callback.log/fetch-record @log offset callback)))))}]
 
     (.push (.-implementations benchmark) impl)
-    (.runBenchmarks benchmark))
-
-  #_(if (:once params)
-    (run-once)
-    (run-suite)))
+    (.runBenchmarks benchmark)))
 
 (set! *main-cli-fn* -main)

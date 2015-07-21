@@ -18,7 +18,6 @@
   :node-dependencies [[source-map-support "0.2.8"]
                       [async "^1.2.1"]
                       [bluebird "^2.9.30"]
-                      [benchmark "1.0.0"]
                       [closurecompiler-externs "1.0.4"]
                       [iced-coffee-script "108.0.6"]
                       [iced-runtime "1.0.2"]]

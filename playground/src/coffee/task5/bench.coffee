@@ -1,4 +1,3 @@
-Benchmark = require 'benchmark'
 Promise = require 'bluebird'
 FileStorage = require './file_storage'
 {run, curry} = require './gen_utils'

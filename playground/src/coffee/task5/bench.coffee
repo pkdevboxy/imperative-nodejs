@@ -141,7 +141,8 @@ benchmarks = {
 }
 
 
-implementations = [{
+implementations = [
+  {
   description: "Baseline: coffescript callback based log",
   newLog: (dir, logFileSize) ->
     Log = require './log'
@@ -154,6 +155,14 @@ implementations = [{
   newLog: (dir, logFileSize) ->
     Log = require './generator_log'
     fs = new FileStorage(dir)
+    new Log(fs, logFileSize)
+  },
+  {
+  description: "Promise: coffescript + bluebird + ES6 generators"
+  newLog: (dir, logFileSize) ->
+    FS = require './promise/file_storage'
+    Log = require './promise/log'
+    fs = new FS(dir)
     new Log(fs, logFileSize)
   },
   {

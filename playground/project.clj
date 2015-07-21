@@ -53,16 +53,16 @@
 
   :cljsbuild
   {:test-commands
-   {"all" ["node" "out/test.js"]
-    "task1" ["node" "out/test.js" "task1"]
-    "task2" ["node" "out/test.js" "task2"]
-    "task3" ["node" "out/test.js" "task3"]
-    "task4" ["node" "out/test.js" "task4"]
-    "task5" ["node" "out/test.js" "task5"]}
+   {"all" ["node" "--harmony" "out/test.js"]
+    "task1" ["node" "--harmony" "out/test.js" "task1"]
+    "task2" ["node" "--harmony" "out/test.js" "task2"]
+    "task3" ["node" "--harmony" "out/test.js" "task3"]
+    "task4" ["node" "--harmony" "out/test.js" "task4"]
+    "task5" ["node" "--harmony" "out/test.js" "task5"]}
 
    :builds [{:id "dev"
              :source-paths ["src" "test"]
-             :notify-command ["node" "out/test.js"]
+             :notify-command ["node" "--harmony" "out/test.js"]
 
              :compiler {:main playground.test-runner
                         :output-to "out/test.js"

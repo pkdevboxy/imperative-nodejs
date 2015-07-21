@@ -52,3 +52,8 @@
   (t/async
    done
    (test-log implementations/iced-log done)))
+
+(deftest test-promise-log
+  (t/async
+   done
+   (test-log implementations/promise-log done)))

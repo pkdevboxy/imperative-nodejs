@@ -105,5 +105,5 @@
   (doseq [name @(:dirty storage)]
     (try-> [_ (fs/write-file (path-to-file storage name)
                              (get-from-cache! storage name))]
-      (catch-> (fn [err] (throw err)))
+      (catch-> (fn [err] "ignore"))
       (swap! (:dirty storage) disj name))))

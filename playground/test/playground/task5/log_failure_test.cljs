@@ -68,3 +68,8 @@
   (t/async
    done
    (test-log implementations/iced-log done)))
+
+(deftest promise-log-reads-all-that-is-written
+  (t/async
+   done
+   (test-log implementations/promise-log done)))

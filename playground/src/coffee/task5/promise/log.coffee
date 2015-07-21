@@ -59,6 +59,7 @@ class Log
 
   startAsync: ->
     @storage.addFileAsync("0", @logFileSize)
+      .then( => @)
 
   writeRecord: (record, callback) ->
     @writeRecordAsync(record).nodeify(callback)

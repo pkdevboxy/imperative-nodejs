@@ -1,8 +1,8 @@
+os = require 'os'
 Promise = require 'bluebird'
 FileStorage = require './file_storage'
 {run, curry} = require './gen_utils'
 
-require("babel/register")
 
 require('source-map-support').install()
 
@@ -152,10 +152,17 @@ implementations = [
     new Log(fs, logFileSize)
   },
   {
+  description: "Baseline: coffescript callback based log",
+  newLog: (dir, logFileSize) ->
+    Log = require './log'
+    fs = new FileStorage(dir)
+    new Log(fs, logFileSize)
+  },
+  {
   description: "Promise: ES6 + bluebird"
   newLog: (dir, logFileSize) ->
-    FS = require.main.require '../src/coffee/task5/es6/file_storage'
-    Log = require.main.require '../src/coffee/task5/es6/log'
+    FS = require './es6/file_storage'
+    Log = require './es6/log'
     fs = new FS(dir)
     new Log(fs, logFileSize)
   },
@@ -222,10 +229,9 @@ runBenchmarks = ->
     for impl in implementations
       console.log()
       console.log(impl.description)
-
-      start = process.hrtime()
-      log = impl.newLog("/tmp", megabytes(logFileSize))
+      log = impl.newLog(os.tmpdir(), megabytes(logFileSize))
       config = {log, records, reads, nThreads}
+      start = process.hrtime()
       yield fn(config)
       stop = process.hrtime(start)
 

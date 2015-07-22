@@ -3,14 +3,14 @@
                    [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [<!]]
             [cljs.test :as t :refer-macros [deftest is]]
-            [playground.node-lib.utils :refer [require-main]]
+            [playground.node-lib.utils :refer [require-local]]
             [playground.test-fixtures :refer [mock-readFile-fixture mock-fs]]))
 
 
 (t/use-fixtures :each mock-readFile-fixture)
 
 (deftest reader_test
-  (let [r (require-main "./playground/task3/js_callback")]
+  (let [r (require-local "playground/task3/js_callback")]
     (t/async
      done
      (let [result (volatile! [])

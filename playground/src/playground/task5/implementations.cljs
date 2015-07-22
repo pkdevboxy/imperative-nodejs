@@ -5,7 +5,7 @@
             [playground.task5.callback.file-storage]
             [playground.task5.callback.log]
 
-            [playground.node-lib.utils :refer [<<< <<<ch require-main]]))
+            [playground.node-lib.utils :refer [<<< <<<ch require-local]]))
 
 
 (def async-log
@@ -24,8 +24,8 @@
 
 (def callback-log
   {:<start (fn [dir file-size]
-             (let [Filestorage (require-main "./playground/task5/file_storage")
-                   Log (require-main "./playground/task5/log")
+             (let [Filestorage (require-local "playground/task5/file_storage")
+                   Log (require-local "playground/task5/log")
                    storage (Filestorage. dir)
                    l (Log. storage file-size)]
 
@@ -40,8 +40,8 @@
 
 (def iced-log
   {:<start (fn [dir file-size]
-             (let [Filestorage (require-main "./playground/task5/iced/file_storage")
-                   Log (require-main "./playground/task5/iced/log")
+             (let [Filestorage (require-local "playground/task5/iced/file_storage")
+                   Log (require-local "playground/task5/iced/log")
                    storage (Filestorage. dir)
                    l (Log. storage file-size)]
 
@@ -56,8 +56,8 @@
 
 (def promise-log
   {:<start (fn [dir file-size]
-             (let [Filestorage (require-main "./playground/task5/promise/file_storage")
-                   Log (require-main "./playground/task5/promise/log")
+             (let [Filestorage (require-local "playground/task5/promise/file_storage")
+                   Log (require-local "playground/task5/promise/log")
                    storage (Filestorage. dir)
                    l (Log. storage file-size)]
 
@@ -87,8 +87,8 @@
 (def callback-log-shared-chan
   (let [callback-ch (async/chan 1)]
     {:<start (fn [dir file-size]
-               (let [Filestorage (require-main "./playground/task5/file_storage")
-                     Log (require-main "./playground/task5/log")
+               (let [Filestorage (require-local "playground/task5/file_storage")
+                     Log (require-local "playground/task5/log")
                      storage (Filestorage. dir)
                      l (Log. storage file-size)]
 

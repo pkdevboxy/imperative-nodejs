@@ -1,9 +1,9 @@
 (ns playground.task2.js-callback-test
   (:require  [cljs.test :as t :refer-macros [deftest is]]
-             [playground.node-lib.utils :refer [require-main]]
+             [playground.node-lib.utils :refer [require-local]]
              [playground.test-fixtures  :refer [mock-readFile-fixture]]))
 
-(def ^:private traverse (require-main "./playground/task2/js_callbacks"))
+(def ^:private traverse (require-local "playground/task2/js_callbacks"))
 
 (t/use-fixtures :each mock-readFile-fixture)
 

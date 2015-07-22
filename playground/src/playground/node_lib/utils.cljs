@@ -48,8 +48,12 @@
       (result/ok i))))
 
 
-(defn require-main [module]
-  (.require (.-main js/require) module))
+(js/require "babel/register")
+(js/require "coffee-script/register")
+(js/require "iced-coffee-script/register")
+
+(defn require-local [module]
+  (.require (.-main js/require) (str "../src/coffee/" module)))
 
 
 (defn prepare-clean-dir

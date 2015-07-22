@@ -3,7 +3,7 @@
   (:require [cljs.nodejs :as nodejs]
             [schema.core :as s]
             [playground.node-api.process :as process]
-            [playground.node-lib.utils :refer [require-main]]
+            [playground.node-lib.utils :refer [require-local]]
             [playground.task5.sequential-write
              :refer [async-log-bench async-log-bench-hack-goog
                      callback-callback-log-bench callback-log-bench
@@ -52,7 +52,7 @@
 
 (defn -main []
   (s/set-fn-validation! false)
-  (let [benchmark (require-main "./playground/task5/bench")
+  (let [benchmark (require-local "playground/task5/bench")
         impl #js
         {:description "Core.async: Clojurescript callback log with core.async for synchronization"
          :newLog

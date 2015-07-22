@@ -1,6 +1,6 @@
 (ns playground.task5.benchmark-fixtures
   (:require goog.async.nextTick
-            [playground.node-lib.utils :refer [require-main]]
+            [playground.node-lib.utils :refer [require-local]]
             [playground.task5.callback.file-storage]
             [playground.task5.callback.log]))
 
@@ -27,8 +27,8 @@
 
 (def coffee-callback-impl
   {:start (fn [dir size callbck]
-            (let [FileStorage (require-main "./playground/task5/file_storage")
-                  Log (require-main "./playground/task5/log")
+            (let [FileStorage (require-local "playground/task5/file_storage")
+                  Log (require-local "playground/task5/log")
                   log (Log. (FileStorage. dir) size)]
               (.start log callbck)))
    :add-record (fn [log record callback]

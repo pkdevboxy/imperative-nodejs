@@ -1,0 +1,13 @@
+{
+  "name": "imp",
+  "version": "0.0.1",
+  "main": "index.js",
+  "dependencies": {
+    "babel": "5.8.3",
+    "mocha": "^2.2.5"
+  },
+
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --compilers js:babel/register"
+  }
+}

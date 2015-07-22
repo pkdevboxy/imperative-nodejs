@@ -82,6 +82,17 @@ describe("ObjectCache", () => {
         cache.put("foo", 92);
         cache.put("bar", 42);
         assert(called);
+    });
+
+    it("should be iterable", () => {
+        const cache = new ObjectCache(2);
+        cache.put("foo", 92);
+        cache.get("foo");
+        cache.put("bar", 42);
+        for (let [key, value] of cache) {
+            assert((key === "foo" && value === 92) ||
+                (key === "bar" && value === 42))
+        }
 
     })
 });

@@ -1,8 +1,7 @@
 "use strict";
+const Promise = require("bluebird");
 
-var Promise = require("bluebird");
-
-var _zero = new Buffer([0]);
+const _zero = new Buffer([0]);
 
 function appendZeroByte(buffer) {
     return Buffer.concat([buffer, _zero]);
@@ -21,7 +20,7 @@ class AsyncQueue {
     }
 
     pop() {
-        var d = Promise.pending();
+        const d = Promise.pending();
         this._pendingDeferals.push(d);
         this._tryAdvance();
         return d.promise;
@@ -42,22 +41,21 @@ class Log {
         this._currentOffset = 0;
         this._tasks = new AsyncQueue();
 
-        var self = this;
-        var worker = Promise.coroutine(function* () {
+        const worker = Promise.coroutine(function* (self) {
             for (;;) {
-                var task = yield self._tasks.pop();
+                const task = yield self._tasks.pop();
                 if (!task) {
                     return;
                 }
-                var [record, d] = task;
+                const [record, d] = task;
 
                 try {
                     yield self._ensureHasSpace(record);
-                    var fileName = self._currentFile().toString();
-                    var fileOffset = self._currentInFileOffset();
+                    const fileName = self._currentFile().toString();
+                    const fileOffset = self._currentInFileOffset();
                     yield self._storage.writeToFileAsync(fileName, record, fileOffset);
 
-                    var recordOffset = self._currentOffset;
+                    const recordOffset = self._currentOffset;
                     yield self._increaseOffset(record.length);
                     d.fulfill(recordOffset);
                 } catch (error) {
@@ -66,7 +64,7 @@ class Log {
             }
         });
 
-        worker();
+        worker(this);
     }
 
     printStats() {
@@ -92,14 +90,14 @@ class Log {
 
     writeRecordAsync(record) {
         record = appendZeroByte(record);
-        var d = Promise.pending();
+        const d = Promise.pending();
         this._tasks.push([record, d]);
         return d.promise;
     }
 
     readRecordAsync(offset) {
-        var fileName = this._fileIdForOffset(offset).toString();
-        var fileOffset = this._inFileOffset(offset);
+        const fileName = this._fileIdForOffset(offset).toString();
+        const fileOffset = this._inFileOffset(offset);
         return this._storage.readCStringFromFileAsync(fileName, fileOffset);
     }
 
@@ -114,8 +112,8 @@ class Log {
     }
 
     _increaseOffset(amount) {
-        var newOffset = this._currentOffset + amount;
-        var newFile = this._fileIdForOffset(newOffset);
+        const newOffset = this._currentOffset + amount;
+        const newFile = this._fileIdForOffset(newOffset);
         if (newFile === this._fileIdForOffset(this._currentOffset)) {
             this._currentOffset += amount;
             return Promise.resolve();

@@ -1,18 +1,18 @@
 "use strict";
-var Promise = require("bluebird");
-var path = require("path");
-var fs = Promise.promisifyAll(require("fs"));
+const Promise = require("bluebird");
+const path = require("path");
+const fs = Promise.promisifyAll(require("fs"));
 
 
 function zeroBuffer(size) {
-    var buf = new Buffer(size);
+    const buf = new Buffer(size);
     buf.fill(0);
     return buf;
 }
 
 
 function readCString(buffer) {
-    for (var i = 0; i < buffer.length; i++) {
+    for (let i = 0; i < buffer.length; i++) {
         if (buffer[i] === 0) {
             return buffer.slice(0, i);
         }
@@ -33,7 +33,7 @@ class CachingFileStorage {
     }
 
     printStats() {
-        var mb = 1024 * 1024;
+        const mb = 1024 * 1024;
         console.log(`Mb written ${this._stats.bytesWritten / mb}`);
         console.log(`Mb read ${this._stats.bytesRead / mb}`);
     }
@@ -45,7 +45,7 @@ class CachingFileStorage {
     }
 
     writeToFileAsync(name, buffer, offset) {
-        var target = this._cache.get(name);
+        const target = this._cache.get(name);
         if (!target) {
             throw new Error("Not supported yet");
         }
@@ -69,7 +69,7 @@ class CachingFileStorage {
     }
 
     _readToCacheAsync(name) {
-        var result = this._cache.get(name);
+        const result = this._cache.get(name);
         if (result) {
             return Promise.resolve(result);
         }

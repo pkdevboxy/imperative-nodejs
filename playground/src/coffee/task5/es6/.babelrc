@@ -1,0 +1,7 @@
+{
+  "whitelist": [
+      "strict",
+      "es6.arrowFunctions",
+      "es6.destructuring"
+  ]
+}

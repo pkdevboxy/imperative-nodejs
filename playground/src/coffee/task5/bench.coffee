@@ -2,6 +2,8 @@ Promise = require 'bluebird'
 FileStorage = require './file_storage'
 {run, curry} = require './gen_utils'
 
+require("babel/register")
+
 require('source-map-support').install()
 
 randomBuffer = (maxLenght) ->
@@ -147,6 +149,14 @@ implementations = [
   newLog: (dir, logFileSize) ->
     Log = require './log'
     fs = new FileStorage(dir)
+    new Log(fs, logFileSize)
+  },
+  {
+  description: "Promise: ES6 + bluebird"
+  newLog: (dir, logFileSize) ->
+    FS = require.main.require '../src/coffee/task5/es6/file_storage'
+    Log = require.main.require '../src/coffee/task5/es6/log'
+    fs = new FS(dir)
     new Log(fs, logFileSize)
   },
   {

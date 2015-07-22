@@ -20,7 +20,8 @@
                       [bluebird "^2.9.30"]
                       [closurecompiler-externs "1.0.4"]
                       [iced-coffee-script "108.0.6"]
-                      [iced-runtime "1.0.2"]]
+                      [iced-runtime "1.0.2"]
+                      [babel "5.8.3"]]
 
   :plugins [[lein-cljsbuild "1.0.6"]
             [lein-npm "0.5.0"]

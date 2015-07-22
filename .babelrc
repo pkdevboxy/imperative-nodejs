@@ -1,6 +1,7 @@
 {
   "whitelist": [
       "strict",
+      "es6.spread",
       "es6.parameters",
       "es6.constants",
       "es6.blockScoping",

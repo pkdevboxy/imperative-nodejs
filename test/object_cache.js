@@ -55,4 +55,33 @@ describe("ObjectCache", () => {
             assert.equal(cache.get("foo" + i), i);
         }
     });
+
+    it("should call remove hook when entry is manually removed", () => {
+        let called = false;
+        const cache = new ObjectCache(2, 0.5, (key, value) => {
+            assert.equal(key, "foo");
+            assert.equal(value, 92);
+            assert(!called);
+            called = true;
+        });
+
+        cache.put("foo", 92);
+        assert(cache.remove("foo"));
+        assert(called);
+    });
+
+    it("should call remove hook when entry is purged", () => {
+        let called = false;
+        const cache = new ObjectCache(2, 0.5, (key, value) => {
+            assert.equal(key, "foo");
+            assert.equal(value, 92);
+            assert(!called);
+            called = true;
+        });
+
+        cache.put("foo", 92);
+        cache.put("bar", 42);
+        assert(called);
+
+    })
 });

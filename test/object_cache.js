@@ -89,10 +89,9 @@ describe("ObjectCache", () => {
         cache.put("foo", 92);
         cache.get("foo");
         cache.put("bar", 42);
-        for (let [key, value] of cache) {
+        for (const [key, value] of cache) {
             assert((key === "foo" && value === 92) ||
-                (key === "bar" && value === 42))
+                (key === "bar" && value === 42));
         }
-
-    })
+    });
 });

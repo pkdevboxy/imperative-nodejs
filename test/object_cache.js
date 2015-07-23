@@ -3,14 +3,14 @@ const ObjectCache = require("../lib/object_cache");
 
 describe("ObjectCache", () => {
     it("should contain freshly put value", () => {
-        const cache = new ObjectCache(2);
+        const cache = ObjectCache.new({size: 2});
         cache.put("foo", 92);
         assert(cache.contains("foo"));
         assert.equal(cache.get("foo"), 92);
     });
 
     it("should pull out old entries", () => {
-        const cache = new ObjectCache(2);
+        const cache = ObjectCache.new({size: 2});
         cache.put("foo", 92);
         cache.put("bar", 44);
 
@@ -20,7 +20,7 @@ describe("ObjectCache", () => {
     });
 
     it("should keep protected values", () => {
-        const cache = new ObjectCache(2);
+        const cache = ObjectCache.new({size: 2});
         cache.put("foo", 92);
         assert.equal(cache.get("foo"), 92);
 
@@ -32,7 +32,7 @@ describe("ObjectCache", () => {
     });
 
     it("should remove values in lru order", () => {
-        const cache = new ObjectCache(6);
+        const cache = ObjectCache.new({size: 6});
         for (let i = 0; i < 10; i++) {
             cache.put("foo" + i, i);
         }
@@ -45,7 +45,7 @@ describe("ObjectCache", () => {
     });
 
     it("should spill entries form protected back to probation", () => {
-        const cache = new ObjectCache(6);
+        const cache = ObjectCache.new({size: 6});
         for (let i = 0; i < 6; i++) {
             cache.put("foo" + i, i);
             cache.get("foo" + i);
@@ -58,12 +58,12 @@ describe("ObjectCache", () => {
 
     it("should call remove hook when entry is manually removed", () => {
         let called = false;
-        const cache = new ObjectCache(2, 0.5, (key, value) => {
+        const cache = ObjectCache.new({size: 2, onRemoval: (key, value) => {
             assert.equal(key, "foo");
             assert.equal(value, 92);
             assert(!called);
             called = true;
-        });
+        }});
 
         cache.put("foo", 92);
         assert(cache.remove("foo"));
@@ -72,12 +72,12 @@ describe("ObjectCache", () => {
 
     it("should call remove hook when entry is purged", () => {
         let called = false;
-        const cache = new ObjectCache(2, 0.5, (key, value) => {
+        const cache = ObjectCache.new({size: 2, onRemoval: (key, value) => {
             assert.equal(key, "foo");
             assert.equal(value, 92);
             assert(!called);
             called = true;
-        });
+        }});
 
         cache.put("foo", 92);
         cache.put("bar", 42);
@@ -85,7 +85,7 @@ describe("ObjectCache", () => {
     });
 
     it("should be iterable", () => {
-        const cache = new ObjectCache(2);
+        const cache = ObjectCache.new({size: 2});
         cache.put("foo", 92);
         cache.get("foo");
         cache.put("bar", 42);
@@ -97,7 +97,7 @@ describe("ObjectCache", () => {
     });
 
     it("should not allow duplicate keys", () => {
-        const cache = new ObjectCache(2);
+        const cache = ObjectCache.new({size: 2});
         cache.put("foo", 92);
         cache.get("foo");
         cache.put("foo", 42);

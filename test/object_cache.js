@@ -2,7 +2,7 @@ const assert = require("assert");
 const ObjectCache = require("../lib/object_cache");
 
 describe("ObjectCache", () => {
-    it("should contain freshly put value", () => {
+    it("shoubd contain freshly put value", () => {
         const cache = new ObjectCache(2);
         cache.put("foo", 92);
         assert(cache.contains("foo"));
@@ -90,6 +90,7 @@ describe("ObjectCache", () => {
         cache.get("foo");
         cache.put("bar", 42);
         for (const [key, value] of cache) {
+            //noinspection JSUnusedAssignment
             assert((key === "foo" && value === 92) ||
                 (key === "bar" && value === 42));
         }

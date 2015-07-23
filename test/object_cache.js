@@ -2,7 +2,7 @@ const assert = require("assert");
 const ObjectCache = require("../lib/object_cache");
 
 describe("ObjectCache", () => {
-    it("shoubd contain freshly put value", () => {
+    it("should contain freshly put value", () => {
         const cache = new ObjectCache(2);
         cache.put("foo", 92);
         assert(cache.contains("foo"));

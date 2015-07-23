@@ -95,4 +95,16 @@ describe("ObjectCache", () => {
                 (key === "bar" && value === 42));
         }
     });
+
+    it("should not allow duplicate keys", () => {
+        const cache = new ObjectCache(2);
+        cache.put("foo", 92);
+        cache.get("foo");
+        cache.put("foo", 42);
+        const items = [];
+        for (const i of cache) {
+            items.push(i);
+        }
+        assert.equal(items.length, 1);
+    });
 });

@@ -12,14 +12,14 @@
     "url": "https://github.com/JetBrains/imperative-nodejs/issues"
   },
   "homepage": "https://github.com/JetBrains/imperative-nodejs#readme",
-
   "scripts": {
     "postinstall": "node scripts/postinstall.js",
-    "test": "mocha --harmony --compilers js:babel/register 'lib/*/test/*.js' "
+    "test": "mocha --harmony --compilers js:babel/register 'lib/*/test/*.js'"
   },
   "devDependencies": {
     "babel": "^5.8.3",
-    "mocha": "^2.2.5"
+    "mocha": "^2.2.5",
+    "mock-fs": "https://github.com/city41/mock-fs.git"
   },
   "dependencies": {
     "bluebird": "^2.9.34"

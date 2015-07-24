@@ -1,18 +1,19 @@
 # Project Structure
 
+* `/lib/*` --- main source and test, separated by subproject.
+* `/scripts/` --- helper scripts
 * `/playground` --- clojurescript experiments.
-* `/lib/node_modules` --- npm subprojects with their own package.json.
-* `/package.json` --- main npm project with common dependencies.
 
-# Subprojects
+# Instalation
 
-* `/lib/node_modules/data_structures` --- generic synchronous datastructures
-library.
+* `npm install`
 
+This will also create a symlink to lib folder in node_modules, as described in
+https://strongloop.com/strongblog/modular-node-js-express/
 
 # Running tests
 
-* `cd ./lib/node_modules/data_structures && npm test`
+* `npm test`
 
 # License
 

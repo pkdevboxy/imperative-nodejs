@@ -14,7 +14,7 @@
   "homepage": "https://github.com/JetBrains/imperative-nodejs#readme",
   "scripts": {
     "postinstall": "node scripts/postinstall.js",
-    "test": "mocha --harmony --compilers js:babel/register 'lib/*/test/*.js'"
+    "test": "mocha --harmony --compilers js:babel/register 'test/*/*.js'"
   },
   "devDependencies": {
     "babel": "^5.8.3",

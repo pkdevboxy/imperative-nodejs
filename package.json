@@ -1,13 +1,22 @@
 {
-  "name": "imp",
-  "version": "0.0.1",
-  "main": "index.js",
-  "dependencies": {
-    "babel": "5.8.3",
+  "name": "imperative-nodejs",
+  "version": "1.0.0",
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JetBrains/imperative-nodejs.git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/JetBrains/imperative-nodejs/issues"
+  },
+  "homepage": "https://github.com/JetBrains/imperative-nodejs#readme",
+  "devDependencies": {
+    "babel": "^5.8.3",
     "mocha": "^2.2.5"
   },
-
-  "scripts": {
-    "test": "./node_modules/.bin/mocha --harmony --compilers js:babel/register"
+  "dependencies": {
+    "bluebird": "^2.9.34"
   }
 }

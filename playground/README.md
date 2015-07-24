@@ -17,8 +17,3 @@ Note:
 `lein compile` will throw error for the first time, because tests are setup to
 run after every `cljsbuild` and `cljsbuild` happens before `coffeescript`.
 
-## License
-
-This project is licensed under the [Apache License 2.0][license].
-
-[license]: http://www.apache.org/licenses/LICENSE-2.0.html

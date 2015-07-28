@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "bluebird": "^2.9.34",
+    "lodash": "^3.10.0",
     "object-hash": "^0.8.0"
   }
 }

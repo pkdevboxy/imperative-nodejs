@@ -5,18 +5,6 @@ const {go} = require("imp/async");
 
 
 describe("TodoApp", ()=> {
-    // it("should allow to create user and add several todo items", () => {
-    //     const app = TodoApp.new();
-    //     Promise.coroutine(function* () {
-    //         yield app.start();
-    //         const aliceId = yield app.createUser("Alice");
-    //         yield app.addTodo(aliceId, "Feed the cat");
-    //         yield app.addTodo(aliceId, "Wash the dog");
-    //         const todos = yield app.listTodos(aliceId);
-    //         assert.equal(todos.length, 2);
-    //     })();
-    // });
-
     it("should allow to create user", () => {
         return go(function* () {
             const app = yield TodoApp.start({databaseDir: tmp.dirSync().name});
@@ -37,6 +25,22 @@ describe("TodoApp", ()=> {
 
             assert.equal(users.length, 1);
             assert.equal(users[0].login, "Alice");
+        });
+    });
+
+    it("should allow to create user and add several todo items", () => {
+        const config = {databaseDir: tmp.dirSync().name};
+        return go(function* () {
+            let app = yield TodoApp.start(config);
+            yield app.createUser("Alice");
+            yield app.addTodo("Alice", "Feed the cat");
+            yield app.addTodo("Alice", "Wash the dog");
+            yield app.stop();
+
+            app = yield TodoApp.start(config);
+            const todos = yield app.listTodos("Alice");
+            yield app.stop();
+            assert.deepEqual(todos, ["Feed the cat", "Wash the dog"]);
         });
     });
 });

@@ -15,15 +15,18 @@
   "scripts": {
     "postinstall": "node scripts/postinstall.js",
     "test": "mocha --harmony --compilers js:babel/register 'test/*/*.js'",
-    "test-ci": "npm test -- --reporter mocha-teamcity-reporter"
+    "test:watch": "npm test -- --watch",
+    "test:ci": "npm test -- --reporter mocha-teamcity-reporter"
   },
   "devDependencies": {
     "babel": "^5.8.3",
     "mocha": "^2.2.5",
     "mocha-teamcity-reporter": ">=0.0.1",
-    "mock-fs": "https://github.com/city41/mock-fs.git"
+    "mock-fs": "https://github.com/city41/mock-fs.git",
+    "tmp": "0.0.26"
   },
   "dependencies": {
-    "bluebird": "^2.9.34"
+    "bluebird": "^2.9.34",
+    "object-hash": "^0.8.0"
   }
 }

@@ -16,6 +16,10 @@ https://strongloop.com/strongblog/modular-node-js-express/
 
 * `npm test`
 
+# Command line interface
+
+`npm run todo:cli`
+
 # License
 
 This project is licensed under the [Apache License 2.0][license].

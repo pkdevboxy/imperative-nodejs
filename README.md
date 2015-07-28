@@ -1,6 +1,7 @@
 # Project Structure
 
-* `/lib/*` --- main source and test, separated by subproject.
+* `/lib/*` --- main source and test, separated by subproject (start reading from
+  index.js file).
 * `/scripts/` --- helper scripts
 * `/playground` --- clojurescript experiments.
 

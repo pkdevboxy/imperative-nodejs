@@ -18,24 +18,23 @@ describe("TodoApp", ()=> {
     // });
 
     it("should allow to create user", () => {
-        const app = TodoApp.new({databaseDir: tmp.dirSync().name});
         return go(function* () {
-            yield app.start();
+            const app = yield TodoApp.start({databaseDir: tmp.dirSync().name});
             yield app.createUser("Alice");
         });
     });
 
     it("should be able to read existing db", () => {
         const dir = tmp.dirSync().name;
-        let app = TodoApp.new({databaseDir: dir});
         return go(function* () {
-            yield app.start();
+            let app = yield TodoApp.start({databaseDir: dir});
             yield app.createUser("Alice");
             yield app.stop();
-            app = TodoApp.new({databaseDir: dir});
-            yield app.start();
+
+            app = yield TodoApp.start({databaseDir: dir});
             const users = yield app.listUsers();
             yield app.stop();
+
             assert.equal(users.length, 1);
             assert.equal(users[0].login, "Alice");
         });

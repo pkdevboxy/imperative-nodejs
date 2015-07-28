@@ -16,7 +16,8 @@
     "postinstall": "node scripts/postinstall.js",
     "test": "mocha --harmony --compilers js:babel/register 'test/*/*.js'",
     "test:watch": "npm test -- --watch",
-    "test:ci": "npm test -- --reporter mocha-teamcity-reporter"
+    "test:ci": "npm test -- --reporter mocha-teamcity-reporter",
+    "todo:cli": "node -e \"require('babel/register'); require('imp/todo/cli')\""
   },
   "devDependencies": {
     "babel": "^5.8.3",

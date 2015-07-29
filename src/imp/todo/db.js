@@ -65,6 +65,13 @@ module.exports = class DB {
         return Promise.resolve(this._users.map(u => _.pick(u, ["login"])));
     }
 
+    /**
+     * Appends new item to user's todo list
+     *
+     * @param {string} login user login
+     * @param {string} text todo text
+     * @returns {Promise}
+     */
     addTodo(login, text) {
         const user = this._getUserByLogin(login);
         if (!user) {
@@ -84,6 +91,13 @@ module.exports = class DB {
         });
     }
 
+    /**
+     * Removes specified todo from user's todo list.
+     *
+     * @param {string} login user login.
+     * @param {int} position todo position in todo list.
+     * @returns {Promise}
+     */
     removeTodo(login, position) {
         const user = this._getUserByLogin(login);
         if (!user) {
@@ -106,6 +120,12 @@ module.exports = class DB {
         });
     }
 
+    /**
+     * Returns all user's todos.
+     *
+     * @param {string} login user login.
+     * @returns {Promise.<[Object]>}
+     */
     listTodos(login) {
         const user = this._getUserByLogin(login);
         if (!user) {

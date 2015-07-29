@@ -148,7 +148,7 @@ module.exports = class DB {
 };
 
 function decode(data) {
-    return sign.check(JSON.parse(data.toString()));
+    return sign.removeChecksum(JSON.parse(data.toString()));
 }
 
 function encode(obj) {

@@ -20,7 +20,7 @@ function addChecksum(obj) {
  * @param {{data: *, checksum: *}} obj
  * @returns obj
  */
-function check(obj) {
+function removeChecksum(obj) {
     if (hash(obj.data) !== obj.checksum) {
         throw new Error("Invalid checksum");
     }
@@ -28,4 +28,4 @@ function check(obj) {
     return obj.data;
 }
 
-module.exports = {check, addChecksum};
+module.exports = {removeChecksum, addChecksum};

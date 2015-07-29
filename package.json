@@ -29,6 +29,7 @@
   "dependencies": {
     "bluebird": "^2.9.34",
     "lodash": "^3.10.0",
+    "node-uuid": "^1.4.3",
     "object-hash": "^0.8.0"
   }
 }

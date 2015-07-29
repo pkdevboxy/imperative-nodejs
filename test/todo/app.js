@@ -1,3 +1,4 @@
+const _ = require("lodash");
 const assert = require("assert");
 const tmp = require("tmp");
 const {TodoApp} = require("imp/todo");
@@ -40,9 +41,9 @@ describe("TodoApp", ()=> {
             app = yield TodoApp.start(config);
             const todos = yield app.listTodos("Alice");
             yield app.stop();
-            assert.deepEqual(todos, [
-                {position: 0, text: "Feed the cat"},
-                {position: 1, text: "Wash the dog"}]);
+            assert.deepEqual(todos.map(t => _.pick(t, "text")), [
+                {text: "Feed the cat"},
+                {text: "Wash the dog"}]);
         });
     });
 
@@ -51,18 +52,19 @@ describe("TodoApp", ()=> {
         return go(function* () {
             let app = yield TodoApp.start(config);
             yield app.createUser("Alice");
-            yield app.addTodo("Alice", "Feed the cat");
+            const todoId = yield app.addTodo("Alice", "Feed the cat");
             yield app.addTodo("Alice", "Wash the dog");
             yield app.stop();
 
             app = yield TodoApp.start(config);
-            yield app.removeTodo("Alice", 0);
+            yield app.removeTodo("Alice", todoId);
             yield app.stop();
 
             app = yield TodoApp.start(config);
             const todos = yield app.listTodos("Alice");
             yield app.stop();
-            assert.deepEqual(todos, [{position: 0, text: "Wash the dog"}]);
+            assert.deepEqual(todos.map(t => _.pick(t, "text")),
+                [{text: "Wash the dog"}]);
         });
     });
 });

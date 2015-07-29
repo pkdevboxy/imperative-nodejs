@@ -1,5 +1,6 @@
 const _ = require("lodash");
 const Promise = require("bluebird");
+const uuid = require("node-uuid");
 const {go} = require("imp/async");
 const sign = require("./sign");
 const Log = require("./log");
@@ -82,12 +83,14 @@ module.exports = class DB {
         return go(function* () {
             const textId = yield self._persistObject(text);
             const todos = user.todo
-                  ? (yield self._getObject(user.todo))
-                  : [];
+                ? (yield self._getObject(user.todo))
+                : [];
 
-            todos.push(textId);
+            const newTodo = {id: uuid.v4(), text: textId};
+            todos.push(newTodo);
             user.todo = yield self._persistObject(todos);
-            return (yield self._persistDB());
+            yield self._persistDB();
+            return newTodo.id;
         });
     }
 
@@ -95,10 +98,10 @@ module.exports = class DB {
      * Removes specified todo from user's todo list.
      *
      * @param {string} login user login.
-     * @param {int} position todo position in todo list.
+     * @param {uuid} id todo position in todo list.
      * @returns {Promise}
      */
-    removeTodo(login, position) {
+    removeTodo(login, id) {
         const user = this._getUserByLogin(login);
         if (!user) {
             return Promise.reject(new Error("No such user: " + login));
@@ -111,7 +114,8 @@ module.exports = class DB {
         const self = this;
         return go(function* () {
             const todos = yield self._getObject(user.todo);
-            if (!(position < todos.length)) {
+            const position = todos.findIndex(t => t.id === id);
+            if (position === -1) {
                 throw new Error("No such todo: " + position);
             }
             todos.splice(position, 1);
@@ -137,11 +141,14 @@ module.exports = class DB {
         }
 
         const self = this;
-        return go(function*() {
-            const textIds = yield self._getObject(user.todo);
-            const texts = yield Promise.all(textIds.map((id) => self._getObject(id)));
-            return texts.map((text, position) => ({text, position}));
-        });
+
+        const fetchTodo = (todo) => self._getObject(todo.text).then(text => ({
+            text,
+            id: todo.id
+        }));
+
+        return self._getObject(user.todo).then(todos =>
+            Promise.all(todos.map(fetchTodo)));
     }
 
     constructor(log, users) {

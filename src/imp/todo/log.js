@@ -31,9 +31,9 @@ module.exports = class Log {
         contract("record should not contain zero bytes", true);
 
         record = appendZeroByte(record);
-        const defered = Promise.pending();
-        this._tasks.push([record, defered]);
-        return defered.promise;
+        const deferred = Promise.pending();
+        this._tasks.push([record, deferred]);
+        return deferred.promise;
     }
 
     fetchRecord(offset) {
@@ -77,7 +77,7 @@ module.exports = class Log {
 
         const self = this;
         go(function* () {
-            for (;;) {
+            while (true) {
                 const task = yield self._tasks.pop();
                 if (!task) {
                     return;
@@ -116,7 +116,9 @@ module.exports = class Log {
             this.flush();
             return this._storage
                 .addFile(newFile.toString(), this._logFileSize)
-                .then(() => this._currentOffset += amount);
+                .then(() => {
+                    this._currentOffset += amount;
+                });
         }
     }
 

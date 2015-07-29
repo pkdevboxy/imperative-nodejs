@@ -27,6 +27,7 @@ function prompt(message) {
 
 function printTodos(list) {
     for (const {text, position} of list) {
+        //noinspection JSUnusedAssignment
         console.log(`${position + 1}. ${text}`);
     }
 }
@@ -38,7 +39,7 @@ function main() {
     try {
         fs.mkdirSync(directory);
         console.log("Created new log at", directory);
-    } catch (e) {
+    } catch (ignored) {
         console.log("Using existing log at", directory);
     }
 
@@ -55,30 +56,11 @@ function main() {
 
     console.log(help);
 
+    //noinspection FunctionWithInconsistentReturnsJS
     go(function* () {
         const app = yield TodoApp.start({databaseDir: directory});
         rl.on("close", () => app.stop());
         let user = null;
-        commands = {
-            quit() {
-                return app.stop();
-            },
-            useradd(name) {
-                return app.createUser(name).then(() => user = name);
-            },
-            userlist() {
-                return app.listUsers().then(users => {
-                    console.log(_.pluck(users, "login").join(", "));
-                });
-            },
-            userset(login) {
-                user = login;
-                _.assign(commands, userCommands);
-                console.log(`Hello, ${user}!`);
-                return Promise.resolve();
-            }
-        };
-
         const userCommands = {
             add(...words) {
                 return app.addTodo(user, words.join(" "));
@@ -94,6 +76,28 @@ function main() {
             },
             search(query) {
                 return app.search(user, query).then(printTodos);
+            }
+        };
+
+        commands = {
+            quit() {
+                return app.stop();
+            },
+            useradd(name) {
+                return app.createUser(name).then(() => {
+                    user = name;
+                });
+            },
+            userlist() {
+                return app.listUsers().then(users => {
+                    console.log(_.pluck(users, "login").join(", "));
+                });
+            },
+            userset(login) {
+                user = login;
+                _.assign(commands, userCommands);
+                console.log(`Hello, ${user}!`);
+                return Promise.resolve();
             }
         };
 

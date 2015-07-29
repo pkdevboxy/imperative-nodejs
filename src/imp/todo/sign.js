@@ -4,7 +4,7 @@ const hash = require("object-hash");
  * Adds checksum to object.
  *
  * @param obj
- * @returns obj
+ * @returns {{data: *, checksum: *}}
  */
 function addChecksum(obj) {
     return {
@@ -17,7 +17,7 @@ function addChecksum(obj) {
  * Checks that this object has correct checksum.
  * Throws if object is invalid.
  *
- * @param obj
+ * @param {{data: *, checksum: *}} obj
  * @returns obj
  */
 function check(obj) {

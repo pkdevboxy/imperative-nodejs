@@ -11,7 +11,7 @@ const Log = require("./log");
  */
 module.exports = class DB {
     /**
-     * Starts a new databse. If databseDir is empty, and empty database is
+     * Starts a new database. If databaseDir is empty, and empty database is
      * created, else a database is read from the directory.
      *
      * @param options.logFileSize size of the single log file
@@ -79,8 +79,7 @@ module.exports = class DB {
                   : [];
 
             todos.push(textId);
-            const id = yield self._persistObject(todos);
-            user.todo = id;
+            user.todo = yield self._persistObject(todos);
             return (yield self._persistDB());
         });
     }

@@ -9,6 +9,7 @@
     "strict": 0,
     "no-shadow": 0,
     "no-underscore-dangle": 0,
+    "no-constant-condition": 0,
     "brace-style": [2, "1tbs"],
     "no-var": 2,
     "prefer-const": 2

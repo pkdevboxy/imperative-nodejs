@@ -1,6 +1,10 @@
+var fs = require("fs");
+
 try {
-    require("fs").symlinkSync("../lib", "./node_modules/imp", "dir");
-    console.log("Symlinked ./node_modules/imp to ./lib");
+    fs.unlinkSync("./node_modules/imp");
 } catch(error) {
-    console.log("./node_modules/imp already linked");
+    // ignore
 }
+
+fs.symlinkSync("../src/imp", "./node_modules/imp", "dir");
+console.log("Symlinked ./node_modules/imp to ./src/imp");

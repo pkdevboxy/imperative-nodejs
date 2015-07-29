@@ -16,13 +16,19 @@ let commands;
 
 function completer(line) {
     const completions = Object.keys(commands);
-    const hits = completions.filter(c => c.indexOf(line) === 0 );
+    const hits = completions.filter(c => c.indexOf(line) === 0);
     return [hits.length ? hits : completions, line];
 }
 
 
 function prompt(message) {
     return new Promise((resolve) => rl.question(message, resolve));
+}
+
+function printTodos(list) {
+    for (const {text, position} of list) {
+        console.log(`${position + 1}. ${text}`);
+    }
 }
 
 
@@ -80,20 +86,15 @@ function main() {
             list() {
                 return app.listTodos(user).then(todos => {
                     console.log(`${user} TODOs:`);
-                    todos.forEach((item, idx) => {
-                        console.log(`${idx + 1}. ${item}`);
-                    });
+                    printTodos(todos);
                 });
             },
             remove(idx) {
                 return app.removeTodo(user, parseInt(idx, 10) - 1);
             },
             search(query) {
-                return app.search(user, query).then(todos => {
-                    console.log(todos.join("\n"));
-                });
+                return app.search(user, query).then(printTodos);
             }
-
         };
 
         while (true) {

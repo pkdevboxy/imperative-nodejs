@@ -1,5 +1,5 @@
 const assert = require("assert");
-const tmp = require( "tmp");
+const tmp = require("tmp");
 const {TodoApp} = require("imp/todo");
 const {go} = require("imp/async");
 
@@ -40,7 +40,9 @@ describe("TodoApp", ()=> {
             app = yield TodoApp.start(config);
             const todos = yield app.listTodos("Alice");
             yield app.stop();
-            assert.deepEqual(todos, ["Feed the cat", "Wash the dog"]);
+            assert.deepEqual(todos, [
+                {position: 0, text: "Feed the cat"},
+                {position: 1, text: "Wash the dog"}]);
         });
     });
 
@@ -60,7 +62,7 @@ describe("TodoApp", ()=> {
             app = yield TodoApp.start(config);
             const todos = yield app.listTodos("Alice");
             yield app.stop();
-            assert.deepEqual(todos, ["Wash the dog"]);
+            assert.deepEqual(todos, [{position: 0, text: "Wash the dog"}]);
         });
     });
 });

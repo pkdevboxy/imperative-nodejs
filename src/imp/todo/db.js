@@ -85,23 +85,23 @@ module.exports = class DB {
         });
     }
 
-    removeTodo(login, idx) {
+    removeTodo(login, position) {
         const user = this._getUserByLogin(login);
         if (!user) {
             return Promise.reject(new Error("No such user: " + login));
         }
 
         if (user.todo === null) {
-            return Promise.reject(new Error("No such todo: " + idx));
+            return Promise.reject(new Error("No such todo: " + position));
         }
 
         const self = this;
         return go(function* () {
             const todos = yield self._getObject(user.todo);
-            if (!(idx < todos.length)) {
-                throw new Error("No such todo: " + idx);
+            if (!(position < todos.length)) {
+                throw new Error("No such todo: " + position);
             }
-            todos.splice(idx, 1);
+            todos.splice(position, 1);
             user.todo = yield self._persistObject(todos);
             return (yield self._persistDB());
         });
@@ -117,8 +117,12 @@ module.exports = class DB {
             return Promise.resolve([]);
         }
 
-        return this._getObject(user.todo)
-            .then(todos => Promise.all(todos.map(id => this._getObject(id))));
+        const self = this;
+        return go(function*() {
+            const textIds = yield self._getObject(user.todo);
+            const texts = yield Promise.all(textIds.map((id) => self._getObject(id)));
+            return texts.map((text, position) => ({text, position}));
+        });
     }
 
     constructor(log, users) {

@@ -81,7 +81,7 @@ module.exports = class TodoApp {
 
     search(login, query) {
         return this.listTodos(login).then(todos =>
-            todos.filter(s => s.includes(query))
+                todos.filter(s => s.text.includes(query))
         );
     }
 

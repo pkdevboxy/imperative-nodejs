@@ -12,7 +12,7 @@ const Log = require("./log");
  */
 module.exports = class DB {
     /**
-     * Starts a new database. If databaseDir is empty, and empty database is
+     * Starts a new database. If databaseDir is empty, an empty database is
      * created, else a database is read from the directory.
      *
      * @param options.logFileSize size of the single log file

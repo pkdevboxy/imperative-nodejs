@@ -108,7 +108,7 @@ module.exports = class DB {
         }
 
         if (user.todo === null) {
-            return Promise.reject(new Error("No such todo: " + position));
+            return Promise.reject(new Error("No such todo: " + id));
         }
 
         const self = this;

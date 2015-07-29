@@ -98,7 +98,7 @@ module.exports = class DB {
      * Removes specified todo from user's todo list.
      *
      * @param {string} login user login.
-     * @param {uuid} id todo position in todo list.
+     * @param {uuid} id todo id.
      * @returns {Promise}
      */
     removeTodo(login, id) {

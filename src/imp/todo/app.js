@@ -62,11 +62,11 @@ module.exports = class TodoApp {
      * Removes a todo item by index.
      *
      * @param {string} login user login.
-     * @param {int} idx todo index (from zero).
+     * @param {uuid} id todo id.
      * @returns {Promise}
      */
-    removeTodo(login, idx) {
-        return this._db.removeTodo(login, idx);
+    removeTodo(login, id) {
+        return this._db.removeTodo(login, id);
     }
 
     /**

@@ -1,8 +1,8 @@
 # Project Structure
 
-* `/lib/*` --- main source and test, separated by subproject (start reading from
-  index.js file).
-* `/scripts/` --- helper scripts
+* `/src/imp/*` --- sources separated by subproject (start reading from index.js file).
+* `/test/` --- tests.
+* `/scripts/` --- helper scripts.
 * `/playground` --- clojurescript experiments.
 
 # Instalation

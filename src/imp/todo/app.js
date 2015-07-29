@@ -79,6 +79,13 @@ module.exports = class TodoApp {
         return Promise.resolve(this._db.listTodos(login));
     }
 
+    /**
+     * Returns a list of todos with text including query.
+     *
+     * @param {string} login user login.
+     * @param {string} query substring to search for.
+     * @returns {Promise.<[Object]>} array of todos.
+     */
     search(login, query) {
         return this.listTodos(login).then(todos =>
                 todos.filter(s => s.text.includes(query))

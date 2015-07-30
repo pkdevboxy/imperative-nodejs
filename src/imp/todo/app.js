@@ -15,9 +15,9 @@ module.exports = class TodoApp {
      * @returns {Promise.<TodoApp>}
      */
     static start(options) {
-        options.flushInterval = options.flushInterval || 1000;
+        const flushInterval = options.flushInterval || 1000;
         return DB.start(options)
-            .then(db => new TodoApp(db, options.flushInterval));
+            .then(db => new TodoApp(db, flushInterval));
     }
 
     /**

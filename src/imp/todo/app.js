@@ -59,6 +59,18 @@ module.exports = class TodoApp {
     }
 
     /**
+     * Updates todo status.
+     *
+     * @param {string} login user login
+     * @param {uuid} id todo id.
+     * @param {boolean} isDone new status
+     * @returns {Promise}
+     */
+    updateTodo(login, id, {isDone}) {
+        return this._db.updateTodo(login, id, {isDone});
+    }
+
+    /**
      * Removes a todo item by index.
      *
      * @param {string} login user login.

@@ -47,7 +47,7 @@ describe("TodoApp", ()=> {
         });
     });
 
-    it("should allow to remove and item", () => {
+    it("should allow to remove an item", () => {
         const config = {databaseDir: tmp.dirSync().name};
         return go(function* () {
             let app = yield TodoApp.start(config);
@@ -65,6 +65,23 @@ describe("TodoApp", ()=> {
             yield app.stop();
             assert.deepEqual(todos.map(t => _.pick(t, "text")),
                 [{text: "Wash the dog"}]);
+        });
+    });
+
+    it("should allow to check an item", () => {
+        const config = {databaseDir: tmp.dirSync().name};
+        return go(function* () {
+            const app = yield TodoApp.start(config);
+            yield app.createUser("Alice");
+            const todoId = yield app.addTodo("Alice", "Feed the cat");
+            yield app.addTodo("Alice", "Wash the dog");
+            let todos = yield app.listTodos("Alice");
+            assert.strictEqual(todos[0].isDone, false);
+
+            yield app.updateTodo("Alice", todoId, {isDone: true});
+
+            todos = yield app.listTodos("Alice");
+            assert.strictEqual(todos[0].isDone, true);
         });
     });
 });

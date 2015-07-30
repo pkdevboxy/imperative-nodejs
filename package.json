@@ -17,7 +17,8 @@
     "test": "mocha --harmony --compilers js:babel/register 'test/*/*.js'",
     "test:watch": "npm test -- --watch",
     "test:ci": "npm test -- --reporter mocha-teamcity-reporter",
-    "todo:cli": "node --harmony -e \"require('babel/register'); require('imp/todo/cli')\""
+    "todo:cli": "node --harmony -e \"require('babel/register'); require('imp/todo/cli')\"",
+    "todo:http-api": "node --harmony -e \"require('babel/register'); require('imp/todo/http-api')\""
   },
   "devDependencies": {
     "babel": "^5.8.3",
@@ -28,7 +29,10 @@
   },
   "dependencies": {
     "bluebird": "^2.9.34",
+    "body-parser": "^1.13.2",
+    "express": "^4.13.1",
     "lodash": "^3.10.0",
+    "morgan": "^1.6.1",
     "node-uuid": "^1.4.3",
     "object-hash": "^0.8.0"
   }

@@ -3,8 +3,10 @@ const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const {TodoApp} = require("imp/todo");
 
+const port = process.argv[1] || 8080;
+const databaseDir = process.argv[2] || "/tmp/todo";
 
-TodoApp.start({databaseDir: "/tmp/todo"}).then(todo => {
+TodoApp.start({databaseDir}).then(todo => {
     const app = express();
     app.use(bodyParser.json());
     app.use(morgan("dev"));
@@ -105,7 +107,7 @@ TodoApp.start({databaseDir: "/tmp/todo"}).then(todo => {
             .catch((error) => res.status(400).json({error: error.toString()}));
     });
 
-    const server = app.listen(process.argv[1] || 8080, () => {
+    const server = app.listen(port, () => {
         const host = server.address().address;
         const port = server.address().port;
 

@@ -45,6 +45,15 @@ module.exports = class DB {
     }
 
     /**
+     * Flushes db on disk.
+     *
+     * @returns {Promise}
+     */
+    flush() {
+        return this._log.flush();
+    }
+
+    /**
      * Creates new user.
      *
      * @param {string} login

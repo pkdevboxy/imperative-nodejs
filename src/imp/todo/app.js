@@ -11,12 +11,13 @@ module.exports = class TodoApp {
      *
      * @param {number} options.logFileSize size of a single log file
      * @param {string} options.databaseDir database location
-     *
+     * @param {number} options.flushInterval flush interval in milliseconds
      * @returns {Promise.<TodoApp>}
      */
     static start(options) {
+        options.flushInterval = options.flushInterval || 1000;
         return DB.start(options)
-            .then(db => new TodoApp(db));
+            .then(db => new TodoApp(db, options.flushInterval));
     }
 
     /**
@@ -25,6 +26,7 @@ module.exports = class TodoApp {
      * @returns {Promise}
      */
     stop() {
+        clearInterval(this._flushInterval);
         return this._db.stop();
     }
 
@@ -104,7 +106,8 @@ module.exports = class TodoApp {
         );
     }
 
-    constructor(db) {
+    constructor(db, flushInterval) {
         this._db = db;
+        this._flushInterval = setInterval(() => db.flush(), flushInterval);
     }
 };

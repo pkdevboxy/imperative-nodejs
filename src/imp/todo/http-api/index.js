@@ -7,8 +7,9 @@ const {TodoApp} = require("imp/todo");
 TodoApp.start({databaseDir: "/tmp/todo"}).then(todo => {
     const app = express();
     app.use(bodyParser.json());
-    app.use(morgan("tiny"));
+    app.use(morgan("dev"));
     app.set("json spaces", 2);
+
     app.get("/", (req, res) => {
         const baseUrl = req.protocol + "://" + req.get("host") + "/";
         res.json({
@@ -64,7 +65,6 @@ TodoApp.start({databaseDir: "/tmp/todo"}).then(todo => {
     });
 
     app.get("/list-users", (req, res) => {
-        console.log("here");
         todo.listUsers()
             .then(users => res.json({users}))
             .catch((error) => res.status(400).json({error: error.toString()}));

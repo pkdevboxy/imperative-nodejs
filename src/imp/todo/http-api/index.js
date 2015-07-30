@@ -111,6 +111,7 @@ TodoApp.start({databaseDir: "/tmp/todo"}).then(todo => {
 
         console.log("TODO API listening at http://%s:%s", host, port);
     });
+
     process.on("SIGINT", () => {
             console.log("SIGINT");
             server.close(() => {

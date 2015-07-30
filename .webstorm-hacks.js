@@ -11,6 +11,11 @@ function provideUnresolvedVariables() {
     //noinspection JSUnusedLocalSymbols
     fs.readFileAsync = (path) => {
     };
+    const app = {};
+    //noinspection JSUnusedLocalSymbols
+    app.post = (path, cb)=> {
+
+    }
 }
 
 

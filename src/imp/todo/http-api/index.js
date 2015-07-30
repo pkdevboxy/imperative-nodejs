@@ -115,6 +115,11 @@ TodoApp.start({databaseDir}).then(todo => {
     });
 
     process.on("SIGINT", () => {
+            setTimeout(() => {
+                console.log("timeout exit!");
+                process.exit();
+            }, 5000);
+
             console.log("SIGINT");
             server.close(() => {
                 console.log("closed server");

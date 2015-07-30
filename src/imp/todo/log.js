@@ -32,7 +32,7 @@ module.exports = class Log {
 
         record = appendZeroByte(record);
         const deferred = Promise.pending();
-        this._tasks.push([record, deferred]);
+        this._tasks.push(["write", deferred, record]);
         return deferred.promise;
     }
 
@@ -65,7 +65,9 @@ module.exports = class Log {
     }
 
     flush() {
-        return this._storage.flush();
+        const deferred = Promise.pending();
+        this._tasks.push(["flush", deferred]);
+        return deferred.promise;
     }
 
 
@@ -82,17 +84,21 @@ module.exports = class Log {
                 if (!task) {
                     return;
                 }
-                const [record, d] = task;
+                const [cmd, d, record] = task;
 
                 try {
-                    yield self._ensureHasSpace(record);
-                    const fileName = self._currentFile().toString();
-                    const fileOffset = self._currentInFileOffset();
-                    yield self._storage.writeToFile(fileName, record, fileOffset);
+                    if (cmd === "write") {
+                        yield self._ensureHasSpace(record);
+                        const fileName = self._currentFile().toString();
+                        const fileOffset = self._currentInFileOffset();
+                        yield self._storage.writeToFile(fileName, record, fileOffset);
 
-                    const recordOffset = self._currentOffset;
-                    yield self._increaseOffset(record.length);
-                    d.fulfill(recordOffset);
+                        const recordOffset = self._currentOffset;
+                        yield self._increaseOffset(record.length);
+                        d.fulfill(recordOffset);
+                    } else {
+                        d.fulfill(yield self._storage.flush());
+                    }
                 } catch (error) {
                     d.reject(error);
                 }

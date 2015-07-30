@@ -102,27 +102,17 @@ module.exports = class DB {
      * @returns {Promise}
      */
     updateTodo(login, id, {isDone}) {
-        const user = this._getUserByLogin(login);
-        if (!user) {
-            return Promise.reject(new Error("No such user: " + login));
-        }
-
-        if (user.todo === null) {
-            return Promise.reject(new Error("No such todo: " + id));
-        }
-
-        const self = this;
-        return go(function* () {
-            const todos = yield self._getObject(user.todo);
+        return this._getUserTodos(login).then(({todos, user}) => {
             const todo = todos.find(t => t.id === id);
             if (todo === undefined) {
                 throw new Error("No such todo: " + id);
             }
             todo.isDone = isDone;
-            user.todo = yield self._persistObject(todos);
-            return (yield self._persistDB());
+            return this._persistObject(todos).then(id => {
+                user.todo = id;
+                return this._persistDB();
+            });
         });
-
     }
 
     /**
@@ -133,25 +123,16 @@ module.exports = class DB {
      * @returns {Promise}
      */
     removeTodo(login, id) {
-        const user = this._getUserByLogin(login);
-        if (!user) {
-            return Promise.reject(new Error("No such user: " + login));
-        }
-
-        if (user.todo === null) {
-            return Promise.reject(new Error("No such todo: " + id));
-        }
-
-        const self = this;
-        return go(function* () {
-            const todos = yield self._getObject(user.todo);
+        return this._getUserTodos(login).then(({todos, user}) => {
             const position = todos.findIndex(t => t.id === id);
             if (position === -1) {
                 throw new Error("No such todo: " + id);
             }
             todos.splice(position, 1);
-            user.todo = yield self._persistObject(todos);
-            return (yield self._persistDB());
+            return this._persistObject(todos).then(id => {
+                user.todo = id;
+                return this._persistDB();
+            });
         });
     }
 
@@ -162,25 +143,15 @@ module.exports = class DB {
      * @returns {Promise.<[Object]>}
      */
     listTodos(login) {
-        const user = this._getUserByLogin(login);
-        if (!user) {
-            return Promise.reject(new Error("No such user: " + login));
-        }
-
-        if (user.todo === null) {
-            return Promise.resolve([]);
-        }
-
-        const self = this;
-
-        const fetchTodo = (todo) => self._getObject(todo.text).then(text => ({
+        const fetchTodo = (todo) => this._getObject(todo.text).then(text => ({
             text,
             id: todo.id,
             isDone: todo.isDone
         }));
 
-        return self._getObject(user.todo).then(todos =>
-            Promise.all(todos.map(fetchTodo)));
+        return this._getUserTodos(login).then(({todos}) =>
+                Promise.all(todos.map(fetchTodo))
+        );
     }
 
     constructor(log, users) {
@@ -203,6 +174,17 @@ module.exports = class DB {
 
     _persistDB() {
         return this._persistObject({users: this._users});
+    }
+
+    _getUserTodos(login) {
+        const user = this._getUserByLogin(login);
+        if (!user) {
+            return Promise.reject(new Error("No such user: " + login));
+        }
+
+        return user.todo === null
+            ? Promise.resolve({user, todos: []})
+            : this._getObject(user.todo).then(todos => ({user, todos}));
     }
 };
 

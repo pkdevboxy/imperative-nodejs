@@ -14,7 +14,7 @@ function addChecksum(obj) {
 }
 
 /**
- * Checks that this object has correct checksum.
+ * Checks that this object has correct checksum and returns an object without checksum.
  * Throws if object is invalid.
  *
  * @param {{data: *, checksum: *}} obj

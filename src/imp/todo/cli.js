@@ -24,33 +24,33 @@ function printTodos({todos}) {
     });
 }
 
-const userCommands = {
+const todoListCommands = {
     add(state, ...words) {
         return state.app.addTodo(state.user, words.join(" ")).then(() =>
-                userCommands.list(state)
+                todoListCommands.list(state)
         );
     },
     list(state) {
         return state.app.listTodos(state.user).then(todos => {
-            _.assign(state.commands, todoCommands);
+            _.assign(state.commands, singleTodoCommands);
             state.todos = todos;
             printTodos(state);
         });
     },
     search(state, query) {
         return state.app.search(state.user, query).then(todos => {
-            _.assign(state.commands, todoCommands);
+            _.assign(state.commands, singleTodoCommands);
             state.todos = todos;
             printTodos(state);
         });
     }
 };
 
-const todoCommands = {
+const singleTodoCommands = {
     remove(state, position) {
         const id = state.todos[position - 1].id;
         return state.app.removeTodo(state.user, id).then(() =>
-            userCommands.list(state));
+            todoListCommands.list(state));
     }
 };
 
@@ -69,7 +69,7 @@ const defaultCommands = {
     },
     userset(state, login) {
         state.user = login;
-        _.assign(state.commands, userCommands);
+        _.assign(state.commands, todoListCommands);
         console.log(`Hello, ${login}!`);
         return Promise.resolve();
     }
@@ -116,9 +116,9 @@ function ui(directory) {
             if (cmd in state.commands) {
                 yield state.commands[cmd](state, ...args);
             } else {
-                if (cmd in userCommands) {
+                if (cmd in todoListCommands) {
                     console.log("Activate user with `userset` first");
-                } else if (cmd in todoCommands) {
+                } else if (cmd in singleTodoCommands) {
                     console.log("List todos with `list` first");
                 } else {
                     console.log("Unknown command", cmd);

@@ -8,7 +8,7 @@ const databaseDir = process.argv[2] || "/tmp/todo";
 
 TodoApp.start({databaseDir}).then(todo => {
     const server = new Hapi.Server();
-    server.connection({port});
+    server.connection({port, routes: {cors: true}});
     server.register({register: require("lout")}, (_err) => "ignore");
 
     const api = [

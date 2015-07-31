@@ -2,7 +2,8 @@
   (:use-macros [enfocus.macros :only [defaction defsnippet clone-for]])
   (:require [enfocus.core :as ef]
             [enfocus.bind :as bind]
-            [enfocus.events :as events]))
+            [enfocus.events :as events]
+            [ajax.core :refer [GET POST]]))
 
 (enable-console-print!)
 
@@ -10,14 +11,58 @@
   {:user nil
    :todos []
 
+   :db
+   {:users []
+    :todos []}
+
    :input
    {:user nil
     :todo nil}})
 
 (def state (atom initial-state))
 
+(add-watch state :watch-change (fn [key a old-val new-val]
+                                 (println new-val)))
+
+(defn url-for [action]
+  (str "http://unit-326:8000/" action))
+
+(defn error-handler [error]
+  (println error))
+
+(add-watch state :watch-change
+           (fn [key a old-val {:keys [user]}]
+             (when (not= (:user old-val) user)
+               (POST (url-for "list-todos")
+                     {:params {:login user}
+                      :format :json
+                      :response-format :json
+                      :error-handler error-handler
+                      :keywords? true
+                      :handler (fn [todos]
+                                 (swap! state update-in [:todos] (constantly todos)))}))))
+
+(defn list-users []
+  (GET (url-for "list-users")
+       {:response-format :json
+        :error-handler error-handler
+        :keywords? true
+        :handler #(swap! state update-in [:db :users] (constantly %))}))
+
+
 (defn set-user [name]
-  (swap! state update-in [:user] (constantly name)))
+  (let [known-users (map :login (get-in @state [:db :users]))
+        commit #(swap! state update-in [:user] (constantly name))]
+    (println known-users)
+    (if (some #{name} known-users)
+      (commit)
+      (POST (url-for "create-user")
+            {:params {:login name}
+             :format :json
+             :response-format :json
+             :error-handler error-handler
+             :keywords? true
+             :handler commit}))))
 
 (defn add-todo [text]
   (swap! state update-in [:todos] #(conj % {:text text :is-done false})))
@@ -84,6 +129,7 @@
 (defn main []
   (deinit)
   (init)
-  (reset! state initial-state))
+  (reset! state initial-state)
+  (list-users))
 
 (main)

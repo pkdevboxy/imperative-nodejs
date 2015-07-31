@@ -8,7 +8,8 @@
     [pandeiro/boot-http        "0.6.3-SNAPSHOT"  :scope "test"]
     [org.clojure/clojure       "1.7.0"]
     [org.clojure/clojurescript "0.0-3308"]
-    [enfocus "2.1.1"]])
+    [enfocus "2.1.1"]
+    [cljs-ajax "0.3.14"]])
 
 (require
   '[adzerk.boot-cljs      :refer [cljs]]

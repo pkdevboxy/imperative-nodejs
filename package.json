@@ -29,10 +29,10 @@
   },
   "dependencies": {
     "bluebird": "^2.9.34",
-    "body-parser": "^1.13.2",
-    "express": "^4.13.1",
+    "hapi": "^8.8.1",
+    "joi": "^6.6.1",
     "lodash": "^3.10.0",
-    "morgan": "^1.6.1",
+    "lout": "^6.2.3",
     "node-uuid": "^1.4.3",
     "object-hash": "^0.8.0"
   }

@@ -52,7 +52,7 @@ describe("TodoApp", ()=> {
         return go(function* () {
             let app = yield TodoApp.start(config);
             yield app.createUser("Alice");
-            const todoId = yield app.addTodo("Alice", "Feed the cat");
+            const {id: todoId} = yield app.addTodo("Alice", "Feed the cat");
             yield app.addTodo("Alice", "Wash the dog");
             yield app.stop();
 
@@ -73,7 +73,7 @@ describe("TodoApp", ()=> {
         return go(function* () {
             const app = yield TodoApp.start(config);
             yield app.createUser("Alice");
-            const todoId = yield app.addTodo("Alice", "Feed the cat");
+            const {id: todoId} = yield app.addTodo("Alice", "Feed the cat");
             yield app.addTodo("Alice", "Wash the dog");
             let todos = yield app.listTodos("Alice");
             assert.strictEqual(todos[0].isDone, false);

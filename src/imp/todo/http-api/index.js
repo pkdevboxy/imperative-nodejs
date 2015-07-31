@@ -1,130 +1,111 @@
-const express = require("express");
-const morgan = require("morgan");
-const bodyParser = require("body-parser");
+const _ = require("lodash");
+const Hapi = require("hapi");
+const Joi = require("joi");
 const {TodoApp} = require("imp/todo");
 
 const port = process.argv[1] || 8080;
 const databaseDir = process.argv[2] || "/tmp/todo";
 
 TodoApp.start({databaseDir}).then(todo => {
-    const app = express();
-    app.use(bodyParser.json());
-    app.use(morgan("dev"));
-    app.set("json spaces", 2);
+    const server = new Hapi.Server();
+    server.connection({port});
+    server.register({register: require("lout")}, (_err) => "ignore");
 
-    app.get("/", (req, res) => {
-        const baseUrl = req.protocol + "://" + req.get("host") + "/";
-        res.json({
-            methods: [
-                {
-                    url: baseUrl + "create-user",
-                    parameters: {login: "string"},
-                    method: "POST"
-                },
-                {
-                    url: baseUrl + "list-users",
-                    parameters: {},
-                    method: "GET"
-                },
-                {
-                    url: baseUrl + "add-todo",
-                    parameters: {login: "string", text: "string"},
-                    method: "POST"
-                },
-                {
-                    url: baseUrl + "update-todo",
-                    parameters: {
-                        login: "string",
-                        id: "string",
-                        isDone: "boolean"
-                    },
-                    method: "POST"
-                },
-                {
-                    url: baseUrl + "delete-todo",
-                    parameters: {login: "string", id: "string"},
-                    method: "POST"
-                },
-                {
-                    url: baseUrl + "list-todos",
-                    parameters: {login: "string"},
-                    method: "POST"
-                },
-                {
-                    url: baseUrl + "search-todos",
-                    parameters: {login: "string", query: "string"},
-                    method: "POST"
-                }
-            ]
-        });
-    });
+    const api = [
+        {
+            method: "POST",
+            path: "/create-user",
+            handler: ({payload: {login}}, reply) =>
+                reply(todo.createUser(login)),
 
-    app.post("/create-user", (req, res) => {
-        const {login} = req.body;
-        todo.createUser(login)
-            .then(() => res.status(201).json({login}))
-            .catch((error) => res.status(400).json({error: error.toString()}));
-    });
+            payload: {
+                login: Joi.string()
+            }
+        },
+        {
+            method: "GET",
+            path: "/list-users",
+            handler: (request, reply) =>
+                reply(todo.listUsers())
+        },
+        {
+            method: "POST",
+            path: "/add-todo",
+            handler: ({payload: {login, text}}, reply) =>
+                reply(todo.addTodo(login, text)),
 
-    app.get("/list-users", (req, res) => {
-        todo.listUsers()
-            .then(users => res.json({users}))
-            .catch((error) => res.status(400).json({error: error.toString()}));
-    });
+            payload: {
+                login: Joi.string(),
+                text: Joi.string()
+            }
+        },
+        {
+            method: "POST",
+            path: "/update-todo",
+            handler: ({payload: {login, id, isDone}}, reply) =>
+                reply(todo.updateTodo(login, id, {isDone})),
 
-    app.post("/add-todo", (req, res) => {
-        const {login, text} = req.body;
-        todo.addTodo(login, text)
-            .then((id) => res.status(201).json({id, text}))
-            .catch((error) => res.status(400).json({error: error.toString()}));
-    });
+            payload: {
+                login: Joi.string(),
+                id: Joi.string().guid(),
+                isDone: Joi.boolean()
+            }
+        },
+        {
+            method: "POST",
+            path: "/delete-todo",
+            handler: ({payload: {login, id}}, reply) =>
+                reply(todo.removeTodo(login, id)),
 
-    app.post("/update-todo", (req, res) => {
-        const {login, id, isDone} = req.body;
-        todo.updateTodo(login, id, {isDone})
-            .then(() => res.json({id, isDone}))
-            .catch((error) => res.status(400).json({error: error.toString()}));
-    });
+            payload: {
+                login: Joi.string(),
+                id: Joi.string().guid()
+            }
+        },
+        {
+            method: "POST",
+            path: "/list-todos",
+            handler: ({payload: {login}}, reply) =>
+                reply(todo.listTodos(login)),
+            payload: {
+                login: Joi.string()
+            }
+        },
+        {
+            method: "POST",
+            path: "/search-todos",
+            handler: ({payload: {login, query}}, reply) =>
+                reply(todo.search(login, query)),
+            payload: {
+                login: Joi.string(),
+                query: Joi.string()
+            }
+        }
+    ];
 
-    app.post("/delete-todo", (req, res) => {
-        const {login, id} = req.body;
-        todo.removeTodo(login, id)
-            .then(() => res.sendStatus(200))
-            .catch((error) => res.status(400).json({error: error.toString()}));
-    });
+    for (const endpoint of api) {
+        if (endpoint.payload) {
+            _.assign(endpoint, {config: {validate: {payload: endpoint.payload}}});
+            delete endpoint.payload;
+        }
+        server.route(endpoint);
+    }
 
-    app.post("/list-todos", (req, res) => {
-        const {login} = req.body;
-        todo.listTodos(login)
-            .then(todos => res.json({todos}))
-            .catch((error) => res.status(400).json({error: error.toString()}));
-    });
 
-    app.post("/search-todos", (req, res) => {
-        const {login, query} = req.body;
-        todo.search(login, query)
-            .then(todos => res.json({todos}))
-            .catch((error) => res.status(400).json({error: error.toString()}));
-    });
-
-    const server = app.listen(port, () => {
-        const host = server.address().address;
-        const port = server.address().port;
-
-        console.log("TODO API listening at http://%s:%s", host, port);
+    server.start(() => {
+        console.log("Server running at", server.info.uri);
     });
 
     process.on("SIGINT", () => {
             setTimeout(() => {
                 console.log("timeout exit!");
                 process.exit();
-            }, 5000);
+            }, 10000);
 
             console.log("SIGINT");
-            server.close(() => {
+            server.stop(() => {
                 console.log("closed server");
                 todo.stop()
-                    .timeout(5000)
                     .finally(() => {
                         console.log("exit process");
                         process.exit();

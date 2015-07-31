@@ -11,6 +11,13 @@
     "no-shadow": 0,
     "no-underscore-dangle": 0,
     "no-constant-condition": 0,
+    "no-unused-vars": [
+      2,
+      {
+        "vars": "all",
+        "args": "none"
+      }
+    ],
     "brace-style": [2, "1tbs"],
     "no-var": 2,
     "prefer-const": 2

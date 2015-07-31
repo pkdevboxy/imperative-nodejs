@@ -57,19 +57,19 @@ module.exports = class DB {
      * Creates new user.
      *
      * @param {string} login
-     * @returns {Promise.<int>} user id
+     * @returns {Promise.<user>} user
      */
     createUser(login) {
         const user = {login, todo: null};
 
         this._users.push(user);
-        return this._persistDB().return(login);
+        return this._persistDB().return({login});
     }
 
     /**
      * Gets all users.
      *
-     * @returns {Promise.<[Object]>} array of users
+     * @returns {Promise.<[user]>} array of users
      */
     listUsers() {
         return Promise.resolve(this._users.map(u => _.pick(u, ["login"])));
@@ -80,7 +80,7 @@ module.exports = class DB {
      *
      * @param {string} login user login
      * @param {string} text todo text
-     * @returns {Promise}
+     * @returns {Promise.<todo>}
      */
     addTodo(login, text) {
         const user = this._getUserByLogin(login);
@@ -99,7 +99,7 @@ module.exports = class DB {
             todos.push(newTodo);
             user.todo = yield self._persistObject(todos);
             yield self._persistDB();
-            return newTodo.id;
+            return {id: newTodo.id, text: text, isDone: newTodo.isDone};
         });
     }
 
@@ -119,7 +119,7 @@ module.exports = class DB {
             todo.isDone = isDone;
             return this._persistObject(todos).then(id => {
                 user.todo = id;
-                return this._persistDB();
+                return this._persistDB().return(_.pick(todo, ["id", "isDone"]));
             });
         });
     }
@@ -149,7 +149,7 @@ module.exports = class DB {
      * Returns all user's todos.
      *
      * @param {string} login user login.
-     * @returns {Promise.<[Object]>}
+     * @returns {Promise.<[todo]>}
      */
     listTodos(login) {
         const fetchTodo = (todo) => this._getObject(todo.text).then(text => ({

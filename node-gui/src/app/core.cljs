@@ -7,6 +7,10 @@
 
 (enable-console-print!)
 
+;;;;;;;;;;;
+;; MODEL ;;
+;;;;;;;;;;;
+
 (def initial-state
   {:user nil
    :todos []
@@ -19,13 +23,21 @@
    {:user nil
     :todo nil}})
 
+
 (def state (atom initial-state))
+
+
+(defn current-user []
+  (:user @state))
+
 
 (defn error-handler [error]
   (println error))
 
+
 (defn url-for [action]
   (str "http://unit-326:8000/" action))
+
 
 (def default-options
   {:format :json
@@ -33,12 +45,13 @@
    :keywords? true
    :error-handler error-handler})
 
+
 (defn GET [action options]
   (ajax/GET (url-for action) (merge default-options options)))
 
+
 (defn POST [action options]
   (ajax/POST (url-for action) (merge default-options options)))
-
 
 
 (defn list-users []
@@ -57,23 +70,34 @@
             {:params {:login login}
              :handler commit}))))
 
+
 (defn list-todos [login]
   (POST "list-todos"
         {:params {:login login}
          :handler (fn [todos]
                     (swap! state update-in [:todos] (constantly todos)))}))
 
-(defn add-todo [text]
-  (swap! state update-in [:todos] #(conj % {:text text :is-done false})))
+
+(defn add-todo [login text]
+  (POST "add-todo"
+        {:params {:login login :text text}
+         :handler #(list-todos login)}))
+
+
+(defn remove-todo [login id]
+  (POST "delete-todo"
+        {:params {:login login :id id}
+         :handler #(list-todos login)}))
+
 
 (defn toggle-todo [text]
   (let [pos (first (keep-indexed #(when (= text (:text %2)) %1) (:todos @state)))]
     (swap! state update-in [:todos pos :is-done] not)))
 
-(defn remove-todo [text]
-  (let [drop-it (fn [todos] (vec (filter #(not= (:text %) text) todos)))]
-    (swap! state update-in [:todos] drop-it)))
 
+;;;;;;;;;;
+;; VIEW ;;
+;;;;;;;;;;
 
 (defn show-if [val]
   (if val
@@ -83,10 +107,11 @@
 
 (defsnippet content :compiled "index.html" ".main-template" [])
 
+
 (defsnippet todo-item :compiled "index.html" "ul > .todo-item:first-child"
-  [{:keys [text is-done]}]
+  [{:keys [text is-done id]}]
   ".clickable" (events/listen :click #(toggle-todo text))
-  ".remove-todo" (events/listen :click #(remove-todo text))
+  ".remove-todo" (events/listen :click #(remove-todo (current-user) id))
   ".check" (show-if is-done)
   ".text" (ef/content text))
 
@@ -101,6 +126,9 @@
          ".no-todos" (show-if (empty? todos))
          ".todo-list" (ef/content (map todo-item todos))))
 
+;;;;;;;;;;;;;;;;
+;; CONTROLLER ;;
+;;;;;;;;;;;;;;;;
 
 (defaction init []
   "#main" (ef/content (content))
@@ -117,7 +145,7 @@
   "#add-btn" (events/listen
               :click
               (fn []
-                (add-todo (get-in @state [:input :todo]))
+                (add-todo (current-user) (get-in @state [:input :todo]))
                 (swap! state update-in [:input :todo] (constantly nil)))))
 
 
@@ -142,7 +170,6 @@
 
 (defn main []
   (deinit)
-  (println (apply str (repeat 80 "-")))
   (init)
   (reset! state initial-state)
   (add-watchers)

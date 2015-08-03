@@ -21,9 +21,6 @@
 
 (def state (atom initial-state))
 
-(add-watch state :watch-change (fn [key a old-val new-val]
-                                 (println new-val)))
-
 (defn error-handler [error]
   (println error))
 
@@ -123,11 +120,20 @@
                 (add-todo (get-in @state [:input :todo]))
                 (swap! state update-in [:input :todo] (constantly nil)))))
 
+
+(def state-watchers
+  [(fn [{old-user :user} {new-user :user}]
+     (when (not= old-user new-user)
+       (list-todos new-user)))
+   (fn [_ new-state]
+     (println new-state))])
+
+
 (defn add-watchers []
   (add-watch state :watch-change
-             (fn [key a old-val {:keys [user]}]
-               (when (not= (:user old-val) user)
-                 (list-todos user)))))
+             (fn [key a old-val new-val]
+               (doseq [f state-watchers]
+                 (f old-val new-val)))))
 
 
 (defaction deinit []
@@ -136,6 +142,7 @@
 
 (defn main []
   (deinit)
+  (println (apply str (repeat 80 "-")))
   (init)
   (reset! state initial-state)
   (add-watchers)

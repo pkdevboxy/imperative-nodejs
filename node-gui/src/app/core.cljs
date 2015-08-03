@@ -21,7 +21,8 @@
 
    :input
    {:user nil
-    :todo nil}})
+    :todo nil
+    :search-query nil}})
 
 
 (def state (atom initial-state))
@@ -80,30 +81,46 @@
         (for [[key value] data]
           [(if (= key :is-done) :isDone key) value])))
 
+(defn set-todos [todos]
+  (let [todos (mapv to-kebab-case todos)]
+                      (swap! state update-in [:todos] (constantly todos))))
+
+
 (defn list-todos [login]
   (POST "list-todos"
         {:params {:login login}
-         :handler (fn [todos]
-                    (let [todos (mapv to-kebab-case todos)]
-                      (swap! state update-in [:todos] (constantly todos))))}))
+         :handler set-todos}))
+
+
+(defn search-todos [login query]
+  (POST "search-todos"
+        {:params {:login login :query query}
+         :handler set-todos}))
+
+
+(defn refresh-todo-list []
+  (let [query (get-in @state [:input :search-query])]
+    (if-not (empty? query)
+      (search-todos (current-user) query)
+      (list-todos (current-user)))))
 
 
 (defn add-todo [login text]
   (POST "add-todo"
         {:params {:login login :text text}
-         :handler #(list-todos login)}))
+         :handler refresh-todo-list}))
 
 
 (defn remove-todo [login id]
   (POST "delete-todo"
         {:params {:login login :id id}
-         :handler #(list-todos login)}))
+         :handler refresh-todo-list}))
 
 
 (defn update-todo [login id is-done]
   (POST "update-todo"
         {:params (to-camelCase {:login login :id id :isDone is-done})
-         :handler #(list-todos login)}))
+         :handler refresh-todo-list}))
 
 
 ;;;;;;;;;;
@@ -150,6 +167,9 @@
   "#new-todo" (bind/bind-input state {:event :change
                                       :lens [:input :todo]})
 
+  "#search-query" (bind/bind-input state {:event :input
+                                          :lens [:input :search-query]})
+
   "#sign-btn" (events/listen
                :click
                #(set-user (get-in @state [:input :user])))
@@ -165,7 +185,10 @@
      (when (not= old-user new-user)
        (list-todos new-user)))
    (fn [_ new-state]
-     (println new-state))])
+     (println new-state))
+   (fn [{{old-query :search-query} :input} {{new-query :search-query} :input}]
+     (when (not= old-query new-query)
+       (refresh-todo-list)))])
 
 
 (defn add-watchers []
@@ -176,7 +199,9 @@
 
 
 (defaction deinit []
-  "*" (events/remove-listeners :click))
+  "*" (events/remove-listeners :click)
+  "*" (events/remove-listeners :change)
+  "*" (events/remove-listeners :input))
 
 
 (defn main []

@@ -4,7 +4,22 @@ const {go, AsyncQueue} = require("imp/async");
 const FileStorage = require("./file-storage");
 
 
+/**
+ * Append only database, which stores c strings (Buffers without zero bytes).
+ * Records are cached in memory. It's user's responsibility to call the flush method
+ * when appropriate.
+ *
+ * @type {Log}
+ */
 module.exports = class Log {
+    /**
+     * Starts a log in the given dir. If the dir is empty, the new log is started,
+     * otherwise the log uses existing files
+     *
+     * @param databaseDir directory with log files
+     * @param logFileSize size of a single log file
+     * @returns {Promise.<Log>}
+     */
     static start({databaseDir, logFileSize = 5 * 1024 * 1024}) {
         const storage = FileStorage.new(databaseDir);
         return go(function* () {
@@ -22,12 +37,23 @@ module.exports = class Log {
         });
     }
 
+    /**
+     * Stops the log and ensures that all information is persisted.
+     * @returns {*}
+     */
     stop() {
         return this.flush();
     }
 
+    /**
+     * Adds a record to log.
+     * @param {Buffer} record
+     * @returns {Promise.<int>} saved record offset.
+     */
     addRecord(record) {
         contract("record should not be empty", record.length > 0);
+        contract("record should not exceed file size",
+            record.length < this._logFileSize);
         contract("record should not contain zero bytes", true);
 
         record = appendZeroByte(record);
@@ -36,12 +62,23 @@ module.exports = class Log {
         return deferred.promise;
     }
 
+    /**
+     * Reads the record by offset.
+     *
+     * @param {int} offset
+     * @returns {Promise.<Buffer>}
+     */
     fetchRecord(offset) {
         const fileName = this._fileIdForOffset(offset).toString();
         const fileOffset = this._inFileOffset(offset);
         return this._storage.readFromFile(fileName, fileOffset);
     }
 
+    /**
+     * Fetches the last record in the log.
+     *
+     * @returns {Promise.<?Buffer>} the last record or null if the log is empty.
+     */
     fetchLastRecord() {
         if (this._currentFile() === 0) {
             return Promise.resolve(null);
@@ -64,6 +101,11 @@ module.exports = class Log {
         });
     }
 
+    /**
+     * Flushes the log content to disk.
+     *
+     * @returns {Promise}
+     */
     flush() {
         const deferred = Promise.pending();
         this._tasks.push(["flush", deferred]);

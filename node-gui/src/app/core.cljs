@@ -63,13 +63,23 @@
 
 (defn set-user [login]
   (let [known-users (map :login (get-in @state [:db :users]))
-        commit #(swap! state update-in [:user] (constantly login))]
+        commit (fn []
+                 (.setItem js/localStorage "user" login)
+                 (swap! state update-in [:user] (constantly login)))]
 
     (if (some #{login} known-users)
       (commit)
       (POST "create-user"
             {:params {:login login}
              :handler commit}))))
+
+(defn logout []
+  (.removeItem js/localStorage "user")
+  (reset! state initial-state))
+
+(defn try-localstorage-login []
+  (if-let [user (.getItem js/localStorage "user")]
+    (swap! state update-in [:user] (constantly user))))
 
 (defn to-kebab-case [data]
   (into {}
@@ -83,7 +93,7 @@
 
 (defn set-todos [todos]
   (let [todos (mapv to-kebab-case todos)]
-                      (swap! state update-in [:todos] (constantly todos))))
+    (swap! state update-in [:todos] (constantly todos))))
 
 
 (defn list-todos [login]
@@ -149,6 +159,7 @@
          ".signin" (show-if (not user))
          ".greeting" (show-if user)
          ".todos" (show-if user)
+         ".menu" (show-if user)
          ".new-todo-form" (show-if user)
          ".username" (ef/content user)
          ".no-todos" (show-if (empty? todos))
@@ -177,15 +188,15 @@
               :click
               (fn []
                 (add-todo (current-user) (get-in @state [:input :todo]))
-                (swap! state update-in [:input :todo] (constantly nil)))))
-
+                (swap! state update-in [:input :todo] (constantly nil))))
+  "#logout" (events/listen :click logout))
 
 (def state-watchers
   [(fn [{old-user :user} {new-user :user}]
-     (when (not= old-user new-user)
+     (when (and (not= old-user new-user) new-user)
        (list-todos new-user)))
-   (fn [_ new-state]
-     (println new-state))
+   ;; (fn [_ new-state]
+   ;;   (println new-state))
    (fn [{{old-query :search-query} :input} {{new-query :search-query} :input}]
      (when (not= old-query new-query)
        (refresh-todo-list)))])
@@ -209,6 +220,5 @@
   (init)
   (reset! state initial-state)
   (add-watchers)
-  (list-users))
-
-(main)
+  (list-users)
+  (try-localstorage-login))

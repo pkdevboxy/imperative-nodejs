@@ -109,10 +109,12 @@
 
 
 (defn refresh-todo-list []
-  (let [query (get-in @state [:input :search-query])]
-    (if-not (empty? query)
-      (search-todos (current-user) query)
-      (list-todos (current-user)))))
+  (let [query (get-in @state [:input :search-query])
+        user (current-user)]
+    (when user
+      (if-not (empty? query)
+       (search-todos user query)
+       (list-todos user)))))
 
 
 (defn add-todo [login text]
@@ -193,8 +195,8 @@
 
 (def state-watchers
   [(fn [{old-user :user} {new-user :user}]
-     (when (and (not= old-user new-user) new-user)
-       (list-todos new-user)))
+     (when (not= old-user new-user)
+       (refresh-todo-list)))
    ;; (fn [_ new-state]
    ;;   (println new-state))
    (fn [{{old-query :search-query} :input} {{new-query :search-query} :input}]

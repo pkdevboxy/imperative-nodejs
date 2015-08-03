@@ -3,7 +3,7 @@
   (:require [enfocus.core :as ef]
             [enfocus.bind :as bind]
             [enfocus.events :as events]
-            [ajax.core :refer [GET POST]]))
+            [ajax.core :as ajax]))
 
 (enable-console-print!)
 
@@ -24,45 +24,47 @@
 (add-watch state :watch-change (fn [key a old-val new-val]
                                  (println new-val)))
 
-(defn url-for [action]
-  (str "http://unit-326:8000/" action))
-
 (defn error-handler [error]
   (println error))
 
-(add-watch state :watch-change
-           (fn [key a old-val {:keys [user]}]
-             (when (not= (:user old-val) user)
-               (POST (url-for "list-todos")
-                     {:params {:login user}
-                      :format :json
-                      :response-format :json
-                      :error-handler error-handler
-                      :keywords? true
-                      :handler (fn [todos]
-                                 (swap! state update-in [:todos] (constantly todos)))}))))
+(defn url-for [action]
+  (str "http://unit-326:8000/" action))
+
+(def default-options
+  {:format :json
+   :response-format :json
+   :keywords? true
+   :error-handler error-handler})
+
+(defn GET [action options]
+  (ajax/GET (url-for action) (merge default-options options)))
+
+(defn POST [action options]
+  (ajax/POST (url-for action) (merge default-options options)))
+
+
 
 (defn list-users []
-  (GET (url-for "list-users")
-       {:response-format :json
-        :error-handler error-handler
-        :keywords? true
-        :handler #(swap! state update-in [:db :users] (constantly %))}))
+  (GET "list-users"
+       {:handler (fn [users]
+                   (swap! state update-in [:db :users] (constantly users)))}))
 
 
-(defn set-user [name]
+(defn set-user [login]
   (let [known-users (map :login (get-in @state [:db :users]))
-        commit #(swap! state update-in [:user] (constantly name))]
-    (println known-users)
-    (if (some #{name} known-users)
+        commit #(swap! state update-in [:user] (constantly login))]
+
+    (if (some #{login} known-users)
       (commit)
-      (POST (url-for "create-user")
-            {:params {:login name}
-             :format :json
-             :response-format :json
-             :error-handler error-handler
-             :keywords? true
+      (POST "create-user"
+            {:params {:login login}
              :handler commit}))))
+
+(defn list-todos [login]
+  (POST "list-todos"
+        {:params {:login login}
+         :handler (fn [todos]
+                    (swap! state update-in [:todos] (constantly todos)))}))
 
 (defn add-todo [text]
   (swap! state update-in [:todos] #(conj % {:text text :is-done false})))
@@ -121,6 +123,12 @@
                 (add-todo (get-in @state [:input :todo]))
                 (swap! state update-in [:input :todo] (constantly nil)))))
 
+(defn add-watchers []
+  (add-watch state :watch-change
+             (fn [key a old-val {:keys [user]}]
+               (when (not= (:user old-val) user)
+                 (list-todos user)))))
+
 
 (defaction deinit []
   "*" (events/remove-listeners :click))
@@ -130,6 +138,7 @@
   (deinit)
   (init)
   (reset! state initial-state)
+  (add-watchers)
   (list-users))
 
 (main)

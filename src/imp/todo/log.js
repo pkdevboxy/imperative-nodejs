@@ -126,6 +126,7 @@ module.exports = class Log {
                 if (!task) {
                     return;
                 }
+                //noinspection UnnecessaryLocalVariableJS WEB-17578
                 const [cmd, d, record] = task;
 
                 try {

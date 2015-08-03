@@ -70,12 +70,22 @@
             {:params {:login login}
              :handler commit}))))
 
+(defn to-kebab-case [data]
+  (into {}
+        (for [[key value] data]
+          [(if (= key :isDone) :is-done key) value])))
+
+(defn to-camelCase [data]
+  (into {}
+        (for [[key value] data]
+          [(if (= key :is-done) :isDone key) value])))
 
 (defn list-todos [login]
   (POST "list-todos"
         {:params {:login login}
          :handler (fn [todos]
-                    (swap! state update-in [:todos] (constantly todos)))}))
+                    (let [todos (mapv to-kebab-case todos)]
+                      (swap! state update-in [:todos] (constantly todos))))}))
 
 
 (defn add-todo [login text]
@@ -90,9 +100,10 @@
          :handler #(list-todos login)}))
 
 
-(defn toggle-todo [text]
-  (let [pos (first (keep-indexed #(when (= text (:text %2)) %1) (:todos @state)))]
-    (swap! state update-in [:todos pos :is-done] not)))
+(defn update-todo [login id is-done]
+  (POST "update-todo"
+        {:params (to-camelCase {:login login :id id :isDone is-done})
+         :handler #(list-todos login)}))
 
 
 ;;;;;;;;;;
@@ -110,7 +121,7 @@
 
 (defsnippet todo-item :compiled "index.html" "ul > .todo-item:first-child"
   [{:keys [text is-done id]}]
-  ".clickable" (events/listen :click #(toggle-todo text))
+  ".clickable" (events/listen :click #(update-todo (current-user) id (not is-done)))
   ".remove-todo" (events/listen :click #(remove-todo (current-user) id))
   ".check" (show-if is-done)
   ".text" (ef/content text))

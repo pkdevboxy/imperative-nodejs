@@ -13,6 +13,19 @@ describe("TodoApp", ()=> {
         });
     });
 
+    it("should not allow to create same user twice", () => {
+        const config = {databaseDir: tmp.dirSync().name};
+        return go(function* () {
+            const app = yield TodoApp.start(config);
+            yield app.createUser("Alice");
+            yield app.createUser("Alice");
+        })
+            .then(()=> assert(false))
+            .catch((error) => {
+                error.message.includes("exists");
+            });
+    });
+
     it("should be able to read existing db", () => {
         const dir = tmp.dirSync().name;
         return go(function* () {

@@ -60,6 +60,9 @@ module.exports = class DB {
      * @returns {Promise.<user>} user
      */
     createUser(login) {
+        if (this._getUserByLogin(login)) {
+            throw new Error("User exists: " + login);
+        }
         const user = {login, todo: null};
 
         this._users.push(user);

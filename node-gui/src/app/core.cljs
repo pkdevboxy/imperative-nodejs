@@ -1,5 +1,6 @@
 (ns app.core
-  (:use-macros [enfocus.macros :only [defaction defsnippet clone-for]])
+  (:use-macros [enfocus.macros :only [defaction defsnippet clone-for]]
+               [app.core :only [server-url]])
   (:require [enfocus.core :as ef]
             [enfocus.bind :as bind]
             [enfocus.events :as events]
@@ -37,7 +38,7 @@
 
 
 (defn url-for [action]
-  (str "http://unit-326:8000/" action))
+  (str (server-url) action))
 
 
 (def default-options

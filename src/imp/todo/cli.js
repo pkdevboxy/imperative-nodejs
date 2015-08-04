@@ -12,15 +12,20 @@ const help = `Commands:
           useradd <login>
           userlist
           userset <login>
+
           add <todo>
-          remove <idx>
           search <query>
           list
+
+          remove <idx>
+          check <idx>
+          uncheck <idx>
           `;
 
 function printTodos({todos}) {
-    todos.forEach(({text}, idx) => {
-        console.log(`${idx + 1}. ${text}`);
+    todos.forEach(({text, isDone}, idx) => {
+        const mark = isDone ? "✓" : " ";
+        console.log(`${idx + 1}. ${mark} ${text}`);
     });
 }
 
@@ -50,6 +55,16 @@ const singleTodoCommands = {
     remove(state, position) {
         const id = state.todos[position - 1].id;
         return state.app.removeTodo(state.user, id).then(() =>
+            todoListCommands.list(state));
+    },
+    check(state, position) {
+        const id = state.todos[position - 1].id;
+        return state.app.updateTodo(state.user, id, {isDone: true}).then(() =>
+            todoListCommands.list(state));
+    },
+    uncheck(state, position) {
+        const id = state.todos[position - 1].id;
+        return state.app.updateTodo(state.user, id, {isDone: false}).then(() =>
             todoListCommands.list(state));
     }
 };

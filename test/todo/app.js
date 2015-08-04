@@ -97,4 +97,38 @@ describe("TodoApp", ()=> {
             assert.strictEqual(todos[0].isDone, true);
         });
     });
+
+    it("should gracefully fail when the database size is large than file ", () => {
+        const config = {
+            databaseDir: tmp.dirSync().name,
+            logFileSize: 300
+        };
+        const todos = [];
+        for (let i = 0; i < 10; i++) {
+            todos.push("Do thing number " + (i + 1));
+        }
+        return go(function* () {
+            let app = yield TodoApp.start(config);
+            yield app.createUser("Alice");
+            let processedTodos = 0;
+            let thrown = false;
+            try {
+                for (const todo of todos) {
+                    yield app.addTodo("Alice", todo);
+                    processedTodos += 1;
+                }
+            } catch (ignored) {
+                thrown = true;
+            }
+            assert(thrown);
+            assert(processedTodos > 0);
+            yield app.stop();
+            app = yield TodoApp.start(config);
+            const savedTodos = yield app.listTodos("Alice");
+            assert.equal(savedTodos.length, processedTodos);
+            for (let i = 0; i < processedTodos; i++) {
+                assert.equal(todos[i], savedTodos[i].text);
+            }
+        });
+    });
 });

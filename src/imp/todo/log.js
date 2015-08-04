@@ -52,9 +52,10 @@ module.exports = class Log {
      */
     addRecord(record) {
         contract("record should not be empty", record.length > 0);
-        contract("record should not exceed file size",
-            record.length < this._logFileSize);
         contract("record should not contain zero bytes", true);
+        if (!(record.length < this._logFileSize)) {
+            throw new Error("record should not exceed file size");
+        }
 
         record = appendZeroByte(record);
         const deferred = Promise.pending();

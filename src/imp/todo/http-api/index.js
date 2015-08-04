@@ -83,11 +83,17 @@ TodoApp.start({databaseDir}).then(todo => {
         }
     ];
 
-    for (const endpoint of api) {
-        if (endpoint.payload) {
-            _.assign(endpoint, {config: {validate: {payload: endpoint.payload}}});
-            delete endpoint.payload;
-        }
+    function wrapPayload(endpointConfig) {
+        return _.merge(
+            _.omit(endpointConfig, "payload"),
+            {config: {validate: {payload: endpointConfig.payload}}});
+    }
+
+    for (const endpointConfig of api) {
+        const endpoint = endpointConfig.payload
+            ? endpointConfig
+            : wrapPayload(endpointConfig);
+
         server.route(endpoint);
     }
 
@@ -113,4 +119,5 @@ TodoApp.start({databaseDir}).then(todo => {
             });
         }
     );
-});
+})
+;

@@ -14,11 +14,11 @@
   "homepage": "https://github.com/JetBrains/imperative-nodejs#readme",
   "scripts": {
     "postinstall": "node scripts/postinstall.js",
-    "test": "mocha --harmony --compilers js:babel/register 'test/*/*.js'",
+    "test": "mocha --harmony --compilers js:babel/register 'test/*/*.js' 'playground/todo/test/*.js'",
     "test:watch": "npm test -- --watch",
     "test:ci": "npm test -- --reporter mocha-teamcity-reporter",
-    "todo:cli": "node --harmony -e \"require('babel/register'); require('imp/todo/cli')\"",
-    "todo:http-api": "node --harmony -e \"require('babel/register'); require('imp/todo/http-api')\""
+    "todo:cli": "node --harmony -e \"require('babel/register'); require('./playground/todo/cli')\"",
+    "todo:http-api": "node --harmony -e \"require('babel/register'); require('./playground/todo/http-api')\""
   },
   "devDependencies": {
     "babel": "^5.8.3",

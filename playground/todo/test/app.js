@@ -1,7 +1,7 @@
 const _ = require("lodash");
 const assert = require("assert");
 const tmp = require("tmp");
-const {TodoApp} = require("imp/todo");
+const {TodoApp} = require("../../todo");
 const {go} = require("imp/async");
 
 
@@ -22,7 +22,7 @@ describe("TodoApp", ()=> {
         })
             .then(()=> assert(false))
             .catch((error) => {
-                error.message.includes("exists");
+                assert(error.message.includes("exists"));
             });
     });
 

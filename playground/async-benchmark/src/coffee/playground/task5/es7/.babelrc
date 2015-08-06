@@ -1,0 +1,14 @@
+{
+  "whitelist": [
+      "strict",
+      "es6.constants",
+      "es6.blockScoping",
+      "es6.classes",
+      "es6.templateLiterals",
+      "es6.arrowFunctions",
+      "es6.destructuring",
+      "es6.modules",
+      "es7.asyncFunctions",
+      "bluebirdCoroutines"
+  ]
+}

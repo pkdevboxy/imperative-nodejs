@@ -152,13 +152,6 @@ implementations = [
     new Log(fs, logFileSize)
   },
   {
-  description: "Baseline: coffescript callback based log",
-  newLog: (dir, logFileSize) ->
-    Log = require './log'
-    fs = new FileStorage(dir)
-    new Log(fs, logFileSize)
-  },
-  {
   description: "Promise: ES6 + bluebird"
   newLog: (dir, logFileSize) ->
     FS = require './es6/file_storage'
@@ -166,6 +159,15 @@ implementations = [
     fs = new FS(dir)
     new Log(fs, logFileSize)
   },
+  {
+  description: "Async/await: ES7 + bluebird"
+  newLog: (dir, logFileSize) ->
+    FS = require './es7/file_storage'
+    Log = require './es7/log'
+    fs = new FS(dir)
+    new Log(fs, logFileSize)
+  },
+
   {
   description: "Generators: coffescript callback log + ES6 generators
     for writes coordination",
@@ -182,13 +184,6 @@ implementations = [
     fs = new FS(dir)
     new Log(fs, logFileSize)
   },
-  {
-  description: "Iced: async/await rewriting by IcedCoffescript",
-  newLog: (dir, logFileSize) ->
-    Log = require './iced/log'
-    fs = new FileStorage(dir)
-    new Log(fs, logFileSize)
-  }
   ]
 
 
@@ -209,7 +204,7 @@ runBenchmarks = ->
   console.log(benchmark.description)
   console.log()
   console.log("Generating #{logSize} megabytes of records to write.")
-  records = randomBuffers(megabytes(10), 1000)
+  records = randomBuffers(megabytes(logSize), 1000)
 
   console.log("Generating reading requests for
     #{logSize * readRatio} megabytes.")

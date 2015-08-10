@@ -9,7 +9,7 @@ module.exports = {
         console.assert(test, message);
     },
 
-    assert(test) {
-        console.assert(test);
+    assert(test, message) {
+        console.assert(test, message);
     }
 };

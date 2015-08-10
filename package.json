@@ -30,6 +30,7 @@
   "dependencies": {
     "bluebird": "^2.9.34",
     "hapi": "^8.8.1",
+    "immutable": "^3.7.4",
     "joi": "^6.6.1",
     "lodash": "^3.10.0",
     "lout": "^6.2.3",

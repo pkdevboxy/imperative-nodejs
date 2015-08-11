@@ -50,7 +50,7 @@ function benchmark(cache, {initialData, requests}) {
     let misses = 0;
     function doWork() {
         let sum = 0;
-        _.range(10).forEach(() => sum += Math.random());
+        _.range(100).forEach(() => sum += Math.random());
         totalWork += sum;
     }
 

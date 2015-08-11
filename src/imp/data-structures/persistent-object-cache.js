@@ -128,7 +128,6 @@ class GenCache {
     }
 }
 
-
 class LruCache {
     static new(capacity) {
         return new LruCache(capacity, new Immutable.OrderedMap());
@@ -146,7 +145,11 @@ class LruCache {
         if (this.map.size < this.capacity || this.map.has(key)) {
             return [undefined, this._update({map: this.map.set(key, value)})];
         }
-        const spilled = this.map.entrySeq().first();
+        let spilled;
+        // the fastest way to fetch fisrt [key, value] pair
+        for (spilled of this.map) {
+            break;
+        }
         return [spilled, this._swap(spilled[0], key, value)];
     }
 

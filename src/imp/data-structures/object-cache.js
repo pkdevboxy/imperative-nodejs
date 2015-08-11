@@ -8,7 +8,7 @@ module.exports = class ObjectCache {
      * @param {number} probationRatio Proportion of probation (first generation) entries.
      * @param {function} onRemoval Hook (key, value) => () which is called when an entry is removed from the cache.
      */
-    static new({size, probationRatio=0.5, onRemoval=()=>{}}) {
+    static new({size=1024, probationRatio=0.5, onRemoval=()=>{}} = {}) {
         contract("size should be at least one", size >= 1);
         contract("probation ratio should be in (0; 1]",
             probationRatio > 0 && probationRatio <= 1);

@@ -16,9 +16,11 @@
     "postinstall": "node scripts/postinstall.js",
     "test": "mocha --harmony --compilers js:babel/register 'test/*/*.js' 'playground/todo/test/*.js'",
     "test:watch": "npm test -- --watch",
+    "execute": "node --harmony -r 'babel/register'",
+    "bench": "npm run execute -- ./bench",
     "test:ci": "npm test -- --reporter mocha-teamcity-reporter",
-    "todo:cli": "node --harmony -e \"require('babel/register'); require('./playground/todo/cli')\"",
-    "todo:http-api": "node --harmony -e \"require('babel/register'); require('./playground/todo/http-api')\""
+    "todo:cli": "npm run execute -- ./playground/todo/cli",
+    "todo:http-api": "npm run execute -- ./playground/todo/http-api"
   },
   "devDependencies": {
     "babel": "^5.8.3",

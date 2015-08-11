@@ -18,6 +18,7 @@
         "args": "none"
       }
     ],
+    "space-after-keywords": 2,
     "brace-style": [2, "1tbs"],
     "no-var": 2,
     "prefer-const": 2

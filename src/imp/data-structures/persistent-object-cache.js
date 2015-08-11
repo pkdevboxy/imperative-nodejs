@@ -3,7 +3,7 @@ const {contract, assert} = require("imp/contracts");
 
 
 module.exports = class PersistentObjectCache {
-    static new({capacity, secondGenSizeRatio=0.5}) {
+    static new({capacity=1024, secondGenSizeRatio=0.5} = {}) {
         const state = GenCache.new({capacity, secondGenSizeRatio});
         return new PersistentObjectCache(state);
     }
@@ -13,16 +13,23 @@ module.exports = class PersistentObjectCache {
     }
 
     get(key) {
+        contract("key should not be null", key != null);
+
         const [result, newState] = this._state.get(key);
         this._state = newState;
         return result;
     }
 
     peek(key) {
+        contract("key should not be null", key != null);
+
         return this._state.peek(key);
     }
 
     put(key, value) {
+        contract("key should not be null", key != null);
+        contract("value should not be null", value != null);
+
         this._state = this._state.put(key, value);
         return this;
     }
@@ -32,6 +39,8 @@ module.exports = class PersistentObjectCache {
     }
 
     delete(key) {
+        contract("key should not be null", key != null);
+
         const [result, newState] = this._state.delete(key);
         this._state = newState;
         return result;

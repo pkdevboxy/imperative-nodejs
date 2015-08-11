@@ -38,7 +38,7 @@ module.exports = class PersistentObjectCache {
     }
 
     [Symbol.iterator]() {
-        return this._state[Symbol.iterator]()
+        return this._state[Symbol.iterator]();
     }
 
     constructor(state) {

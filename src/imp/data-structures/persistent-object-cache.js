@@ -94,14 +94,14 @@ class GenCache {
     }
 
     peek(key) {
-        const result = this._secondGeneration.map.get(key);
+        const result = this._secondGeneration.peek(key);
         return result !== undefined
             ? result
-            : this._firstGeneration.map.get(key);
+            : this._firstGeneration.peek(key);
     }
 
     put(key, value) {
-        if (this._secondGeneration.map.has(key)) {
+        if (this._secondGeneration.has(key)) {
             return new GenCache(this._firstGeneration,
                                 this._secondGeneration.put(key, value)[1]);
         }
@@ -117,8 +117,8 @@ class GenCache {
     }
 
     * [Symbol.iterator]() {
-        yield* this._firstGeneration.map;
-        yield* this._secondGeneration.map;
+        yield* this._firstGeneration;
+        yield* this._secondGeneration;
     }
 
 
@@ -134,33 +134,41 @@ class LruCache {
     }
 
     get(key) {
-        const value = this.map.get(key);
+        const value = this._map.get(key);
         if (value === undefined) {
             return [undefined, this];
         }
         return [value, this._swap(key, key, value)];
     }
 
+    peek(key) {
+        return this._map.get(key);
+    }
+
     put(key, value) {
-        if (this.map.size < this.capacity || this.map.has(key)) {
-            return [undefined, this._update({map: this.map.set(key, value)})];
+        if (this._map.size < this.capacity || this._map.has(key)) {
+            return [undefined, this._update({map: this._map.set(key, value)})];
         }
         let spilled;
         // the fastest way to fetch fisrt [key, value] pair
-        for (spilled of this.map) {
+        for (spilled of this._map) {
             break;
         }
         return [spilled, this._swap(spilled[0], key, value)];
     }
 
+    has(key) {
+        return this._map.has(key);
+    }
+
     delete(key) {
-        const value = this.map.get(key);
-        return [value, this._update({map: this.map.delete(key)})];
+        const value = this._map.get(key);
+        return [value, this._update({map: this._map.delete(key)})];
     }
 
     _swap(outKey, inKey, value) {
         return this._update({
-            map: this.map.delete(outKey).set(inKey, value)
+            map: this._map.delete(outKey).set(inKey, value)
         });
     }
 
@@ -168,9 +176,13 @@ class LruCache {
         return new LruCache(this.capacity, map);
     }
 
+    [Symbol.iterator]() {
+        return this._map[Symbol.iterator]();
+    }
+
     constructor(capacity, map) {
         assert(map.size <= capacity, "cache overflowed capacity");
         this.capacity = capacity;
-        this.map = map;
+        this._map = map;
     }
 }

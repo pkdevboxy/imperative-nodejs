@@ -1,3 +1,4 @@
+const LRU = require("lru-cache");
 const Promise = require("bluebird");
 const {contract} = require("imp/contracts");
 const {go, AsyncQueue} = require("imp/async");
@@ -20,20 +21,29 @@ module.exports = class Log {
      * @param logFileSize size of a single log file
      * @returns {Promise.<Log>}
      */
-    static start({databaseDir, logFileSize = 5 * 1024 * 1024}) {
+    static start({databaseDir,
+                  logFileSize = 5 * 1024 * 1024,
+                  cacheSize = mb(10)}) {
+
+        const cache = new LRU({
+            max: cacheSize,
+            length: (x) => x.length
+        });
         const storage = FileStorage.new(databaseDir);
+
         return go(function* () {
             const files = yield storage.listFiles();
+            let offset = 0;
             if (files.length === 0) {
                 yield storage.addFile("0", logFileSize);
-                return new Log(storage, logFileSize, 0);
+            } else {
+                const lastFile = verifyFileNames(files);
+                const nextFile = lastFile + 1;
+                offset = nextFile * logFileSize;
+                yield storage.addFile(nextFile.toString(), logFileSize);
             }
 
-            const lastFile = verifyFileNames(files);
-            const nextFile = lastFile + 1;
-            const offset = nextFile * logFileSize;
-            yield storage.addFile(nextFile.toString(), logFileSize);
-            return new Log(storage, logFileSize, offset);
+            return new Log(storage, cache, logFileSize, offset);
         });
     }
 
@@ -72,7 +82,15 @@ module.exports = class Log {
     fetchRecord(offset) {
         const fileName = this._fileIdForOffset(offset).toString();
         const fileOffset = this._inFileOffset(offset);
-        return this._storage.readFromFile(fileName, fileOffset);
+        const result = this._cache.get(offset);
+        if (result) {
+            return Promise.resolve(result);
+        }
+        return this._storage.readFromFile(fileName, fileOffset)
+            .then((result) => {
+                this._cache.set(offset, result);
+                return result;
+            });
     }
 
     /**
@@ -114,8 +132,9 @@ module.exports = class Log {
     }
 
 
-    constructor(storage, logFileSize, offset) {
+    constructor(storage, cache, logFileSize, offset) {
         this._storage = storage;
+        this._cache = cache;
         this._logFileSize = logFileSize;
         this._currentOffset = offset;
         this._tasks = new AsyncQueue();
@@ -219,4 +238,8 @@ const _zero = new Buffer([0]);
 
 function appendZeroByte(buffer) {
     return Buffer.concat([buffer, _zero]);
+}
+
+function mb(x) {
+    return 1024 * 1024 * x;
 }

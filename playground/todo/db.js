@@ -1,9 +1,11 @@
 const _ = require("lodash");
 const Promise = require("bluebird");
 const uuid = require("node-uuid");
+
 const {go} = require("imp/async");
+const Log = require("imp/log");
+
 const sign = require("./sign");
-const Log = require("./log");
 
 /**
  * A todo database.

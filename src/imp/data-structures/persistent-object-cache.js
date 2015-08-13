@@ -1,10 +1,11 @@
-const Immutable = require("immutable");
-const {contract, assert} = require("imp/contracts");
+const {contract} = require("imp/contracts");
+const {LruCache} = require("./lru-cache");
 
 
 module.exports = class PersistentObjectCache {
-    static new({capacity=1024, secondGenSizeRatio=0.5} = {}) {
-        const state = GenCache.new({capacity, secondGenSizeRatio});
+    static new({capacity=1024, secondGenSizeRatio=0.5,
+                lruCache = LruCache} = {}) {
+        const state = GenCache.new({capacity, secondGenSizeRatio, lruCache});
         return new PersistentObjectCache(state);
     }
 
@@ -57,15 +58,15 @@ module.exports = class PersistentObjectCache {
 
 
 class GenCache {
-    static new({capacity, secondGenSizeRatio}) {
+    static new({capacity, secondGenSizeRatio, lruCache}) {
         const secondSize = Math.round(capacity * secondGenSizeRatio);
         const firstSize = capacity - secondSize;
         contract("Both generations should be not empty",
                  firstSize > 0 && secondSize > 0);
 
         return new GenCache(
-            LruCache.new(firstSize, new Immutable.Map()),
-            LruCache.new(secondSize, new Immutable.Map())
+            lruCache.new(firstSize),
+            lruCache.new(secondSize)
         );
     }
 
@@ -125,64 +126,5 @@ class GenCache {
     constructor(firstGeneration, secondGeneration) {
         this._firstGeneration = firstGeneration;
         this._secondGeneration = secondGeneration;
-    }
-}
-
-class LruCache {
-    static new(capacity) {
-        return new LruCache(capacity, new Immutable.OrderedMap());
-    }
-
-    get(key) {
-        const value = this._map.get(key);
-        if (value === undefined) {
-            return [undefined, this];
-        }
-        return [value, this._swap(key, key, value)];
-    }
-
-    peek(key) {
-        return this._map.get(key);
-    }
-
-    put(key, value) {
-        if (this._map.size < this.capacity || this._map.has(key)) {
-            return [undefined, this._update({map: this._map.set(key, value)})];
-        }
-        let spilled;
-        // the fastest way to fetch fisrt [key, value] pair
-        for (spilled of this._map) {
-            break;
-        }
-        return [spilled, this._swap(spilled[0], key, value)];
-    }
-
-    has(key) {
-        return this._map.has(key);
-    }
-
-    delete(key) {
-        const value = this._map.get(key);
-        return [value, this._update({map: this._map.delete(key)})];
-    }
-
-    _swap(outKey, inKey, value) {
-        return this._update({
-            map: this._map.delete(outKey).set(inKey, value)
-        });
-    }
-
-    _update({map}) {
-        return new LruCache(this.capacity, map);
-    }
-
-    [Symbol.iterator]() {
-        return this._map[Symbol.iterator]();
-    }
-
-    constructor(capacity, map) {
-        assert(map.size <= capacity, "cache overflowed capacity");
-        this.capacity = capacity;
-        this._map = map;
     }
 }

@@ -37,6 +37,7 @@
     "lodash": "^3.10.0",
     "lout": "^6.2.3",
     "lru-cache": "^2.6.5",
+    "mori": "^0.3.2",
     "node-uuid": "^1.4.3",
     "object-hash": "^0.8.0"
   }

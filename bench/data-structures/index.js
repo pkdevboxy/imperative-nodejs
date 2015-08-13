@@ -1,5 +1,6 @@
 const _ = require("lodash");
 const {PersistentObjectCache, ObjectCache} = require("imp/data-structures");
+const {LruImmutable, LruMori} = require("imp/data-structures/lru-cache");
 
 const [READ, WRITE] = ["READ", "WRITE"];
 
@@ -96,8 +97,12 @@ module.exports = {
         const cache = ObjectCache.new();
         benchmark(cache, fixture);
     },
-    PersistentObjectCache() {
-        const cache = PersistentObjectCache.new();
+    PersistentObjectCacheImmutable() {
+        const cache = PersistentObjectCache.new({lruCache: LruImmutable});
+        benchmark(cache, fixture);
+    },
+    PersistentObjectCacheMori() {
+        const cache = PersistentObjectCache.new({lruCache: LruMori});
         benchmark(cache, fixture);
     }
 };

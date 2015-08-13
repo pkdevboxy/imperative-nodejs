@@ -32,7 +32,7 @@ describe("PersistentObjectCache", () => {
         cache.put("IDEA 5.0", "perfect IDEA");
         cache.put("IDEA 6.0", "IDEAL");
         const values = new Set();
-        for(const [, value] of cache) {
+        for (const [, value] of cache) {
             values.add(value);
         }
 

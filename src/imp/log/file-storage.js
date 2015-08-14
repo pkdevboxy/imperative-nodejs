@@ -26,24 +26,20 @@ module.exports = class FileStorage {
      * @returns {Promise}
      */
     addFile(name, size) {
-        this._cache.set(name, zeroBuffer(size));
-        this._dirty.add(name);
-        return Promise.resolve();
+        return this.flush().then(() => {
+            this._dirty = {name, buffer: zeroBuffer(size)};
+        });
     }
 
     /**
-     * Writes a buffer to a file on the specified offset.
+     * Writes a buffer to the current file on the specified offset.
      *
-     * @param name file name
      * @param {Buffer} buffer
      * @param {int} offset
      * @returns {Promise}
      */
-    writeToFile(name, buffer, offset) {
-        return this._readToCache(name).then(target => {
-            this._dirty.add(name);
-            buffer.copy(target, offset);
-        });
+    writeToFile(buffer, offset) {
+        return Promise.resolve(buffer.copy(this._dirty.buffer, offset));
     }
 
     /**
@@ -53,9 +49,10 @@ module.exports = class FileStorage {
      * @param {int} offset
      * @returns {Promise.<Buffer>}
      */
-    readFromFile(name, offset) {
-        return this._readToCache(name)
-            .then((buffer) => readCString(buffer.slice(offset)));
+    readFile(name) {
+        return this._isDirty(name)
+            ? Promise.resolve(this._dirty.buffer)
+            : fs.readFileAsync(this._pathToFile(name));
     }
 
     /**
@@ -74,31 +71,19 @@ module.exports = class FileStorage {
      * @returns {Promise}
      */
     flush() {
-        return Promise.all([...this._dirty].map(name => {
-            return fs.writeFileAsync(this._pathToFile(name), this._cache.get(name))
-                .then(() => {
-                    this._dirty.delete(name);
-                });
-        }));
+        return this._dirty == null
+            ? Promise.resovle()
+            : fs.writeFileAsync(this._pathToFile(this._dirty.name),
+                                this._dirty.buffer);
     }
 
     constructor(databaseDir) {
         this._path = databaseDir;
-        this._cache = new Map();
-        this._dirty = new Set();
+        this._dirty = null;
     }
 
-    _readToCache(name) {
-        const result = this._cache.get(name);
-        if (result) {
-            return Promise.resolve(result);
-        }
-
-        return fs.readFileAsync(this._pathToFile(name))
-            .then((buffer) => {
-                this._cache.set(name, buffer);
-                return buffer;
-            });
+    _isDirty(name) {
+        return this._dirty && this._dirty.name === name;
     }
 
     _pathToFile(name) {

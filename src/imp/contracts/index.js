@@ -8,8 +8,11 @@ module.exports = {
     contract(message, test) {
         console.assert(test, message);
     },
+    invariant(test, message="") {
+        console.assert(test);
+    },
 
-    assert(test, message) {
+    assert(test, message="") {
         console.assert(test, message);
     }
 };

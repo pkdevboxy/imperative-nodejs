@@ -1,6 +1,6 @@
 const Immutable = require("immutable");
 const mori = require("mori");
-const {assert} = require("imp/contracts");
+const {invariant} = require("imp/contracts");
 
 
 class LruImmutable {
@@ -56,7 +56,7 @@ class LruImmutable {
     }
 
     constructor(capacity, map) {
-        assert(map.size <= capacity, "cache overflowed capacity");
+        invariant(map.size <= capacity, "cache overflowed capacity");
         this.capacity = capacity;
         this._map = map;
     }
@@ -138,9 +138,9 @@ class LruMori {
     }
 
     constructor(capacity, keyToEntry, entries, nextIndex) {
-        assert(mori.count(keyToEntry) <= capacity, "cache overflowed capacity");
-        assert(mori.count(keyToEntry) === mori.count(entries),
-               "collections should be synchronized");
+        invariant(mori.count(keyToEntry) <= capacity, "cache overflowed capacity");
+        invariant(mori.count(keyToEntry) === mori.count(entries),
+                  "collections should be synchronized");
         this.capacity = capacity;
         this._keyToEntry = keyToEntry;
         this._entries = entries;

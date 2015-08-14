@@ -18,12 +18,14 @@
     "test:watch": "npm test -- --watch",
     "execute": "node --harmony -r 'babel/register'",
     "bench": "npm run execute -- ./bench",
-    "test:ci": "npm test -- --reporter mocha-teamcity-reporter",
+    "test:ci": "npm run lint && npm test -- --reporter mocha-teamcity-reporter",
     "todo:cli": "npm run execute -- ./playground/todo/cli",
-    "todo:http-api": "npm run execute -- ./playground/todo/http-api"
+    "todo:http-api": "npm run execute -- ./playground/todo/http-api",
+    "lint": "eslint src/**"
   },
   "devDependencies": {
     "babel": "^5.8.3",
+    "eslint": "^1.1.0",
     "mocha": "^2.2.5",
     "mocha-teamcity-reporter": ">=0.0.1",
     "mock-fs": "https://github.com/city41/mock-fs.git",

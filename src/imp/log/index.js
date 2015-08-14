@@ -1,4 +1,4 @@
-const LRU = require("lru-cache");
+const {ObjectCache} = require("imp/data-structures");
 const Promise = require("bluebird");
 const {contract, assert} = require("imp/contracts");
 const {go, AsyncQueue} = require("imp/async");
@@ -25,10 +25,7 @@ module.exports = class Log {
                   logFileSize = 5 * 1024 * 1024,
                   cacheSize = mb(10)}) {
 
-        const cache = new LRU({
-            max: cacheSize,
-            length: (x) => x.length
-        });
+        const cache = ObjectCache.new({size: cacheSize});
         const storage = FileStorage.new(databaseDir);
 
         return go(function* () {

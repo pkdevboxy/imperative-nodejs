@@ -56,7 +56,7 @@ module.exports = class ObjectCache {
      * @param key Must not be null or undefined
      * @param value
      */
-    put(key, value) {
+    set(key, value) {
         contract("value should not be null",
             value !== undefined && value !== null);
         if (this._protected.contains(key)) {

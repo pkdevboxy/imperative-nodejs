@@ -1,3 +1,4 @@
+const assert = require("assert");
 const tmp = require("tmp");
 const _ = require("lodash");
 const {go} = require("imp/async");
@@ -62,8 +63,11 @@ function benchmark(log, {initialData, requests}) {
     return go(function* () {
         log = yield log;
         const offsets = [];
+        const data = new Map();
         for (const text of initialData) {
-            offsets.push(yield log.addRecord(text));
+            const off = yield log.addRecord(text);
+            offsets.push(off);
+            data.set(off, text);
         }
 
         yield log.flush();
@@ -75,10 +79,14 @@ function benchmark(log, {initialData, requests}) {
         console.time(tag);
         for (const {type, text, offset} of requests) {
             if (type === READ) {
-                const record = yield log.fetchRecord(offsets[offset]);
+                const off = offsets[offset];
+                const record = yield log.fetchRecord(off);
                 read += record.length;
+                assert(record.equals(data.get(off)));
             } else {
-                offsets.push(yield log.addRecord(text));
+                const off = yield log.addRecord(text);
+                offsets.push(off);
+                data.set(off, text);
                 written += text.length;
             }
         }
@@ -97,8 +105,8 @@ module.exports = {
     Log() {
         const config = {
             databaseDir: tmp.dirSync().name,
-            logFileSize: 1 * 1024 * 1024,
-            cacheSize: 5 * 1024 * 1024
+            logFileSize: 0.5 * 1024 * 1024,
+            cacheSize: 2200
         };
         const log = Log.start(config);
         benchmark(log, fixture);

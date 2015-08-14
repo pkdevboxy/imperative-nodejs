@@ -72,7 +72,7 @@ module.exports = class FileStorage {
      */
     flush() {
         return this._dirty == null
-            ? Promise.resovle()
+            ? Promise.resolve()
             : fs.writeFileAsync(this._pathToFile(this._dirty.name),
                                 this._dirty.buffer);
     }
@@ -96,13 +96,4 @@ function zeroBuffer(size) {
     const buf = new Buffer(size);
     buf.fill(0);
     return buf;
-}
-
-function readCString(buffer) {
-    for (let i = 0; i < buffer.length; i++) {
-        if (buffer[i] === 0) {
-            return buffer.slice(0, i);
-        }
-    }
-    return buffer;
 }

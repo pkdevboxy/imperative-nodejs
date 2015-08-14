@@ -1,6 +1,6 @@
 const LRU = require("lru-cache");
 const Promise = require("bluebird");
-const {contract} = require("imp/contracts");
+const {contract, assert} = require("imp/contracts");
 const {go, AsyncQueue} = require("imp/async");
 const FileStorage = require("./file-storage");
 
@@ -81,14 +81,24 @@ module.exports = class Log {
      */
     fetchRecord(offset) {
         const fileName = this._fileIdForOffset(offset).toString();
-        const fileOffset = this._inFileOffset(offset);
         const result = this._cache.get(offset);
         if (result) {
             return Promise.resolve(result);
         }
-        return this._storage.readFromFile(fileName, fileOffset)
-            .then((result) => {
-                this._cache.set(offset, result);
+        return this._storage.readFile(fileName)
+            .then((data) => {
+                const startOffset = offset - this._inFileOffset(offset);
+                let result;
+                for (const {offset: relativeOffset, buffer} of extractRecords(data)) {
+                    const off = relativeOffset + startOffset;
+                    if (off === offset) {
+                        result = buffer;
+                    }
+                    this._cache.set(off, buffer);
+                }
+                if (result === undefined) {
+                    throw new Error(`no record with offset ${offset}`);
+                }
                 return result;
             });
     }
@@ -104,19 +114,12 @@ module.exports = class Log {
         }
 
         const file = (this._currentFile() - 1).toString();
-        let offset = 0;
-        let previousRecord = null;
         const self = this;
         return go(function* () {
-            while (offset < self._logFileSize) {
-                const record = yield self._storage.readFromFile(file, offset);
-                if (record.length === 0) {
-                    return previousRecord;
-                }
-                offset += record.length + 1;
-                previousRecord = record;
-            }
-            return previousRecord;
+            const data = yield self._storage.readFile(file);
+            const records = extractRecords(data);
+            assert(records.length > 0);
+            return records[records.length - 1].buffer;
         });
     }
 
@@ -152,9 +155,8 @@ module.exports = class Log {
                 try {
                     if (cmd === "write") {
                         yield self._ensureHasSpace(record);
-                        const fileName = self._currentFile().toString();
                         const fileOffset = self._currentInFileOffset();
-                        yield self._storage.writeToFile(fileName, record, fileOffset);
+                        yield self._storage.writeToFile(record, fileOffset);
 
                         const recordOffset = self._currentOffset;
                         yield self._increaseOffset(record.length);
@@ -242,4 +244,24 @@ function appendZeroByte(buffer) {
 
 function mb(x) {
     return 1024 * 1024 * x;
+}
+
+function extractRecords(data) {
+    const result = [];
+    let offset = 0;
+    // TODO: use indexOf when it is available ()
+    for (let i = 0; i < data.length; i++) {
+        if (data[i] === 0) {
+            if (i > offset) {
+                // copy instead of slice: does not leak memory
+                const buffer = new Buffer(data.slice(offset, i));
+                result.push({offset, buffer});
+            }
+            offset = i + 1;
+        }
+    }
+    assert(offset === data.length,
+           "last record should be null terminaterd");
+
+    return result;
 }

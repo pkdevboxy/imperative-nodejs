@@ -12,6 +12,7 @@
     "no-shadow": 0,
     "no-underscore-dangle": 0,
     "no-constant-condition": 0,
+    "semi": [2, "always"], // :(
     "comma-spacing": 2,
     "guard-for-in": 2,
     "no-unused-vars": [

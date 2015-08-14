@@ -4,6 +4,7 @@
     "node": true,
     "mocha": true
   },
+  "extends": "eslint:recommended",
   "rules": {
     "no-process-exit": 0,
     "no-use-before-define": 0,
@@ -11,6 +12,7 @@
     "no-shadow": 0,
     "no-underscore-dangle": 0,
     "no-constant-condition": 0,
+    "comma-spacing": 2,
     "guard-for-in": 2,
     "no-unused-vars": [
       2,

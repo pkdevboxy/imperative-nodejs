@@ -20,7 +20,7 @@ class LruImmutable {
         return this._map.get(key);
     }
 
-    put(key, value) {
+    set(key, value) {
         if (this._map.size < this.capacity || this._map.has(key)) {
             return [undefined, this._update({map: this._map.set(key, value)})];
         }
@@ -78,7 +78,7 @@ class LruMori {
             return [undefined, this];
         }
         const [, value] = mori.nth(entry, 1);
-        const [, newCache] = this.put(key, value);
+        const [, newCache] = this.set(key, value);
         return [value, newCache];
     }
 
@@ -91,7 +91,7 @@ class LruMori {
         return value;
     }
 
-    put(key, value) {
+    set(key, value) {
         const entry = mori.vector(this._nextIndex, [key, value]);
         const nextIndex = this._nextIndex + 1;
 

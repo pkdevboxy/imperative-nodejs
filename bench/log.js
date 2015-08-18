@@ -109,6 +109,6 @@ module.exports = {
             cacheSize: 2200
         };
         const log = Log.start(config);
-        benchmark(log, fixture);
+        return benchmark(log, fixture);
     }
 };

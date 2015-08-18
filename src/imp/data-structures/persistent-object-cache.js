@@ -27,11 +27,11 @@ module.exports = class PersistentObjectCache {
         return this._state.peek(key);
     }
 
-    put(key, value) {
+    set(key, value) {
         contract("key should not be null", key != null);
         contract("value should not be null", value != null);
 
-        this._state = this._state.put(key, value);
+        this._state = this._state.set(key, value);
         return this;
     }
 
@@ -84,9 +84,9 @@ class GenCache {
             [value, firstGeneration] = firstGeneration.delete(key);
             if (value !== undefined) {
                 let spilled;
-                [spilled, secondGeneration] = secondGeneration.put(key, value);
+                [spilled, secondGeneration] = secondGeneration.set(key, value);
                 if (spilled !== undefined) {
-                    [, firstGeneration] = firstGeneration.put(...spilled);
+                    [, firstGeneration] = firstGeneration.set(...spilled);
                 }
             }
         }
@@ -101,12 +101,12 @@ class GenCache {
             : this._firstGeneration.peek(key);
     }
 
-    put(key, value) {
+    set(key, value) {
         if (this._secondGeneration.has(key)) {
             return new GenCache(this._firstGeneration,
-                                this._secondGeneration.put(key, value)[1]);
+                                this._secondGeneration.set(key, value)[1]);
         }
-        const [, firstGeneration] = this._firstGeneration.put(key, value);
+        const [, firstGeneration] = this._firstGeneration.set(key, value);
         return new GenCache(firstGeneration, this._secondGeneration);
     }
 

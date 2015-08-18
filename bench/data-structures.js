@@ -66,13 +66,13 @@ function benchmark(cache, {initialData, requests}) {
             misses += 1;
             doWork();
             const value = state.get(key);
-            cache.put(key, value);
+            cache.set(key, value);
             return value;
         },
 
-        put(key, value) {
+        set(key, value) {
             doWork();
-            cache.put(key, value);
+            cache.set(key, value);
             state.set(key, value);
         }
     };
@@ -83,7 +83,7 @@ function benchmark(cache, {initialData, requests}) {
         if (type === READ) {
             store.get(key);
         } else {
-            store.put(key, data);
+            store.set(key, data);
         }
     }
     console.timeEnd(tag);

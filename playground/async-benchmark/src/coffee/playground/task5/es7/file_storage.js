@@ -12,7 +12,8 @@ function zeroBuffer(size) {
 
 
 function readCString(buffer) {
-    for (let i = 0; i < buffer.length; i++) {
+    const length = buffer.length;
+    for (let i = 0; i < length; i++) {
         if (buffer[i] === 0) {
             return buffer.slice(0, i);
         }

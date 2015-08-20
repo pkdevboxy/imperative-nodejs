@@ -247,7 +247,8 @@ function extractRecords(data) {
     const result = [];
     let offset = 0;
     // TODO: use indexOf when it is available ()
-    for (let i = 0; i < data.length; i++) {
+    const length = data.length;
+    for (let i = 0; i < length; i++) {
         if (data[i] === 0) {
             if (i > offset) {
                 // copy instead of slice: does not leak memory
